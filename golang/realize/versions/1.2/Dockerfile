@@ -1,6 +1,6 @@
 # realize v1.2
 #
-# docker run --rm -v $GOPATH/src:/go/src -w /go/src/github.com/your-account/project supinf/realize run
+# docker run --rm -v $GOPATH/src:/go/src -w /go/src/github.com/your-account/project supinf/go-realize run
 
 FROM supinf/go:1.8
 

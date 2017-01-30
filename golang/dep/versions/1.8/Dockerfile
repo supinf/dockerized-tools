@@ -1,6 +1,6 @@
 # golang/dep (go v1.8)
 #
-# docker run --rm -v $GOPATH/src:/go/src -w /go/src/github.com/your-account/project supinf/dep ensure
+# docker run --rm -v $GOPATH/src:/go/src -w /go/src/github.com/your-account/project supinf/go-dep ensure
 
 FROM alpine:3.5
 
