@@ -1,4 +1,4 @@
-# Golang v1.8rc3
+# Golang v1.8rc3 only with runtime & compiler
 
 FROM alpine:3.5
 
@@ -30,6 +30,11 @@ RUN apk --no-cache add --virtual build-dependencies bash gcc musl-dev openssl go
     && find / -depth -type f -name *README* -exec rm -f {} \; \
     && rm -rf /usr/local/go/doc /usr/local/go/api /usr/local/go/misc/trace \
         /go/src/* /var/cache/* /var/lib/apk* \
-    && apk del --purge -r build-dependencies
+    && apk del --purge -r build-dependencies \
+
+    # Remove tools
+    && cd /usr/local/go/pkg/tool/linux_amd64/ \
+    && rm -f [^acl]* a[^s]* cover \
+    && rm -f /usr/local/go/bin/gofmt
 
 CMD ["go", "version"]

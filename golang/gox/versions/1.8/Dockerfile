@@ -2,9 +2,8 @@
 #
 # docker run --rm -v $GOPATH/src:/go/src -w /go/src/github.com/your-account/project supinf/go-gox --osarch "linux/amd64" -output "dist/{{.OS}}_{{.Arch}}"
 
-FROM supinf/go:1.8
+FROM supinf/go:1.8-builder
 
-RUN apk --no-cache add g++
 RUN apk --no-cache add --virtual build-dependencies git \
 
     # Install gox
@@ -12,7 +11,7 @@ RUN apk --no-cache add --virtual build-dependencies git \
 
     # Clean up
     && apk del --purge -r build-dependencies \
-    && rm -rf /go/src/* /go/pkg
+    && rm -rf /go/src/*
 
 ENTRYPOINT ["gox"]
 CMD ["-h"]

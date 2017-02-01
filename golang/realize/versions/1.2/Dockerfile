@@ -6,18 +6,17 @@ FROM supinf/go:1.8
 
 ENV REALIZE_VERSION=1.2.2
 
-RUN apk --no-cache add g++
 RUN apk --no-cache add --virtual build-dependencies git \
 
     # Compile realize
     && go get github.com/tockins/realize \
     && cd /go/src/github.com/tockins/realize \
     && git checkout v${REALIZE_VERSION} \
-    && go install \
+    && go install github.com/tockins/realize \
 
     # Clean up
     && apk del --purge -r build-dependencies \
-    && rm -rf /go/src/* /go/pkg
+    && rm -rf /go/src/*
 
 ENTRYPOINT ["realize"]
 CMD ["-h"]
