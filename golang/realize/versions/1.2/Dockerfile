@@ -18,5 +18,7 @@ RUN apk --no-cache add --virtual build-dependencies git \
     && apk del --purge -r build-dependencies \
     && rm -rf /go/src/*
 
+RUN apk --no-cache add gcc musl-dev
+
 ENTRYPOINT ["realize"]
 CMD ["-h"]
