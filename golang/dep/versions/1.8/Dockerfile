@@ -4,7 +4,9 @@
 
 FROM alpine:3.5
 
-ENV GOPATH=/go
+# Commit at Feb 13, 2017, 18:42 PM
+ENV GODEP_VERSION=82f15142736267690ad3dad1f8075643b13c2e7b \
+    GOPATH=/go
 
 WORKDIR /go/src
 
@@ -12,9 +14,9 @@ RUN apk --no-cache add git
 RUN apk --no-cache add --virtual build-dependencies bash gcc musl-dev openssl go \
 
     # Install go 1.8
-    && GOLANG_VERSION=1.8rc3 \
+    && GOLANG_VERSION=1.8 \
     && GOLANG_SRC_URL=https://golang.org/dl/go$GOLANG_VERSION.src.tar.gz \
-    && GOLANG_SRC_SHA256=38b1c1738f111f7bccdd372efca2aa98a7bad1ca2cb21767ba69f34ae007499c \
+    && GOLANG_SRC_SHA256=406865f587b44be7092f206d73fc1de252600b79b3cacc587b74b5ef5c623596 \
     && export GOROOT_BOOTSTRAP="$(go env GOROOT)" \
     && wget -q "$GOLANG_SRC_URL" -O golang.tar.gz \
     && echo "$GOLANG_SRC_SHA256  golang.tar.gz" | sha256sum -c - \
@@ -27,6 +29,9 @@ RUN apk --no-cache add --virtual build-dependencies bash gcc musl-dev openssl go
 
     # Compile golang/dep
     && go get -u github.com/golang/dep/... \
+    && cd /go/src/github.com/golang/dep \
+    && git checkout ${GODEP_VERSION} \
+    && go install github.com/golang/dep/... \
     && mv /go/bin/dep /usr/bin \
 
     # Clean up
