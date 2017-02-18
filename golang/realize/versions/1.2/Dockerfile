@@ -7,6 +7,7 @@ FROM supinf/go:1.8
 ENV REALIZE_VERSION=1.2.2
 
 RUN apk --no-cache add --virtual build-dependencies git \
+    && git config --global http.https://gopkg.in.followRedirects true \
 
     # Compile realize
     && go get github.com/tockins/realize \
