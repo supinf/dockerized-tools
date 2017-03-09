@@ -1,12 +1,11 @@
 # Gulp v3.9.1
 
-FROM alpine:3.5
+FROM node:7.7.1-alpine
 
 ENV GULP_VERSION=3.9.1 \
-    NODE_VERSION=7.2.1-r1 \
     DOCKER_VERSION=1.13.0
 
-RUN apk --no-cache add tini ca-certificates nodejs-current=${NODE_VERSION} \
+RUN apk --no-cache add tini ca-certificates \
 
     # Install Gulp
     && npm install --global "gulp@${GULP_VERSION}" \
