@@ -1,6 +1,11 @@
 import os
 import urllib.request
 
-with urllib.request.urlopen(os.getenv("ENDPOINT")) as response:
-   body = response.read()
-assert(os.getenv("EXPECT") in body.decode("utf-8"))
+body = ""
+try:
+    with urllib.request.urlopen(os.getenv("ENDPOINT")) as response:
+        candidate = response.read()
+    body = candidate.decode("utf-8")
+except:
+    pass
+assert(os.getenv("EXPECT") in body)
