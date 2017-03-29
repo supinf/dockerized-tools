@@ -6,7 +6,7 @@
 
 FROM java:openjdk-8-jre-alpine
 
-ENV FLYWAY_VERSION=4.1.1
+ENV FLYWAY_VERSION=4.1.2
 
 ADD flyway /usr/bin/
 
@@ -18,7 +18,7 @@ RUN apk --no-cache add --virtual build-deps curl \
     && repo="https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline" \
     && curl --location --silent --show-error --out /flyway.tar.gz \
         ${repo}/${FLYWAY_VERSION}/flyway-commandline-${FLYWAY_VERSION}.tar.gz \
-    && sha1="e5719522d67154552d625ca36465568aa118838d" \
+    && sha1="93b38bf66d13b80531ea1cc37d46c4839e862073" \
     && echo "$sha1  flyway.tar.gz" | sha1sum -c - \
     && tar xzf /flyway.tar.gz \
     && mv /flyway-${FLYWAY_VERSION} /flyway \
