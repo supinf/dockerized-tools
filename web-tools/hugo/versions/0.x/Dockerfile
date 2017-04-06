@@ -7,6 +7,8 @@ FROM alpine:3.5
 
 ENV HUGO_VERSION=0.19
 
+RUN apk --no-cache add tini
+
 RUN apk --no-cache add --virtual build-dependencies wget ca-certificates \
   && wget -q https://github.com/spf13/hugo/releases/download/v${HUGO_VERSION}/hugo_${HUGO_VERSION}_Linux-64bit.tar.gz \
   && tar xvf hugo_${HUGO_VERSION}_Linux-64bit.tar.gz \
@@ -15,5 +17,5 @@ RUN apk --no-cache add --virtual build-dependencies wget ca-certificates \
 
 WORKDIR /app
 
-ENTRYPOINT ["hugo"]
+ENTRYPOINT ["/sbin/tini", "--", "hugo"]
 CMD ["--help"]
