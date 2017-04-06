@@ -1,7 +1,7 @@
 # hugo v0.x
 # docker run --rm supinf/hugo version
 # docker run --rm -it -v $(pwd):/app supinf/hugo new site www
-# docker run --rm -it -v $(pwd)/www:/app -p 80:1313 supinf/hugo server --bind 0.0.0.0 -w --buildDrafts
+# docker run --rm -it -v $(pwd)/www:/app -p 80:80 supinf/hugo server --bind=0.0.0.0 -p=80 --appendPort=false
 
 FROM alpine:3.5
 
