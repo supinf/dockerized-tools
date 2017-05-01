@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+ram=$(free -g --si | awk '/^Mem:/{print $2}')
+if [ ${ram} -gt 6 ]; then
+    MX="4g"
+elif [ ${ram} -gt 2 ]; then
+    MX="2g"
+else
+    MX="1g"
+fi
+
+cp="/flyway/lib/*:/flyway/drivers/*"
+
+java ${FLYWAY_JAVA_OPTS:--Xms128m -Xmx${MX}} -cp "$cp" org.flywaydb.commandline.Main "$@"
+exit $?
