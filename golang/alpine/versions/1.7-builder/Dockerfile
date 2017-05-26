@@ -1,6 +1,6 @@
 # Golang v1.7.5 only with runtime & compiler
 
-FROM alpine:3.5
+FROM alpine:3.6
 
 ENV GOPATH=/go \
     PATH=/go/bin:/usr/local/go/bin:$PATH
@@ -10,9 +10,9 @@ WORKDIR /go/src
 RUN apk --no-cache add --virtual build-dependencies bash gcc musl-dev openssl go git \
 
     # Install go 1.7
-    && GOLANG_VERSION=1.7.5 \
+    && GOLANG_VERSION=1.7.6 \
     && GOLANG_SRC_URL=https://golang.org/dl/go$GOLANG_VERSION.src.tar.gz \
-    && GOLANG_SRC_SHA256=4e834513a2079f8cbbd357502cccaac9507fd00a1efe672375798858ff291815 \
+    && GOLANG_SRC_SHA256=1a67a4e688673fdff7ba41e73482b0e59ac5bd0f7acf703bc6d50cc775c5baba \
     && export GOROOT_BOOTSTRAP="$(go env GOROOT)" \
     && wget -q "$GOLANG_SRC_URL" -O golang.tar.gz \
     && echo "$GOLANG_SRC_SHA256  golang.tar.gz" | sha256sum -c - \
