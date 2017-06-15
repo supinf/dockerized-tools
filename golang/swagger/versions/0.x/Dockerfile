@@ -6,8 +6,8 @@
 
 FROM alpine:3.6
 
-# Commit at May 22, 2017, 02:20 AM
-ENV SWAGGER_VERSION=a8365027ee3ff55ad46a33574f5551e93a417209 \
+# Commit at Feb 16, 2017, 06:57 AM
+ENV SWAGGER_VERSION=54d23b6fa46c29ccb7e834154e2f0c0fba33f0d1 \
     GOPATH=/go
 
 RUN apk --no-cache add --virtual build-dependencies bash gcc musl-dev openssl go git \
