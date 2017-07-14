@@ -17,7 +17,7 @@ RUN apk --no-cache add --virtual build-dependencies bash gcc musl-dev openssl go
     && wget -q "$GOLANG_SRC_URL" -O golang.tar.gz \
     && echo "$GOLANG_SRC_SHA256  golang.tar.gz" | sha256sum -c - \
     && tar -C /usr/local -xzf golang.tar.gz \
-    && wget -q https://raw.githubusercontent.com/docker-library/golang/master/1.8/alpine/no-pic.patch \
+    && wget -q https://raw.githubusercontent.com/docker-library/golang/master/1.8/alpine3.6/no-pic.patch \
     && cd /usr/local/go/src \
     && patch -p2 -i /go/src/no-pic.patch \
     && ./make.bash \
