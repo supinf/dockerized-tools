@@ -6,21 +6,21 @@
 
 FROM alpine:3.6
 
-# Commit at Apr 23, 2017, 07:15 AM
-ENV SWAGGER_VERSION=4d1e79b5a98c6f67bbf06923643d5317ed37a058 \
+# Commit at Sep 12, 2017, 03:43 PM
+ENV SWAGGER_VERSION=86ecac7286edd372919e7ec45d98bf132c78ca3e \
     GOPATH=/go
 
 RUN apk --no-cache add --virtual build-dependencies bash gcc musl-dev openssl go git \
 
-    # Install go 1.8
-    && GOLANG_VERSION=1.8.3 \
-    && GOLANG_SRC_URL=https://golang.org/dl/go$GOLANG_VERSION.src.tar.gz \
-    && GOLANG_SRC_SHA256=5f5dea2447e7dcfdc50fa6b94c512e58bfba5673c039259fd843f68829d99fa6 \
+    # Install go 1.9
+    && GOLANG_VERSION=1.9 \
+    && GOLANG_SRC_URL=https://storage.googleapis.com/golang/go$GOLANG_VERSION.src.tar.gz \
+    && GOLANG_SRC_SHA256=a4ab229028ed167ba1986825751463605264e44868362ca8e7accc8be057e993 \
     && export GOROOT_BOOTSTRAP="$(go env GOROOT)" \
     && wget -q "$GOLANG_SRC_URL" -O golang.tar.gz \
     && echo "$GOLANG_SRC_SHA256  golang.tar.gz" | sha256sum -c - \
     && tar -C /usr/local -xzf golang.tar.gz \
-    && wget -q https://raw.githubusercontent.com/docker-library/golang/master/1.8/alpine/no-pic.patch \
+    && wget -q https://raw.githubusercontent.com/docker-library/golang/master/1.9/alpine3.6/no-pic.patch \
     && cd /usr/local/go/src \
     && patch -p2 -i /no-pic.patch \
     && ./make.bash \
