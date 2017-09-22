@@ -3,7 +3,7 @@
 var path = require('path');
 var mockApi = require('swagger-mock-api');
 
-module.exports = function(grunt) {
+module.exports = function (grunt) {
 
   grunt.initConfig({
     connect: {
@@ -23,7 +23,7 @@ module.exports = function(grunt) {
                 }
             },
             mockApi({
-                swaggerFile: '/api/swagger.yaml',
+                swaggerFile: (process.env.SWAGGER_YAML_PATH || '/api/swagger.yaml'),
                 watch: true
             })
           ]
