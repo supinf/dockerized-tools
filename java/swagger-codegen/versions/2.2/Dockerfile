@@ -1,6 +1,8 @@
 # swagger-codegen v2.2
 #
 # docker run --rm supinf/swagger-codegen:2.2
+# docker run --rm -v $(pwd)/spec:/spec supinf/swagger-codegen:2.2 \
+#    validate -i /spec/swagger.yaml
 # docker run --rm -it -v `pwd`:/src supinf/swagger-codegen:2.2 \
 #    generate -i /src/swagger.yaml -o /src/generated -l javascript
 
