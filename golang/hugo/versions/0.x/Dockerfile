@@ -11,9 +11,10 @@ RUN apk --no-cache add tini
 
 RUN apk --no-cache add --virtual build-dependencies wget ca-certificates \
   && wget -q https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_${HUGO_VERSION}_Linux-64bit.tar.gz \
-  && tar xvf hugo_${HUGO_VERSION}_Linux-64bit.tar.gz \
-  && mv hugo_${HUGO_VERSION}_linux_amd64/hugo_${HUGO_VERSION}_linux_amd64 /usr/bin/hugo \
-  && apk del --purge build-dependencies
+  && tar xvf hugo_${HUGO_VERSION}_Linux-64bit.tar.gz -C /tmp \
+  && mv /tmp/hugo /usr/bin/hugo \
+  && apk del --purge build-dependencies \
+  && rm -rf /tmp/*
 
 WORKDIR /app
 
