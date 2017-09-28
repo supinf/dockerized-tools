@@ -5,7 +5,7 @@
 
 FROM alpine:3.5
 
-ENV HUGO_VERSION=0.19
+ENV HUGO_VERSION=0.29
 
 RUN apk --no-cache add tini
 
