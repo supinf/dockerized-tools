@@ -10,9 +10,9 @@ WORKDIR /go/src
 RUN apk --no-cache add --virtual build-dependencies bash gcc musl-dev openssl go git \
 
     # Install go 1.8
-    && GOLANG_VERSION=1.8.3 \
+    && GOLANG_VERSION=1.8.4 \
     && GOLANG_SRC_URL=https://golang.org/dl/go$GOLANG_VERSION.src.tar.gz \
-    && GOLANG_SRC_SHA256=5f5dea2447e7dcfdc50fa6b94c512e58bfba5673c039259fd843f68829d99fa6 \
+    && GOLANG_SRC_SHA256=abf1b2e5ae2a4845f3d2eac00c7382ff209e2c132dc35b7ce753da9b4f52e59f \
     && export GOROOT_BOOTSTRAP="$(go env GOROOT)" \
     && wget -q "$GOLANG_SRC_URL" -O golang.tar.gz \
     && echo "$GOLANG_SRC_SHA256  golang.tar.gz" | sha256sum -c - \
