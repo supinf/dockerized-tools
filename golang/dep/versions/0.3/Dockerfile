@@ -5,8 +5,9 @@
 
 FROM alpine:3.6
 
-ENV GODEP_VERSION=v0.3.1 \
-    GOPATH=/go
+ENV GODEP_VERSION=v0.3.2 \
+    GOPATH=/go \
+    PATH=/go/bin:/usr/local/go/bin:$PATH
 
 WORKDIR /go/src
 
@@ -14,9 +15,9 @@ RUN apk --no-cache add git
 RUN apk --no-cache add --virtual build-dependencies bash gcc musl-dev openssl go \
 
     # Install go 1.9
-    && GOLANG_VERSION=1.9.1 \
+    && GOLANG_VERSION=1.9.2 \
     && GOLANG_SRC_URL=https://golang.org/dl/go$GOLANG_VERSION.src.tar.gz \
-    && GOLANG_SRC_SHA256=a84afc9dc7d64fe0fa84d4d735e2ece23831a22117b50dafc75c1484f1cb550e \
+    && GOLANG_SRC_SHA256=665f184bf8ac89986cfd5a4460736976f60b57df6b320ad71ad4cef53bb143dc \
     && export GOROOT_BOOTSTRAP="$(go env GOROOT)" \
     && wget -q "$GOLANG_SRC_URL" -O golang.tar.gz \
     && echo "$GOLANG_SRC_SHA256  golang.tar.gz" | sha256sum -c - \
@@ -25,6 +26,7 @@ RUN apk --no-cache add --virtual build-dependencies bash gcc musl-dev openssl go
     && cd /usr/local/go/src \
     && patch -p2 -i /go/src/no-pic.patch \
     && ./make.bash \
+    && mkdir -p /go/src \
     && chmod -R 777 /go \
 
     # Compile golang/dep
