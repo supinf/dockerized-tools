@@ -6,16 +6,15 @@
 
 FROM alpine:3.6
 
-# Commit at Sep 12, 2017, 03:11 PM
-ENV SWAGGER_VERSION=68ea41dcf206410c74d397d3bbff42aedff35e4d \
+ENV SWAGGER_VERSION=0.13.0 \
     GOPATH=/go
 
 RUN apk --no-cache add --virtual build-dependencies bash gcc musl-dev openssl go git \
 
     # Install go 1.9
-    && GOLANG_VERSION=1.9 \
-    && GOLANG_SRC_URL=https://storage.googleapis.com/golang/go$GOLANG_VERSION.src.tar.gz \
-    && GOLANG_SRC_SHA256=a4ab229028ed167ba1986825751463605264e44868362ca8e7accc8be057e993 \
+    && GOLANG_VERSION=1.9.2 \
+    && GOLANG_SRC_URL=https://golang.org/dl/go$GOLANG_VERSION.src.tar.gz \
+    && GOLANG_SRC_SHA256=665f184bf8ac89986cfd5a4460736976f60b57df6b320ad71ad4cef53bb143dc \
     && export GOROOT_BOOTSTRAP="$(go env GOROOT)" \
     && wget -q "$GOLANG_SRC_URL" -O golang.tar.gz \
     && echo "$GOLANG_SRC_SHA256  golang.tar.gz" | sha256sum -c - \
