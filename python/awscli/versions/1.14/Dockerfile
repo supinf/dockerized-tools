@@ -2,7 +2,8 @@
 
 FROM alpine:3.6
 
-ENV PAGER=less
+ENV PAGER=less \
+    LESS="-eirMX"
 
 RUN apk --no-cache add python less
 RUN apk --no-cache add --virtual build-dependencies py2-pip \
