@@ -3,6 +3,6 @@
 
 FROM centos:7.4.1708
 
-RUN yum install -y sysstat==10.1.5
+RUN yum install -y sysstat
 
 WORKDIR /work
