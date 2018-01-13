@@ -13,8 +13,7 @@ https://github.com/GoogleCloudPlatform/container-structure-test
 ### Configure
 
 ```
-$ mkdir config
-$ cat << EOF > config/test.yaml
+$ cat << EOF > test.yaml
 schemaVersion: '2.0.0'
 fileExistenceTests:
 - name: 'binary'
@@ -34,6 +33,6 @@ EOF
 
 ```
 $ docker run --rm --privileged -v /var/run/docker.sock:/var/run/docker.sock \
-    -v $(pwd)/config:/config supinf/container-struct-test:0.1 \
+    -v $(pwd):/config supinf/container-struct-test:0.1 \
     -image supinf/awscli:1.14 /config/test.yaml
 ```
