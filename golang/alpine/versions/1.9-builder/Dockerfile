@@ -1,6 +1,6 @@
 # Golang v1.9 only with runtime & compiler
 
-FROM alpine:3.6
+FROM alpine:3.7
 
 ENV GOPATH=/go \
     PATH=/go/bin:/usr/local/go/bin:$PATH
@@ -10,14 +10,14 @@ WORKDIR /go/src
 RUN apk --no-cache add --virtual build-dependencies bash gcc musl-dev openssl go git \
 
     # Install go 1.9
-    && GOLANG_VERSION=1.9.2 \
+    && GOLANG_VERSION=1.9.4 \
     && GOLANG_SRC_URL=https://golang.org/dl/go$GOLANG_VERSION.src.tar.gz \
-    && GOLANG_SRC_SHA256=665f184bf8ac89986cfd5a4460736976f60b57df6b320ad71ad4cef53bb143dc \
+    && GOLANG_SRC_SHA256=0573a8df33168977185aa44173305e5a0450f55213600e94541604b75d46dc06 \
     && export GOROOT_BOOTSTRAP="$(go env GOROOT)" \
     && wget -q "$GOLANG_SRC_URL" -O golang.tar.gz \
     && echo "$GOLANG_SRC_SHA256  golang.tar.gz" | sha256sum -c - \
     && tar -C /usr/local -xzf golang.tar.gz \
-    && wget -q https://raw.githubusercontent.com/docker-library/golang/master/1.9/alpine3.6/no-pic.patch \
+    && wget -q https://raw.githubusercontent.com/docker-library/golang/master/1.9/alpine3.7/no-pic.patch \
     && cd /usr/local/go/src \
     && patch -p2 -i /go/src/no-pic.patch \
     && ./make.bash \
