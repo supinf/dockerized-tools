@@ -2,7 +2,7 @@
 #
 # docker run --rm supinf/container-struct-test:0.1 -h
 # docker run --rm --privileged -v /var/run/docker.sock:/var/run/docker.sock \
-#     -v $(pwd)/config:/config supinf/container-struct-test:0.1 \
+#     -v $(pwd):/config supinf/container-struct-test:0.1 \
 #     -image supinf/awscli:1.14 /config/test.yaml
 
 FROM docker:17.09-dind
