@@ -1,6 +1,6 @@
-# GoogleCloudPlatform/container-structure-test
+# Go Meta Linter
 
-https://github.com/GoogleCloudPlatform/container-structure-test
+https://github.com/alecthomas/gometalinter
 
 ## Supported tags and respective `Dockerfile` links:
 
