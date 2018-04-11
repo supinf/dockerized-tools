@@ -6,7 +6,7 @@
 
 FROM java:openjdk-8-jre-alpine
 
-ENV FLYWAY_VERSION=5.0.5
+ENV FLYWAY_VERSION=5.0.7
 
 ADD flyway /usr/bin/
 
