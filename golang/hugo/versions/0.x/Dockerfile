@@ -3,9 +3,9 @@
 # docker run --rm -it -v $(pwd):/app supinf/hugo new site www
 # docker run --rm -it -v $(pwd)/www:/app -p 80:80 supinf/hugo server --bind=0.0.0.0 -p=80 --appendPort=false
 
-FROM alpine:3.5
+FROM alpine:3.7
 
-ENV HUGO_VERSION=0.29
+ENV HUGO_VERSION=0.38.2
 
 RUN apk --no-cache add tini
 
