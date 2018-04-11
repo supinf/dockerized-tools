@@ -4,9 +4,8 @@ https://github.com/GoogleCloudPlatform/container-structure-test
 
 ## Supported tags and respective `Dockerfile` links:
 
-・latest ([cli-tools/container-structure-test/versions/0.2/Dockerfile](https://github.com/supinf/dockerized-tools/blob/master/cli-tools/container-structure-test/versions/0.2/Dockerfile))  
-・0.2 ([cli-tools/container-structure-test/versions/0.2/Dockerfile](https://github.com/supinf/dockerized-tools/blob/master/cli-tools/container-structure-test/versions/0.2/Dockerfile))  
-・0.1 ([cli-tools/container-structure-test/versions/0.1/Dockerfile](https://github.com/supinf/dockerized-tools/blob/master/cli-tools/container-structure-test/versions/0.1/Dockerfile))  
+・latest ([cli-tools/container-structure-test/versions/1.1/Dockerfile](https://github.com/supinf/dockerized-tools/blob/master/cli-tools/container-structure-test/versions/1.1/Dockerfile))  
+・1.1 ([cli-tools/container-structure-test/versions/1.1/Dockerfile](https://github.com/supinf/dockerized-tools/blob/master/cli-tools/container-structure-test/versions/1.1/Dockerfile))  
 
 
 ## Usage
@@ -34,6 +33,6 @@ EOF
 
 ```
 $ docker run --rm --privileged -v /var/run/docker.sock:/var/run/docker.sock \
-    -v $(pwd):/config supinf/container-struct-test:0.2 \
-    -image supinf/awscli:1.14 /config/test.yaml
+    -v $(pwd):/config supinf/container-struct-test:1.1 test \
+    --config /config/test.yaml --image supinf/awscli:1.15 --pull
 ```
