@@ -1,29 +1,27 @@
 # gometalinter
 #
-# docker run --rm -v $(pwd):/go/src/github.com/your-name/project -w /go/src/github.com/your-name/project supinf/gometalinter
-# docker run --rm -v $(pwd):/go/src/github.com/your-name/project -w /go/src/github.com/your-name/project supinf/gometalinter --vendor --deadline 60s --disable-all --enable=megacheck --aggregate ./...
+# docker run --rm -v $(pwd):/go/src/github.com/your-name/project -w /go/src/github.com/your-name/project supinf/gometalinter:2.0
+# docker run --rm -v $(pwd):/go/src/github.com/your-name/project -w /go/src/github.com/your-name/project supinf/gometalinter:2.0 --vendor --deadline 60s --disable-all --enable=megacheck --aggregate ./...
 
-FROM alpine:3.6
+FROM alpine:3.7
 
-ENV METALINTER_VERSION=v2.0.2 \
+ENV METALINTER_VERSION=v2.0.5 \
     PATH=/go/bin:/usr/local/go/bin:$PATH \
     PAGER=less \
     GOPATH=/go
 
 RUN apk --no-cache add less
-RUN apk --no-cache add --virtual build-dependencies bash gcc musl-dev openssl go git \
+RUN apk --no-cache add --virtual build-deps bash gcc musl-dev openssl go git \
 
-    # Install go 1.9
-    && GOLANG_VERSION=1.9.2 \
+    # Install go 1.10
+    && GOLANG_VERSION=1.10.1 \
     && GOLANG_SRC_URL=https://golang.org/dl/go$GOLANG_VERSION.src.tar.gz \
-    && GOLANG_SRC_SHA256=665f184bf8ac89986cfd5a4460736976f60b57df6b320ad71ad4cef53bb143dc \
+    && GOLANG_SRC_SHA256=589449ff6c3ccbff1d391d4e7ab5bb5d5643a5a41a04c99315e55c16bbf73ddc \
     && export GOROOT_BOOTSTRAP="$(go env GOROOT)" \
     && wget -q "$GOLANG_SRC_URL" -O golang.tar.gz \
     && echo "$GOLANG_SRC_SHA256  golang.tar.gz" | sha256sum -c - \
     && tar -C /usr/local -xzf golang.tar.gz \
-    && wget -q https://raw.githubusercontent.com/docker-library/golang/master/1.9/alpine3.6/no-pic.patch \
     && cd /usr/local/go/src \
-    && patch -p2 -i /no-pic.patch \
     && ./make.bash \
     && mkdir -p /go/src \
     && chmod -R 777 /go \
@@ -36,7 +34,7 @@ RUN apk --no-cache add --virtual build-dependencies bash gcc musl-dev openssl go
     && gometalinter --install \
 
     # Clean up
-    && apk del --purge -r build-dependencies \
+    && apk del --purge -r build-deps \
     && find /usr/local/go -depth -type d -name testdata -exec rm -rf {} \; \
     && find / -depth -type f -name "*_test.go" -exec rm -f {} \; \
     && find / -depth -type f -name README.md -exec rm -f {} \; \
