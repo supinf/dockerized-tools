@@ -1,7 +1,8 @@
 # ShellCheck http://www.shellcheck.net
 # docker run --rm -it -v $(pwd):/work supinf/shellcheck
+# docker run --rm -it -v $(pwd):/work -e IGNORE_PATH=/vendor/ supinf/shellcheck
 
-FROM alpine:3.6
+FROM alpine:3.7
 
 ENV SHELLCHECK_VERSION=v0.4.7
 
