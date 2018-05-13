@@ -4,24 +4,18 @@
         "es6": true
     },
     "extends": [
-        "eslint:recommended",
-        "plugin:react/recommended"
+        "eslint:recommended"
+    ],
+    "plugins": [
+        "vue"
     ],
     "parserOptions": {
+        "ecmaVersion": 9,
         "ecmaFeatures": {
             "experimentalObjectRestSpread": true,
-            "modules": true,
-            "jsx": true
+            "modules": true
         },
         "sourceType": "module"
-    },
-    "plugins": [
-        "react"
-    ],
-    "settings": {
-      "react": {
-        "pragma": "React"
-      }
     },
     "rules": {
         "indent": [
@@ -29,12 +23,11 @@
         ]
     },
     "globals": {
+      "document": true,
+      "navigator": true,
+      "window": true,
       "jQuery": true,
       "$": true,
-      "React": true,
-      "ReactDOM": true
-    },
-    "envs": [
-      "browser"
-    ]
+      "Vue": true
+    }
 }

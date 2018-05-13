@@ -2,7 +2,6 @@
 
 var browserify = require('browserify');
 var gulp = require('gulp');
-var gutil = require('gulp-util');
 var shell = require('gulp-shell');
 var autoprefixer = require("gulp-autoprefixer");
 var plumber = require("gulp-plumber");
@@ -10,24 +9,12 @@ var rename = require('gulp-rename');
 var sass = require("gulp-sass");
 var uglify = require("gulp-uglify");
 var eslint = require('gulp-eslint');
-var reactify = require('reactify');
-var through  = require('through2');
-var buffer = require('vinyl-buffer');
+var through = require('through2');
 
-gulp.task("react", function() {
-  var browserified = through.obj(function(file, enc, next) {
-      browserify(file.path)
-          .transform(reactify)
-          .bundle(function(err, res) {
-              file.contents = res;
-              next(null, file);
-          }
-      );
-  });
-  gulp.src('/monitor/app/assets/js/**/*.jsx')
-      .pipe(eslint({config: 'sample-eslint.json'}))
+gulp.task("js", function() {
+  gulp.src('/monitor/app/assets/js/**/*.vue')
+      .pipe(eslint('/etc/eslint/eslint.json'))
       .pipe(eslint.formatEach('compact', process.stderr))
-      .pipe(browserified)
       .pipe(rename({extname: '.js'}))
       .pipe(uglify())
       .pipe(gulp.dest("/monitor/app/assets/js/min"));
@@ -48,6 +35,6 @@ gulp.task("app", function() {
 
 gulp.task("default", function() {
     gulp.watch("/monitor/app/**/*.go", ["app"]);
-    gulp.watch("/monitor/app/assets/js/**/*.jsx", ["react"]);
+    gulp.watch("/monitor/app/assets/js/**/*.vue", ["js"]);
     gulp.watch("/monitor/app/assets/scss/**/*.scss", ["sass"]);
 });
