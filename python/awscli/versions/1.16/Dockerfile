@@ -1,4 +1,4 @@
-# AWS-CLI v1.15
+# AWS-CLI v1.16
 # docker run --rm pottava/awscli --version
 # docker run --rm -v $HOME/.aws:/root/.aws pottava/awscli sts get-caller-identity
 
@@ -10,7 +10,7 @@ ENV PAGER=less \
 RUN apk --no-cache add python3 less
 RUN apk --no-cache add --virtual build-dependencies py3-pip \
       && apk --no-cache add groff jq \
-      && pip3 install 'awscli == 1.15.85' \
+      && pip3 install 'awscli == 1.16.4' \
       && apk del --purge -r build-dependencies
 
 ENTRYPOINT ["aws"]
