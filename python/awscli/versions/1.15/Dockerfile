@@ -1,6 +1,6 @@
 # AWS-CLI v1.15
-# docker run --rm pottava/awscli --version
-# docker run --rm -v $HOME/.aws:/root/.aws pottava/awscli sts get-caller-identity
+# docker run --rm supinf/awscli:1.15 --version
+# docker run --rm -v $HOME/.aws:/root/.aws supinf/awscli:1.15 sts get-caller-identity
 
 FROM alpine:3.8
 
