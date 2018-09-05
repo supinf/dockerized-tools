@@ -1,6 +1,6 @@
 # Redash v4.0
 # docker run --rm -p 5000:5000 supinf/redash:4.0
-# docker run --rm -p 5000:5000 -e REDASH_MAIL_SERVER=email-smtp.us-east-1.amazonaws.com -e REDASH_MAIL_PORT=465 -e REDASH_MAIL_USE_TLS=true -e REDASH_MAIL_USERNAME=foo -e REDASH_MAIL_PASSWORD=bar -e REDASH_MAIL_DEFAULT_SENDER=no-reply@example.com supinf/redash:4.0
+# docker run --rm -p 5000:5000 -e REDASH_MAIL_SERVER=email-smtp.us-east-1.amazonaws.com -e REDASH_MAIL_PORT=465 -e REDASH_MAIL_USE_TLS=true -e REDASH_MAIL_USE_SSL=true -e REDASH_MAIL_USERNAME=user -e REDASH_MAIL_PASSWORD=pass -e REDASH_MAIL_DEFAULT_SENDER=no-reply@example.com supinf/redash:4.0
 
 FROM ubuntu:xenial-20180808
 
@@ -20,10 +20,10 @@ RUN apt-get update \
 # Solve server dependencies
 # @see https://github.com/getredash/docker/blob/master/base/Dockerfile
 RUN mkdir -p /var/cache/apt \
-    && apt-get install -y python python-pip libmysqlclient-dev libsasl2-dev \
+    && apt-get install -y python libmysqlclient-dev python-pip libsasl2-dev \
     && pip install -r requirements.txt -r requirements_all_ds.txt \
     && pip install -U setuptools==23.1.0 \
-    && apt-get remove --purge -y python-pip libmysqlclient-dev libsasl2-dev \
+    && apt-get remove --purge -y python-pip libsasl2-dev \
     && apt autoremove -y \
     && rm -rf /var/cache /root/.cache
 
