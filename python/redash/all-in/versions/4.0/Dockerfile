@@ -1,5 +1,5 @@
-# Redash v4.0
-# docker run --rm -p 5000:5000 supinf/redash:4.0
+# Redash v4.0 (All-in-One)
+# docker run --rm -p 5000:5000 -p 5432:5432 supinf/redash:4.0
 # docker run --rm -p 5000:5000 -e REDASH_MAIL_SERVER=email-smtp.us-east-1.amazonaws.com -e REDASH_MAIL_PORT=465 -e REDASH_MAIL_USE_TLS=true -e REDASH_MAIL_USE_SSL=true -e REDASH_MAIL_USERNAME=user -e REDASH_MAIL_PASSWORD=pass -e REDASH_MAIL_DEFAULT_SENDER=no-reply@example.com supinf/redash:4.0
 
 FROM supinf/redash:core-4.0
