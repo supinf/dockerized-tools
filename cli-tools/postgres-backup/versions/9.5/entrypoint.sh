@@ -16,5 +16,5 @@ fi
 if [ "x${SCHEDULE}" = "x" ]; then
   sh backup.sh
 else
-  exec go-cron "${SCHEDULE}" /bin/sh backup.sh
+  exec go-cron -s "${SCHEDULE}" -p 10080 -- /bin/sh backup.sh
 fi
