@@ -10,7 +10,7 @@ ENV PAGER=less \
 RUN apk --no-cache add python3 less
 RUN apk --no-cache add --virtual build-dependencies py3-pip \
       && apk --no-cache add groff jq \
-      && pip3 install 'awscli == 1.16.4' \
+      && pip3 install 'awscli == 1.16.10' \
       && apk del --purge -r build-dependencies
 
 ENTRYPOINT ["aws"]
