@@ -12,6 +12,15 @@ echo "Uploading the dump to ${S3_BUCKET}"
 now=$(date +"%Y-%m-%dT%H:%M:%SZ")
 key="s3://${S3_BUCKET}/${S3_PREFIX}${POSTGRES_DATABASE}_${now}.sql.gz"
 
+if [ "x${AWS_ACCESS_KEY_ID}" = "x" ]; then
+  credentials=$( curl -s "169.254.170.2${AWS_CONTAINER_CREDENTIALS_RELATIVE_URI}" )
+  if [ "x${credentials}" != "x" ]; then
+    export AWS_ACCESS_KEY_ID=$( echo "${credentials}" | jq -r '.AccessKeyId' )
+    export AWS_SECRET_ACCESS_KEY=$( echo "${credentials}" | jq -r '.SecretAccessKey' )
+    export AWS_SESSION_TOKEN=$( echo "${credentials}" | jq -r '.Token' )
+  fi
+fi
+
 if [ "${SERVER_SIDE_ENCRYPTION}" = "true" ]; then
   if [ "x${KMS_KEY_ID}" = "x" ]; then
     aws s3 cp --sse AES256 dump.sql.gz "${key}" || exit 2
