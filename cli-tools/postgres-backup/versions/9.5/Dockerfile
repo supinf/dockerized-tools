@@ -12,7 +12,9 @@ ENV SCHEDULE= \
     POSTGRES_EXTRA_OPTS= \
     AWS_DEFAULT_REGION=us-west-1 \
     S3_BUCKET= \
-    S3_PREFIX=
+    S3_PREFIX= \
+    SERVER_SIDE_ENCRYPTION=true \
+    KMS_KEY_ID=
 
 RUN apk --no-cache add postgresql python3
 
