@@ -16,18 +16,16 @@ ENV SCHEDULE= \
     SERVER_SIDE_ENCRYPTION=true \
     KMS_KEY_ID=
 
-RUN apk --no-cache add postgresql python3
+RUN apk --no-cache add postgresql python3 curl
 
 RUN apk --no-cache add --virtual build-deps py3-pip \
     && apk --no-cache add groff jq \
     && pip3 install 'awscli == 1.16.7' \
     && apk del --purge -r build-deps
 
-RUN apk --no-cache add --virtual build-deps curl ca-certificates \
-    && curl -L https://github.com/odise/go-cron/releases/download/v0.0.7/go-cron-linux.gz \
+RUN curl -L https://github.com/odise/go-cron/releases/download/v0.0.7/go-cron-linux.gz \
        | zcat > /usr/local/bin/go-cron \
-    && chmod +x /usr/local/bin/go-cron \
-    && apk del --purge -r build-deps
+    && chmod +x /usr/local/bin/go-cron
 
 ADD entrypoint.sh /
 ADD backup.sh /
