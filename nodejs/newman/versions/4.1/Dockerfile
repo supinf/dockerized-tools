@@ -12,7 +12,7 @@ RUN apk --no-cache add nodejs=${NODE_VERSION} \
     && apk --no-cache add --virtual build-deps npm=${NODE_VERSION} \
     && npm install --global "newman@${NEWMAN_VERSION}" \
     && : Clean up \
-    && apk del --purge -r build-dep \
+    && apk del --purge -r build-deps \
     && rm -rf /root/.npm \
        /usr/lib/node_modules/newman/node_modules/postman-collection-transformer/examples \
     && find / -depth -type d -name test* -exec rm -rf {} \; \
