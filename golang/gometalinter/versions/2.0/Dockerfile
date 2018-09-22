@@ -12,8 +12,8 @@ ENV METALINTER_VERSION=v2.0.11 \
 
 RUN apk --no-cache add less
 RUN apk --no-cache add --virtual build-deps bash gcc musl-dev openssl go git \
-
-    # Install go 1.11
+    && : \
+    && : Install go 1.11 \
     && GOLANG_VERSION=1.11 \
     && GOLANG_SRC_URL=https://golang.org/dl/go$GOLANG_VERSION.src.tar.gz \
     && GOLANG_SRC_SHA256=afc1e12f5fe49a471e3aae7d906c73e9d5b1fdd36d52d72652dde8f6250152fb \
@@ -25,20 +25,23 @@ RUN apk --no-cache add --virtual build-deps bash gcc musl-dev openssl go git \
     && ./make.bash \
     && mkdir -p /go/src \
     && chmod -R 777 /go \
-
-    # Install gometalinter
+    && : \
+    && : Install gometalinter \
     && go get -u github.com/alecthomas/gometalinter \
     && cd /go/src/github.com/alecthomas/gometalinter \
     && git checkout ${METALINTER_VERSION} \
     && go install github.com/alecthomas/gometalinter \
     && gometalinter --install \
-
-    # Clean up
+    && : \
+    && : Clean up \
     && apk del --purge -r build-deps \
     && find /usr/local/go -depth -type d -name testdata -exec rm -rf {} \; \
     && find / -depth -type f -name "*_test.go" -exec rm -f {} \; \
     && find / -depth -type f -name README.md -exec rm -f {} \; \
-    && rm -rf /var/cache/* /var/lib/apk* /golang.tar.gz
+    && find /usr/local/go -depth -type d -name vendor -exec rm -rf {} \; \
+    && find /usr/local/go -depth -type d -name go-build -exec rm -rf {} \; \
+    && rm -rf /root/.cache /usr/local/go/pkg/bootstrap /go/src/github.com \
+              /var/cache/* /var/lib/apk* /golang.tar.gz
 
 WORKDIR /go/src
 
