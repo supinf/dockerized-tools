@@ -5,7 +5,7 @@
 
 FROM alpine:3.8
 
-ENV METALINTER_VERSION=v2.0.5 \
+ENV METALINTER_VERSION=v2.0.11 \
     PATH=/go/bin:/usr/local/go/bin:$PATH \
     PAGER=less \
     GOPATH=/go
@@ -13,10 +13,10 @@ ENV METALINTER_VERSION=v2.0.5 \
 RUN apk --no-cache add less
 RUN apk --no-cache add --virtual build-deps bash gcc musl-dev openssl go git \
 
-    # Install go 1.10
-    && GOLANG_VERSION=1.10.3 \
+    # Install go 1.11
+    && GOLANG_VERSION=1.11 \
     && GOLANG_SRC_URL=https://golang.org/dl/go$GOLANG_VERSION.src.tar.gz \
-    && GOLANG_SRC_SHA256=567b1cc66c9704d1c019c50bef946272e911ec6baf244310f87f4e678be155f2 \
+    && GOLANG_SRC_SHA256=afc1e12f5fe49a471e3aae7d906c73e9d5b1fdd36d52d72652dde8f6250152fb \
     && export GOROOT_BOOTSTRAP="$(go env GOROOT)" \
     && wget -q "$GOLANG_SRC_URL" -O golang.tar.gz \
     && echo "$GOLANG_SRC_SHA256  golang.tar.gz" | sha256sum -c - \
