@@ -26,7 +26,6 @@ RUN apk --no-cache add --virtual build-dependencies bash gcc musl-dev openssl go
     && find /usr/local/go -depth -type d -name testdata -exec rm -rf {} \; \
     && find / -depth -type f -name *_test.go -exec rm -f {} \; \
     && find / -depth -type f -name *README* -exec rm -f {} \; \
-    && find /usr/local/go -depth -type d -name vendor -exec rm -rf {} \; \
     && find /usr/local/go -depth -type d -name go-build -exec rm -rf {} \; \
     && apk del --purge -r build-dependencies \
     && rm -rf /usr/local/go/doc /usr/local/go/api /usr/local/go/misc/trace \
