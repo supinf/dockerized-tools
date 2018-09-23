@@ -38,7 +38,6 @@ RUN apk --no-cache add --virtual build-deps bash gcc musl-dev openssl go git \
     && find /usr/local/go -depth -type d -name testdata -exec rm -rf {} \; \
     && find / -depth -type f -name "*_test.go" -exec rm -f {} \; \
     && find / -depth -type f -name README.md -exec rm -f {} \; \
-    && find /usr/local/go -depth -type d -name vendor -exec rm -rf {} \; \
     && find /usr/local/go -depth -type d -name go-build -exec rm -rf {} \; \
     && rm -rf /root/.cache /usr/local/go/pkg/bootstrap /go/src/github.com \
               /var/cache/* /var/lib/apk* /golang.tar.gz
