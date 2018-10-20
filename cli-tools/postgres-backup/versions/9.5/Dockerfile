@@ -14,7 +14,9 @@ ENV SCHEDULE= \
     S3_BUCKET= \
     S3_PREFIX= \
     SERVER_SIDE_ENCRYPTION=true \
-    KMS_KEY_ID=
+    KMS_KEY_ID= \
+    RESTORE_AFTER= \
+    RESTORE_FROM=
 
 RUN apk --no-cache add postgresql python3 curl
 
@@ -28,6 +30,7 @@ RUN curl -L https://github.com/odise/go-cron/releases/download/v0.0.7/go-cron-li
     && chmod +x /usr/local/bin/go-cron
 
 ADD entrypoint.sh /
+ADD restore.sh /
 ADD backup.sh /
-RUN chmod +x /entrypoint.sh /backup.sh
+RUN chmod +x /entrypoint.sh /restore.sh /backup.sh
 ENTRYPOINT ["/entrypoint.sh"]

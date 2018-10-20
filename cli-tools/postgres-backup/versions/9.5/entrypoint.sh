@@ -13,6 +13,12 @@ if [ "x${S3_BUCKET}" = "x" ]; then
   exit 1
 fi
 
+if [ "x${RESTORE_FROM}" != "x" ]; then
+  if [ "x${RESTORE_AFTER}" != "x" ]; then
+    sleep "${RESTORE_AFTER}"
+  fi
+  sh restore.sh
+fi
 if [ "x${SCHEDULE}" = "x" ]; then
   sh backup.sh
 else
