@@ -7,7 +7,8 @@ ENV GOLANGCI_LINT_VERSION=1.11.3 \
     PATH=/go/bin:/usr/local/go/bin:$PATH \
     GOPATH=/go
 
-RUN apk --no-cache add --virtual build-deps bash gcc musl-dev openssl go git \
+RUN apk --no-cache add gcc musl-dev
+RUN apk --no-cache add --virtual build-deps bash openssl go git \
     && : \
     && : Install go 1.11 \
     && GOLANG_VERSION=1.11.2 \
