@@ -1,5 +1,5 @@
 # CoreOS/Clair v2.0
-# docker run --rm -p 6060:6060 -p 6061:6061 supinf/clair:2.0
+# docker run --rm supinf/clair:2.0
 
 FROM golang:1.11.2-alpine3.8 AS build
 ENV CLAIR_VERSION=v2.0.7 \
@@ -12,6 +12,5 @@ RUN go build -ldflags "-s -w -X ${REPO}/pkg/version.Version=${CLAIR_VERSION}" "$
 
 FROM alpine:3.8
 COPY --from=build /go/src/github.com/coreos/clair/clair /clair
-RUN apk add --no-cache git rpm xz tini
-ENTRYPOINT ["/sbin/tini", "--"]
+RUN apk add --no-cache git rpm xz
 CMD ["/clair"]
