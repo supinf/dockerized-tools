@@ -1,8 +1,8 @@
-# flyway v5.0
+# flyway v5.2
 #
-# docker run --rm -v $(pwd)/conf:/flyway/conf supinf/flyway:5.0 info
-# docker run --rm -v $(pwd)/conf:/flyway/conf -v $(pwd)/migrations:/flyway/sql supinf/flyway:5.0 migrate
-# docker run --rm -v $(pwd)/conf:/flyway/conf -v $(pwd)/migrations:/flyway/sql -e FLYWAY_JAVA_OPTS="-Xms512m -Xmx2048m" supinf/flyway:5.0 migrate
+# docker run --rm -v $(pwd)/conf:/flyway/conf supinf/flyway:5.2 info
+# docker run --rm -v $(pwd)/conf:/flyway/conf -v $(pwd)/migrations:/flyway/sql supinf/flyway:5.2 migrate
+# docker run --rm -v $(pwd)/conf:/flyway/conf -v $(pwd)/migrations:/flyway/sql -e FLYWAY_JAVA_OPTS="-Xms512m -Xmx2048m" supinf/flyway:5.2 migrate
 
 FROM java:openjdk-8-jre-alpine
 
@@ -21,6 +21,9 @@ RUN apk --no-cache add --virtual build-deps curl \
     && tar xzf /flyway.tar.gz \
     && mv /flyway-${FLYWAY_VERSION} /flyway \
     && rm -rf /flyway.tar.gz \
+              /flyway/lib/enterprise \
+              /flyway/lib/pro \
+              /flyway/jre \
     && apk del --purge -r build-deps
 
 WORKDIR /flyway

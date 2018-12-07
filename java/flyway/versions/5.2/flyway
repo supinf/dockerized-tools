@@ -9,7 +9,8 @@ else
     MX="1g"
 fi
 
-cp="/flyway/lib/*:/flyway/drivers/*"
-
-java ${FLYWAY_JAVA_OPTS:--Xms128m -Xmx${MX}} -cp "$cp" org.flywaydb.commandline.Main "$@"
+java ${FLYWAY_JAVA_OPTS:--Xms128m -Xmx${MX}} \
+    -Djava.security.egd=file:/dev/../dev/urandom \
+    -cp "/flyway/lib/community/*:/flyway/drivers/*" \
+    org.flywaydb.commandline.Main "$@"
 exit $?
