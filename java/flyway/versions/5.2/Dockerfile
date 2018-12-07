@@ -15,7 +15,7 @@ RUN apk --no-cache add --virtual build-deps curl \
     && chmod +x /usr/bin/flyway \
     && repo="https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline" \
     && curl --location --silent --show-error --out /flyway.tar.gz \
-        ${repo}/${FLYWAY_VERSION}/flyway-commandline-${FLYWAY_VERSION}.tar.gz \
+        ${repo}/${FLYWAY_VERSION}/flyway-commandline-${FLYWAY_VERSION}-linux-x64.tar.gz \
     && sha1="c4b5f7ae3ec41221f78a126b0a1637942484fa3f" \
     && echo "$sha1  flyway.tar.gz" | sha1sum -c - \
     && tar xzf /flyway.tar.gz \
