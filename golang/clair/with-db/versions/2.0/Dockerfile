@@ -1,5 +1,9 @@
 # CoreOS/Clair v2.0 with PostgreSQL
-# docker run --rm -i -p 6060:6060 -p 6061:6061 -p 5432:5432 supinf/clair:2.0-with-db
+#
+# docker run --rm -p 6060:6060 supinf/clair:2.0-with-db
+# docker run --rm -p 6060:6060 -p 6061:6061 -p 5432:5432 supinf/clair:2.0-with-db
+# @see https://github.com/coreos/clair/blob/master/config.yaml.sample
+# with Klar: CLAIR_ADDR=localhost CLAIR_OUTPUT=Low CLAIR_THRESHOLD=10 klar golang:1.9.0-alpine
 
 FROM supinf/clair:2.0
 
@@ -33,9 +37,9 @@ RUN mkdir -p /etc/services.d/postgres /var/lib/postgresql/data \
     && echo "#!/usr/bin/with-contenv sh" > /etc/services.d/postgres/run \
     && echo "s6-setuidgid postgres postgres -D /usr/local/pgsql/data" >> /etc/services.d/postgres/run
 
-EXPOSE 5432
+EXPOSE 6060 6061 5432
 
 ADD config.yaml /etc/clair/
 
 ENTRYPOINT ["/init"]
-CMD ["/clair"]
+CMD ["sh", "-c", "sleep 3 && /clair"]
