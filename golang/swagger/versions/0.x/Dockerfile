@@ -4,17 +4,17 @@
 # docker run --rm -v $GOPATH/src:/go/src -w /go/src/github.com/your-account/project supinf/go-swagger generate server -A sample -f ./swagger.yml
 # docker run --rm -v $GOPATH/src:/go/src -w /go/src/github.com/your-account/project supinf/go-swagger generate client -A sample -f ./swagger.yml
 
-FROM alpine:3.7
+FROM alpine:3.8
 
-ENV SWAGGER_VERSION=0.16.0 \
+ENV SWAGGER_VERSION=v0.17.2 \
     GOPATH=/go
 
 RUN apk --no-cache add --virtual build-dependencies bash gcc musl-dev openssl go git \
 
     # Install go 1.11
-    && GOLANG_VERSION=1.11 \
-    && GOLANG_SRC_URL=https://golang.org/dl/go$GOLANG_VERSION.src.tar.gz \
-    && GOLANG_SRC_SHA256=afc1e12f5fe49a471e3aae7d906c73e9d5b1fdd36d52d72652dde8f6250152fb \
+    && GOLANG_VERSION=1.11.2 \
+    && GOLANG_SRC_URL="https://golang.org/dl/go$GOLANG_VERSION.src.tar.gz" \
+    && GOLANG_SRC_SHA256="042fba357210816160341f1002440550e952eb12678f7c9e7e9d389437942550" \
     && export GOROOT_BOOTSTRAP="$(go env GOROOT)" \
     && wget -q "$GOLANG_SRC_URL" -O golang.tar.gz \
     && echo "$GOLANG_SRC_SHA256  golang.tar.gz" | sha256sum -c - \
