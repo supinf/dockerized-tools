@@ -4,11 +4,11 @@
 # docker run --rm -v $GOPATH/src:/go/src -w /go/src/github.com/your-account/project supinf/go-swagger generate server -A sample -f ./swagger.yml
 # docker run --rm -v $GOPATH/src:/go/src -w /go/src/github.com/your-account/project supinf/go-swagger generate client -A sample -f ./swagger.yml
 
-FROM golang:1.11.2-alpine3.8 AS build
+FROM golang:1.11.4-alpine3.8 AS build
 RUN apk --no-cache add bash g++ openssl git
 RUN go get -u github.com/mitchellh/gox
 
-ENV SWAGGER_VERSION=v0.17.2
+ENV SWAGGER_VERSION=v0.18.0
 
 ENV REPO="github.com/go-swagger/go-swagger/cmd/swagger"
 RUN go get -u "${REPO}"
