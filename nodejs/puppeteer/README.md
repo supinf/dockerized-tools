@@ -44,7 +44,14 @@ $ (Restart XQuartz)
 $ (Input `xhost <your-local-ip-address>` on the XQuartz terminal)
 ```
 
-Then,
+Run socat
+
+```
+$ brew install socat
+$ socat TCP-LISTEN:6000,reuseaddr,fork UNIX-CLIENT:\"$DISPLAY\"
+```
+
+It blocks. Then on another terminal,
 
 ```
 $ cat << EOF > index.js
