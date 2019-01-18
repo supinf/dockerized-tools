@@ -53,6 +53,7 @@ const puppeteer = require('puppeteer');
 (async () => {
   const browser = await puppeteer.launch({
     executablePath: 'google-chrome-unstable',
+    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
     headless: false,
     slowMo: 300
   });
