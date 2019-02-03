@@ -1,5 +1,5 @@
 # Mermade/check_api v1.2
-# docker run --rm -v $(pwd):/work supinf/check-api:1.2 spec.yaml
+# docker run --rm -v $(pwd):/work supinf/check-api:1.2 /work/spec.yaml
 
 FROM node:11.9.0-alpine
 
