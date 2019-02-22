@@ -1,4 +1,4 @@
-# Mermaid Editor v0.x
+# Mermaid Editor v0.5
 # docker run --rm supinf/mermaid-cli:0.5
 # docker run --rm -v $(pwd):/work supinf/mermaid-cli:0.5 -i input.mmd -o output.pdf
 # docker run --rm -v $(pwd):/work supinf/mermaid-cli:0.5 -i input.mmd -o output.png -b transparent
