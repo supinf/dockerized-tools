@@ -37,5 +37,5 @@ const defaultCode = `sequenceDiagram
 
 export const defaultState = {
   code: defaultCode,
-  mermaid: { theme: 'default' }
+  mermaid: { theme: 'neutral' }
 }

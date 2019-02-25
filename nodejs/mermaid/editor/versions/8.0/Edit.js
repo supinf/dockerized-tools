@@ -56,7 +56,7 @@ class Edit extends React.Component {
         <Col span={8}>
           <Affix>
             <Card title='Code'>
-              <Input.TextArea autosize={{ minRows: 16, maxRows: 32 }} value={this.json.code} onChange={this.onCodeChange} />
+              <Input.TextArea autosize={{ minRows: 16, maxRows: 27 }} value={this.json.code} onChange={this.onCodeChange} />
             </Card>
           </Affix>
           <Card title='Mermaid configuration'>
