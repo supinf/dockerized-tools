@@ -1,3 +1,4 @@
 {
-  "args": ["--no-sandbox"]
+  "executablePath": "google-chrome-unstable",
+  "args": ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"]
 }
