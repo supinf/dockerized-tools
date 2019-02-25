@@ -4,7 +4,7 @@
 # docker run --rm -v $(pwd):/work supinf/mermaid-cli:0.5 -i input.mmd -o output.png -b transparent
 # docker run --rm -v $(pwd):/work supinf/mermaid-cli:0.5 -i input.mmd -o output.svg -w 1024 -H 768
 
-FROM supinf/puppeteer:1.11
+FROM supinf/puppeteer:1.12
 
 ENV MERMAID_CLI_VERSION=0.5.1
 
