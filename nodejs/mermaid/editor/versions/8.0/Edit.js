@@ -47,6 +47,21 @@ class Edit extends React.Component {
     }
   }
 
+  componentWillMount() {
+    var that = this;
+    fetch('/default.mmd').then(function (response) {
+      return response.json();
+    }).then(function (result) {
+      if (! result.data) {
+        return
+      }
+      const { history, match: { path } } = that.props
+      that.json.code = JSON.stringify(result.data)
+      const base64 = Base64.encodeURI(JSON.stringify(that.json))
+      history.push(path.replace(':base64', base64))
+    });
+  }
+
   render () {
     const { match: { url } } = this.props
     return <div>
