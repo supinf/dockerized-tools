@@ -18,23 +18,13 @@ export const base64ToState = (base64, search) => {
   return state
 }
 
-const defaultCode = `sequenceDiagram
-    participant A as Alice
-    participant B as John
-    Note left of A: sequence1
-    A->>B: ping
-    B-->>A: pong
-    opt when Z
-        A->>B: hi
-    end
-    Note left of A: sequence2
-    alt if X
-        A->>B: success
-    else if Y
-        A->>B: fail
-    end
+const defaultCode = `graph TD
+A[Christmas] -->|Get money| B(Go shopping)
+B --> C{Let me think}
+C -->|One| D[Laptop]
+C -->|Two| E[iPhone]
+C -->|Three| F[fa:fa-car Car]
 `
-
 export const defaultState = {
   code: defaultCode,
   mermaid: { theme: 'neutral' }
