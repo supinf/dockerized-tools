@@ -52,7 +52,7 @@ class Edit extends React.Component {
     if (that.json.code != defaultState.code) {
       return
     }
-    fetch('/code/default.mmd').then(function (response) {
+    fetch('code/default.mmd').then(function (response) {
       return response.text()
     }).then(function (text) {
       if (! text) {
