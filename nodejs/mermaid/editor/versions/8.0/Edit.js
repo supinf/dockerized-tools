@@ -7,7 +7,7 @@ import mermaid from 'mermaid'
 import Error from './Error'
 import Preview from './Preview'
 import pkg from '../../package.json'
-import { base64ToState } from '../utils'
+import { base64ToState, defaultState } from '../utils'
 
 let mermaidVersion = pkg.dependencies.mermaid
 if (mermaidVersion[0] === '^') {
@@ -49,6 +49,9 @@ class Edit extends React.Component {
 
   componentWillMount() {
     var that = this;
+    if (that.json.code != defaultState) {
+      return
+    }
     fetch('/code/default.mmd').then(function (response) {
       return response.text()
     }).then(function (text) {
