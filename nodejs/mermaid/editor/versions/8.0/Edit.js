@@ -49,7 +49,7 @@ class Edit extends React.Component {
 
   componentWillMount() {
     var that = this;
-    if (that.json.code != defaultState) {
+    if (that.json.code != defaultState.code) {
       return
     }
     fetch('/code/default.mmd').then(function (response) {
