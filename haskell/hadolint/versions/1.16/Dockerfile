@@ -9,7 +9,7 @@ FROM alpine:3.9
 ENV HADOLINT_VERSION='v1.16.0' \
     DOCKERFILE_NAME='Dockerfile'
 
-RUN apk --no-cache --virtual=build-deps add curl \
+RUN apk --no-cache --virtual=build-deps add curl bash \
     && curl --location --silent -o /usr/bin/hadolint \
        "https://github.com/hadolint/hadolint/releases/download/${HADOLINT_VERSION}/hadolint-Linux-x86_64" \
     && chmod +x /usr/bin/hadolint \

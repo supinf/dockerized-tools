@@ -1,4 +1,4 @@
 #!/bin/sh
 
-cd /code
-exec node check_api $1
+cd /code || exit 1
+exec node check_api "$1"

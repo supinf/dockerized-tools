@@ -1,8 +1,10 @@
 #!/bin/sh
 
 if [ "${AWS_ACCESS_KEY_ID}" != "" ]; then
-  export DOCKER_USER=AWS
-  export DOCKER_PASSWORD=$( ecr-creds get password )
+  DOCKER_USER=AWS
+  DOCKER_PASSWORD=$( ecr-creds get password )
+  export DOCKER_USER
+  export DOCKER_PASSWORD
 fi
 
 exec klar "$@"
