@@ -1,14 +1,14 @@
 # GraalVM v1.0 with Maven v3.6
 #
 # docker run --rm -v "$(pwd)":/work -v "${HOME}/.m2":/root/.m2 \
-#   supinf/maven:3.6-graalvm \
+#   supinf/graalvm:1.0-maven3.6 \
 #     io.quarkus:quarkus-maven-plugin:0.11.0:create \
 #       -DprojectGroupId=org.acme \
 #       -DprojectArtifactId=getting-started \
 #       -DclassName="org.acme.quickstart.GreetingResource" \
 #       -Dpath="/hello"
 # docker run --rm -v "$(pwd)":/work -v "${HOME}/.m2":/root/.m2 \
-#   supinf/maven:3.6-graalvm package -Pnative
+#   supinf/graalvm:1.0-maven3.6 package -Pnative
 # docker build -f src/main/docker/Dockerfile -t quarkus/sample .
 # docker run --rm -p 8080:8080 quarkus/sample
 
