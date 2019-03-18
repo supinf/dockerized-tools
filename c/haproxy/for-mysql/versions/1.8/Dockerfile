@@ -3,6 +3,6 @@
 
 FROM haproxy:1.8.13-alpine
 
-ADD entrypoint.sh /
+COPY entrypoint.sh /
 RUN chmod +x /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]

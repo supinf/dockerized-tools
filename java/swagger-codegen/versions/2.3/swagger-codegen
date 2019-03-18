@@ -9,5 +9,5 @@ else
     MX="1g"
 fi
 
-java ${FLYWAY_JAVA_OPTS:--Xms128m -Xmx${MX}} -jar /swagger-codegen-cli.jar "$@"
+java ${JAVA_OPTS:--Xms128m -Xmx${MX}} -jar /swagger-codegen-cli.jar "$@"
 exit $?

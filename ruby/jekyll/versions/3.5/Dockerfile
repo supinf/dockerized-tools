@@ -4,7 +4,7 @@
 
 FROM ruby:2.4.1-alpine3.6
 
-ADD Gemfile /
+COPY Gemfile /
 
 RUN apk --no-cache add --virtual build-deps build-base make python git bash \
     && apk --no-cache add --no-cache libstdc++ \
