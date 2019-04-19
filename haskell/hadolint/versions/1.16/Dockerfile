@@ -6,7 +6,7 @@
 
 FROM alpine:3.9
 
-ENV HADOLINT_VERSION='v1.16.0' \
+ENV HADOLINT_VERSION='v1.16.3' \
     DOCKERFILE_NAME='Dockerfile'
 
 RUN apk --no-cache --virtual=build-deps add curl bash \
