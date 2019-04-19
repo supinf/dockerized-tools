@@ -7,7 +7,7 @@ FROM alpine:3.9
 ENV PAGER=less \
     LESS="-eirMX"
 
-RUN apk --no-cache add "python3=3.6.8-r1" "less=530-r0" "groff=1.22.3-r2" "jq=1.6-r0" \
+RUN apk --no-cache add "python3=3.6.8-r2" "less=530-r0" "groff=1.22.3-r2" "jq=1.6-r0" \
     && find / -depth -type d -name __pycache__ -exec rm -rf {} \; \
     && rm -rf /usr/share/terminfo
 
