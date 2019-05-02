@@ -1,0 +1,8 @@
+{
+  "plugins": [
+    "rst"
+  ],
+  "rules": {
+    "common-misspellings": true
+  }
+}
