@@ -1,0 +1,17 @@
+{
+  "rules": {
+    "common-misspellings": true,
+    "preset-ja-technical-writing": {
+      "ja-no-mixed-period": false,
+      "no-exclamation-question-mark": false
+    },
+    "spellcheck-tech-word": true,
+    "no-dead-link": {
+      "checkRelative": true,
+      "baseURI": null,
+      "ignore": [],
+      "preferGET": [],
+      "ignoreRedirects": false
+    }
+  }
+}

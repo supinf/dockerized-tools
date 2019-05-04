@@ -1,5 +1,5 @@
 # textlint with reStructuredText support
-# docker run --rm -it -v $(pwd):/work supinf/textlint:11.2-rst .
+# docker run --rm -it -v $(pwd):/work supinf/textlint:11.2-rst
 
 FROM supinf/textlint:11.2
 
