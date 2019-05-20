@@ -4,9 +4,8 @@ github.com/golangci/golangci-lint
 
 ## Supported tags and respective `Dockerfile` links
 
-・latest ([golang/golangci-lint/versions/1.12/Dockerfile](https://github.com/supinf/dockerized-tools/blob/master/golang/golangci-lint/versions/1.12/Dockerfile))  
-・1.12 ([golang/golangci-lint/versions/1.12/Dockerfile](https://github.com/supinf/dockerized-tools/blob/master/golang/golangci-lint/versions/1.12/Dockerfile))  
-・1.11 ([golang/golangci-lint/versions/1.11/Dockerfile](https://github.com/supinf/dockerized-tools/blob/master/golang/golangci-lint/versions/1.11/Dockerfile))  
+・latest ([golang/golangci-lint/versions/1.16/Dockerfile](https://github.com/supinf/dockerized-tools/blob/master/golang/golangci-lint/versions/1.16/Dockerfile))  
+・1.16 ([golang/golangci-lint/versions/1.16/Dockerfile](https://github.com/supinf/dockerized-tools/blob/master/golang/golangci-lint/versions/1.16/Dockerfile))  
 
 ## Usage
 
@@ -39,5 +38,5 @@ EOF
 $ docker run --rm \
     -v $(pwd):/go/src/github.com/your-name/project \
     -w /go/src/github.com/your-name/project \
-    supinf/golangci-lint:1.12 run --config .golangci.yml
+    supinf/golangci-lint:1.16 run --config .golangci.yml
 ```
