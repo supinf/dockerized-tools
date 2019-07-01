@@ -1,0 +1,33 @@
+{
+    "env": {
+        "browser": true,
+        "es6": true
+    },
+    "extends": [
+        "eslint:recommended"
+    ],
+    "plugins": [
+        "vue"
+    ],
+    "parserOptions": {
+        "ecmaVersion": 9,
+        "ecmaFeatures": {
+            "experimentalObjectRestSpread": true,
+            "modules": true
+        },
+        "sourceType": "module"
+    },
+    "rules": {
+        "indent": [
+            0
+        ]
+    },
+    "globals": {
+      "document": true,
+      "navigator": true,
+      "window": true,
+      "jQuery": true,
+      "$": true,
+      "Vue": true
+    }
+}

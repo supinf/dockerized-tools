@@ -1,0 +1,36 @@
+{
+  "name": "supinf-gulp",
+  "version": "0.1.0",
+  "description": "Monitor source code changing.",
+  "main": "app.js",
+  "scripts": {
+    "test": "do nothing"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https:github.com/supinf/dockerized-tools.git"
+  },
+  "keywords": [
+  ],
+  "author": "SUPINF Inc.",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/supinf/dockerized-tools/issues"
+  },
+  "homepage": "https://github.com/supinf/dockerized-tools",
+  "devDependencies": {
+    "browserify": "^16.2.2",
+    "gulp": "^3.9.1",
+    "gulp-autoprefixer": "^5.0.0",
+    "gulp-duration": "0.0.0",
+    "gulp-eslint": "^4.0.2",
+    "gulp-plumber": "^1.2.0",
+    "gulp-rename": "^1.2.2",
+    "gulp-sass": "^4.0.1",
+    "gulp-shell": "^0.6.5",
+    "gulp-uglify-es": "^1.0.4",
+    "through2": "^2.0.3",
+    "eslint-config-vue": "^2.0.2",
+    "eslint-plugin-vue": "^2.0.2"
+  }
+}
