@@ -5,7 +5,7 @@ github.com/go-swagger/go-swagger
 ## Supported tags and respective `Dockerfile` links
 
 ・latest ([golang/swagger/versions/0.x/Dockerfile](https://github.com/supinf/dockerized-tools/blob/master/golang/swagger/versions/0.x/Dockerfile))  
-・0.18.0 ([golang/swagger/versions/0.x/Dockerfile](https://github.com/supinf/dockerized-tools/blob/master/golang/swagger/versions/0.x/Dockerfile))  
+・0.20.1 ([golang/swagger/versions/0.x/Dockerfile](https://github.com/supinf/dockerized-tools/blob/master/golang/swagger/versions/0.x/Dockerfile))  
 
 ## Usage
 
