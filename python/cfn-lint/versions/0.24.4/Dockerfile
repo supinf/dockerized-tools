@@ -1,6 +1,6 @@
 # CFn-Lint v0.24.4
 # docker run --rm supinf/cfn-lint:0.24.4
-# docker run --rm -v "$(pwd)":/work supinf/cfn-lint:0.19 **/*.yaml
+# docker run --rm -v "$(pwd)":/work supinf/cfn-lint:0.24.4 **/*.yaml
 
 FROM alpine:3.9
 
