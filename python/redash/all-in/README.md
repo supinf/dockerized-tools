@@ -5,7 +5,7 @@ $ cat << EOF > docker-compose.yaml
 version: "3.7"
 services:
   redash:
-    image: supinf/redash:6.0
+    image: supinf/redash:8.0
     ports:
       - 5000:5000
       - 5432:5432
