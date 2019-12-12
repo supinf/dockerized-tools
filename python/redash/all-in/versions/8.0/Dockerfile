@@ -2,7 +2,7 @@
 # docker run --rm -p 5000:5000 -p 5432:5432 supinf/redash:8.0
 # docker run --rm -p 5000:5000 -e REDASH_MAIL_SERVER=email-smtp.us-east-1.amazonaws.com -e REDASH_MAIL_PORT=465 -e REDASH_MAIL_USE_TLS=true -e REDASH_MAIL_USE_SSL=true -e REDASH_MAIL_USERNAME=user -e REDASH_MAIL_PASSWORD=pass -e REDASH_MAIL_DEFAULT_SENDER=no-reply@example.com supinf/redash:8.0
 
-FROM redash-multi-stage
+FROM supinf/redash:core-8.0
 
 ENV REDASH_DATABASE_URL=postgresql://postgres@localhost:5432/postgres \
     REDASH_REDIS_URL=redis://localhost:6379/0 \
