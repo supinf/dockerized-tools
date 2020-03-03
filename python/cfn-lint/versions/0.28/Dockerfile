@@ -1,6 +1,6 @@
-# CFn-Lint v0.28.2
-# docker run --rm supinf/cfn-lint:0.28.2
-# docker run --rm -v "$(pwd)":/work supinf/cfn-lint:0.28.2 **/*.yaml
+# CFn-Lint v0.28
+# docker run --rm supinf/cfn-lint:0.28
+# docker run --rm -v "$(pwd)":/work supinf/cfn-lint:0.28 **/*.yaml
 
 FROM alpine:3.10
 
