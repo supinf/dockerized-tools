@@ -16,9 +16,9 @@ RUN find /usr/lib/ -depth -type d -name "tests"  -exec rm -rf {} \;
 FROM alpine:3.12
 ENV AWS_DEFAULT_REGION=ap-northeast-1 \
     AWS_PAGER=""
-RUN apk --no-cache add python3
+RUN apk --no-cache add tini bash jq python3 groff
 COPY --from=build /usr/lib/python3.8/site-packages /usr/lib/python3.8/site-packages
 COPY --from=build /usr/bin/aws /usr/bin/aws
 COPY --from=build /opt/aws /opt/aws
-ENTRYPOINT ["aws"]
+ENTRYPOINT ["tini", "--", "aws"]
 CMD ["help"]
