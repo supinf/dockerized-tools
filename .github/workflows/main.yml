@@ -23,3 +23,31 @@ jobs:
         echo ${{ secrets.CR_PAT }} | docker login ghcr.io -u ${GITHUB_ACTOR} --password-stdin
         docker build -t "${IMAGE_NAME}" haskell/shellcheck/versions/0.x/
         docker push "${IMAGE_NAME}"
+
+  awscli-1-18:
+    name: AWS CLI v1.18
+    if: github.event_name == 'push' && contains(github.ref, 'gh-awscli-v1.18.')
+    runs-on: ubuntu-18.04
+    env:
+      IMAGE_NAME: ghcr.io/supinf/awscli:1.18
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build & Push
+      run: |
+        echo ${{ secrets.CR_PAT }} | docker login ghcr.io -u ${GITHUB_ACTOR} --password-stdin
+        docker build -t "${IMAGE_NAME}" python/awscli/versions/1.18/
+        docker push "${IMAGE_NAME}"
+
+  awscli-2-1:
+    name: AWS CLI v2.1
+    if: github.event_name == 'push' && contains(github.ref, 'gh-awscli-v2.1.')
+    runs-on: ubuntu-18.04
+    env:
+      IMAGE_NAME: ghcr.io/supinf/awscli:2.1
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build & Push
+      run: |
+        echo ${{ secrets.CR_PAT }} | docker login ghcr.io -u ${GITHUB_ACTOR} --password-stdin
+        docker build -t "${IMAGE_NAME}" python/awscli/versions/2.1/
+        docker push "${IMAGE_NAME}"

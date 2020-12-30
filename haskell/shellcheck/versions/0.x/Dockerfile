@@ -1,6 +1,6 @@
 # ShellCheck http://www.shellcheck.net
-# docker run --rm -v $(pwd):/work docker.pkg.github.com/supinf/libs/shellcheck:0.7
-# docker run --rm -v $(pwd):/work -e IGNORE_PATH=/vendor/ docker.pkg.github.com/supinf/libs/shellcheck:0.7
+# docker run --rm -v $(pwd):/work ghcr.io/supinf/shellcheck:0.7
+# docker run --rm -v $(pwd):/work -e IGNORE_PATH=/vendor/ ghcr.io/supinf/shellcheck:0.7
 
 FROM alpine:3.12
 
