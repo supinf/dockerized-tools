@@ -1,6 +1,6 @@
-# docker run --rm -it -e ENDPOINT=http://localhost -e EXPECT=some supinf/test-http:1.2
+# docker run --rm -it -e ENDPOINT=http://localhost -e EXPECT=some ghcr.io/supinf/test-http:1.2
 
-FROM alpine:3.8
+FROM alpine:3.12
 
 RUN apk --no-cache add ca-certificates python3
 
