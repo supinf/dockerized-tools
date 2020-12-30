@@ -51,3 +51,17 @@ jobs:
         echo ${{ secrets.CR_PAT }} | docker login ghcr.io -u ${GITHUB_ACTOR} --password-stdin
         docker build -t "${IMAGE_NAME}" python/awscli/versions/2.1/
         docker push "${IMAGE_NAME}"
+
+  go-swagger:
+    name: go-swagger
+    if: github.event_name == 'push' && contains(github.ref, 'gh-go-swagger-v0.25.')
+    runs-on: ubuntu-18.04
+    env:
+      IMAGE_NAME: ghcr.io/supinf/go-swagger:0.25
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build & Push
+      run: |
+        echo ${{ secrets.CR_PAT }} | docker login ghcr.io -u ${GITHUB_ACTOR} --password-stdin
+        docker build -t "${IMAGE_NAME}" golang/swagger/versions/0.x/
+        docker push "${IMAGE_NAME}"
