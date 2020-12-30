@@ -1,11 +1,11 @@
 # hugo v0.x
-# docker run --rm supinf/hugo version
-# docker run --rm -it -v $(pwd):/app supinf/hugo new site www
-# docker run --rm -it -v $(pwd)/www:/app -p 80:80 supinf/hugo server --bind=0.0.0.0 -p=80 --appendPort=false
+# docker run --rm ghcr.io/supinf/hugo:0.79 version
+# docker run --rm -it -v $(pwd):/app ghcr.io/supinf/hugo:0.79 new site www
+# docker run --rm -it -v $(pwd)/www:/app -p 80:80 ghcr.io/supinf/hugo:0.79 server --bind=0.0.0.0 -p=80 --appendPort=false
 
-FROM alpine:3.7
+FROM alpine:3.12
 
-ENV HUGO_VERSION=0.40.3
+ENV HUGO_VERSION=0.79.1
 
 RUN apk --no-cache add tini
 

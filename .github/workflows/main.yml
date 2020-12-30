@@ -80,6 +80,20 @@ jobs:
         docker build -t "${IMAGE_NAME}" golang/swagger/versions/0.x/
         docker push "${IMAGE_NAME}"
 
+  hugo:
+    name: Hugo
+    if: github.event_name == 'push' && contains(github.ref, 'gh-hugo-v0.79.')
+    runs-on: ubuntu-18.04
+    env:
+      IMAGE_NAME: ghcr.io/supinf/hugo:0.79
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build & Push
+      run: |
+        echo ${{ secrets.CR_PAT }} | docker login ghcr.io -u ${GITHUB_ACTOR} --password-stdin
+        docker build -t "${IMAGE_NAME}" golang/hugo/versions/0.x/
+        docker push "${IMAGE_NAME}"
+
   cfn-lint:
     name: CFn Lint
     if: github.event_name == 'push' && contains(github.ref, 'gh-cfn-lint-v0.44.')
