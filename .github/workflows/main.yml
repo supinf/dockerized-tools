@@ -24,6 +24,20 @@ jobs:
         docker build -t "${IMAGE_NAME}" haskell/shellcheck/versions/0.x/
         docker push "${IMAGE_NAME}"
 
+  hadolint:
+    name: hadolint
+    if: github.event_name == 'push' && contains(github.ref, 'gh-hadolint-v1.19.')
+    runs-on: ubuntu-18.04
+    env:
+      IMAGE_NAME: ghcr.io/supinf/hadolint:1.19
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build & Push
+      run: |
+        echo ${{ secrets.CR_PAT }} | docker login ghcr.io -u ${GITHUB_ACTOR} --password-stdin
+        docker build -t "${IMAGE_NAME}" haskell/hadolint/versions/1.19/
+        docker push "${IMAGE_NAME}"
+
   awscli-1-18:
     name: AWS CLI v1.18
     if: github.event_name == 'push' && contains(github.ref, 'gh-awscli-v1.18.')
