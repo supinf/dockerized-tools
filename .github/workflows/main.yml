@@ -1,0 +1,25 @@
+name: Publish Docker images
+
+on:
+  push:
+    tags:
+    - "*"
+
+env:
+  DOCKER_BUILDKIT: 1
+  COMPOSE_DOCKER_CLI_BUILD: 1
+
+jobs:
+  shellcheck:
+    name: Shellcheck
+    if: github.event_name == 'push' && contains(github.ref, 'gh-shellcheck-v0.7.')
+    runs-on: ubuntu-18.04
+    env:
+      IMAGE_NAME: ghcr.io/supinf/shellcheck:0.7
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build & Push
+      run: |
+        echo ${{ secrets.CR_PAT }} | docker login ghcr.io -u ${GITHUB_ACTOR} --password-stdin
+        docker build -t "${IMAGE_NAME}" haskell/shellcheck/versions/0.x/
+        docker push "${IMAGE_NAME}"
