@@ -29,7 +29,7 @@ RUN apk --no-cache add \
 # awscli install ###
 
 ### samcli install #
-ENV SAM_VERSION 1.7.0
+ENV SAM_VERSION 1.21.1
 RUN apk --no-cache add tini bash jq python3 groff py-pip \
     && apk add --no-cache --virtual build-dependencies gcc musl-dev python3-dev 
 RUN pip install aws-sam-cli==${SAM_VERSION} \
