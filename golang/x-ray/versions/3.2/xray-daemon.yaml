@@ -1,0 +1,34 @@
+# Maximum buffer size in MB (minimum 3). Choose 0 to use 1% of host memory.
+TotalBufferSizeMB: 0
+# Maximum number of concurrent calls to AWS X-Ray to upload segment documents.
+Concurrency: 8
+# Send segments to AWS X-Ray service in a specific region
+Region: "us-west-2"
+# Configure the daemon's binding.
+Socket:
+  # Change the address and port on which the daemon listens for UDP packets containing segment documents.
+  UDPAddress: "0.0.0.0:2000"
+  # Listen for calls to the X-Ray service on a different TCP port.
+  TCPAddress: "0.0.0.0:2000"
+# Configure logging behavior.
+Logging:
+  # Set to false to disable log rotation.
+  LogRotation: true
+  # Change the log level, from most verbose to least: dev, debug, info, warn, error, prod (default).
+  LogLevel: "prod"
+  # Output logs to the specified file path.
+  LogPath: "/var/log/xray-daemon.log"
+# Turn on local mode to skip EC2 instance metadata check.
+LocalMode: false
+# Amazon Resource Name (ARN) of the AWS resource running the daemon.
+ResourceARN: ""
+# Assume an IAM role to upload segments to a different account.
+RoleARN: ""
+# Upload segments to AWS X-Ray through a proxy.
+ProxyAddress: ""
+# Change the X-Ray service endpoint to which the daemon sends segment documents.
+Endpoint: ""
+# Disable TLS certificate verification.
+NoVerifySSL: false
+# Daemon configuration file format version.
+Version: 2
