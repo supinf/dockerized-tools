@@ -96,7 +96,7 @@ jobs:
 
   cfn-lint:
     name: CFn Lint
-    if: github.event_name == 'push' && contains(github.ref, 'gh-cfn-lint-v0.58.')
+    if: github.event_name == 'push' && contains(github.ref, 'gh-cfn-lint-v0.58')
     runs-on: ubuntu-18.04
     env:
       IMAGE_NAME: ghcr.io/supinf/cfn-lint:0.58
