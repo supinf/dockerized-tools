@@ -96,16 +96,16 @@ jobs:
 
   cfn-lint:
     name: CFn Lint
-    if: github.event_name == 'push' && contains(github.ref, 'gh-cfn-lint-v0.44.')
+    if: github.event_name == 'push' && contains(github.ref, 'gh-cfn-lint-v0.58.')
     runs-on: ubuntu-18.04
     env:
-      IMAGE_NAME: ghcr.io/supinf/cfn-lint:0.44
+      IMAGE_NAME: ghcr.io/supinf/cfn-lint:0.58
     steps:
     - uses: actions/checkout@v2
     - name: Build & Push
       run: |
         echo ${{ secrets.CR_PAT }} | docker login ghcr.io -u ${GITHUB_ACTOR} --password-stdin
-        docker build -t "${IMAGE_NAME}" python/cfn-lint/versions/0.44/
+        docker build -t "${IMAGE_NAME}" python/cfn-lint/versions/0.58/
         docker push "${IMAGE_NAME}"
 
   test-http:
