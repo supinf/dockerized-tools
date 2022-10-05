@@ -5,12 +5,12 @@
 
 FROM golang:1.19.1-alpine3.16 AS build
 RUN apk --no-cache add bash g++ openssl git
-RUN go get -u github.com/mitchellh/gox
+RUN go install -u github.com/mitchellh/gox
 
 ENV SWAGGER_VERSION=v0.30.3
 
 ENV REPO="github.com/go-swagger/go-swagger/cmd/swagger"
-RUN go get -u "${REPO}"
+RUN go install -u "${REPO}"
 WORKDIR /go/src/github.com/go-swagger/go-swagger
 RUN git checkout "${SWAGGER_VERSION}"
 RUN gox --osarch "linux/amd64" -output /swagger \
