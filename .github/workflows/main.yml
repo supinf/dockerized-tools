@@ -158,3 +158,26 @@ jobs:
           --push \
           -t "${IMAGE_NAME}" \
           .
+
+  swagger-codegen-2:
+    name: swagger-codegen
+    if: github.event_name == 'push' && contains(github.ref, 'gh-swagger-codegen-v2.4')
+    runs-on: ubuntu-18.04
+    env:
+      IMAGE_NAME: ghcr.io/supinf/swagger-codegen:2.4
+      TARGET_DIR: java/swagger-codegen/versions/2.4
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Docker Buildx
+      id: buildx
+      uses: docker/setup-buildx-action@v1
+    - name: Build & Push
+      working-directory: ${{ env.TARGET_DIR }}
+      run: |
+        echo ${{ secrets.CR_PAT }} | docker login ghcr.io -u ${GITHUB_ACTOR} --password-stdin
+        docker buildx build \
+          --platform=linux/amd64,linux/arm64 \
+          -f Dockerfile \
+          --push \
+          -t "${IMAGE_NAME}" \
+          .          
