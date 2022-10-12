@@ -8,7 +8,7 @@
 
 FROM maven:3-jdk-8-alpine
 
-ENV SWAGGER_CODEGEN_VERSION=2.4.28
+ENV SWAGGER_CODEGEN_VERSION=2.4.7
 
 ADD swagger-codegen /usr/bin/
 RUN chmod +x /usr/bin/swagger-codegen \
