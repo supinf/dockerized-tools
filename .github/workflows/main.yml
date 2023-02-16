@@ -17,7 +17,7 @@ jobs:
     env:
       IMAGE_NAME: ghcr.io/supinf/shellcheck:0.7
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Build & Push
       run: |
         echo ${{ secrets.CR_PAT }} | docker login ghcr.io -u ${GITHUB_ACTOR} --password-stdin
@@ -31,7 +31,7 @@ jobs:
     env:
       IMAGE_NAME: ghcr.io/supinf/hadolint:1.19
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Build & Push
       run: |
         echo ${{ secrets.CR_PAT }} | docker login ghcr.io -u ${GITHUB_ACTOR} --password-stdin
@@ -45,7 +45,7 @@ jobs:
     env:
       IMAGE_NAME: ghcr.io/supinf/awscli:1.18
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Build & Push
       run: |
         echo ${{ secrets.CR_PAT }} | docker login ghcr.io -u ${GITHUB_ACTOR} --password-stdin
@@ -59,7 +59,7 @@ jobs:
     env:
       IMAGE_NAME: ghcr.io/supinf/awscli:2.4
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Build & Push
       run: |
         echo ${{ secrets.CR_PAT }} | docker login ghcr.io -u ${GITHUB_ACTOR} --password-stdin
@@ -73,7 +73,7 @@ jobs:
     env:
       IMAGE_NAME: ghcr.io/supinf/go-swagger:0.25
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Build & Push
       run: |
         echo ${{ secrets.CR_PAT }} | docker login ghcr.io -u ${GITHUB_ACTOR} --password-stdin
@@ -87,7 +87,7 @@ jobs:
     env:
       IMAGE_NAME: ghcr.io/supinf/hugo:0.79
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Build & Push
       run: |
         echo ${{ secrets.CR_PAT }} | docker login ghcr.io -u ${GITHUB_ACTOR} --password-stdin
@@ -101,7 +101,7 @@ jobs:
     env:
       IMAGE_NAME: ghcr.io/supinf/cfn-lint:0.58
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Build & Push
       run: |
         echo ${{ secrets.CR_PAT }} | docker login ghcr.io -u ${GITHUB_ACTOR} --password-stdin
@@ -115,7 +115,7 @@ jobs:
     env:
       IMAGE_NAME: ghcr.io/supinf/test-http:1.2
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Build & Push
       run: |
         echo ${{ secrets.CR_PAT }} | docker login ghcr.io -u ${GITHUB_ACTOR} --password-stdin
@@ -129,7 +129,7 @@ jobs:
     env:
       IMAGE_NAME: ghcr.io/supinf/x-ray:3.2
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Build & Push
       run: |
         echo ${{ secrets.CR_PAT }} | docker login ghcr.io -u ${GITHUB_ACTOR} --password-stdin
@@ -144,7 +144,7 @@ jobs:
       IMAGE_NAME: ghcr.io/supinf/swagger-codegen:3.0
       TARGET_DIR: java/swagger-codegen/versions/3.0
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up Docker Buildx
       id: buildx
       uses: docker/setup-buildx-action@v1
@@ -167,7 +167,7 @@ jobs:
       IMAGE_NAME: ghcr.io/supinf/swagger-codegen:2.4
       TARGET_DIR: java/swagger-codegen/versions/2.4
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up Docker Buildx
       id: buildx
       uses: docker/setup-buildx-action@v1
