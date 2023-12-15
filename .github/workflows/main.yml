@@ -13,7 +13,7 @@ jobs:
   shellcheck:
     name: Shellcheck
     if: github.event_name == 'push' && contains(github.ref, 'gh-shellcheck-v0.7.')
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     env:
       IMAGE_NAME: ghcr.io/supinf/shellcheck:0.7
     steps:
@@ -27,7 +27,7 @@ jobs:
   hadolint:
     name: hadolint
     if: github.event_name == 'push' && contains(github.ref, 'gh-hadolint-v1.19.')
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     env:
       IMAGE_NAME: ghcr.io/supinf/hadolint:1.19
     steps:
@@ -41,7 +41,7 @@ jobs:
   awscli-1-18:
     name: AWS CLI v1.18
     if: github.event_name == 'push' && contains(github.ref, 'gh-awscli-v1.18.')
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     env:
       IMAGE_NAME: ghcr.io/supinf/awscli:1.18
     steps:
@@ -55,7 +55,7 @@ jobs:
   awscli-2-4:
     name: AWS CLI v2.4
     if: github.event_name == 'push' && contains(github.ref, 'gh-awscli-v2.4')
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     env:
       IMAGE_NAME: ghcr.io/supinf/awscli:2.4
     steps:
@@ -69,7 +69,7 @@ jobs:
   go-swagger:
     name: go-swagger
     if: github.event_name == 'push' && contains(github.ref, 'gh-go-swagger-v0.25.')
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     env:
       IMAGE_NAME: ghcr.io/supinf/go-swagger:0.25
     steps:
@@ -83,7 +83,7 @@ jobs:
   hugo:
     name: Hugo
     if: github.event_name == 'push' && contains(github.ref, 'gh-hugo-v0.79.')
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     env:
       IMAGE_NAME: ghcr.io/supinf/hugo:0.79
     steps:
@@ -97,7 +97,7 @@ jobs:
   cfn-lint:
     name: CFn Lint
     if: github.event_name == 'push' && contains(github.ref, 'gh-cfn-lint-v0.58')
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     env:
       IMAGE_NAME: ghcr.io/supinf/cfn-lint:0.58
     steps:
@@ -111,7 +111,7 @@ jobs:
   test-http:
     name: Test HTTP requests
     if: github.event_name == 'push' && contains(github.ref, 'gh-test-http-v1.2')
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     env:
       IMAGE_NAME: ghcr.io/supinf/test-http:1.2
     steps:
@@ -125,7 +125,7 @@ jobs:
   aws-x-ray:
     name: Test HTTP requests
     if: github.event_name == 'push' && contains(github.ref, 'gh-x-ray-3.2')
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     env:
       IMAGE_NAME: ghcr.io/supinf/x-ray:3.2
     steps:
@@ -139,7 +139,7 @@ jobs:
   swagger-codegen:
     name: swagger-codegen
     if: github.event_name == 'push' && contains(github.ref, 'gh-swagger-codegen-v3.0')
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     env:
       IMAGE_NAME: ghcr.io/supinf/swagger-codegen:3.0
       TARGET_DIR: java/swagger-codegen/versions/3.0
@@ -162,7 +162,7 @@ jobs:
   swagger-codegen-2:
     name: swagger-codegen
     if: github.event_name == 'push' && contains(github.ref, 'gh-swagger-codegen-v2.4')
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     env:
       IMAGE_NAME: ghcr.io/supinf/swagger-codegen:2.4
       TARGET_DIR: java/swagger-codegen/versions/2.4
@@ -185,7 +185,7 @@ jobs:
   postgres-backup:
     name: Postgres Backup
     if: github.event_name == 'push' && contains(github.ref, 'gh-postgres-backup-v9.6')
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     env:
       IMAGE_NAME: ghcr.io/supinf/postgres-backup:9.6
     steps:
