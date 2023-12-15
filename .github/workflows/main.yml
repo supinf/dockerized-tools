@@ -9,6 +9,10 @@ env:
   DOCKER_BUILDKIT: 1
   COMPOSE_DOCKER_CLI_BUILD: 1
 
+permissions:
+  contents: read
+  packages: write
+  
 jobs:
   shellcheck:
     name: Shellcheck
