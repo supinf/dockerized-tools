@@ -181,3 +181,17 @@ jobs:
           --push \
           -t "${IMAGE_NAME}" \
           .          
+
+  postgres-backup:
+    name: Postgres Backup
+    if: github.event_name == 'push' && contains(github.ref, 'gh-postgres-backup-v9.6')
+    runs-on: ubuntu-18.04
+    env:
+      IMAGE_NAME: ghcr.io/supinf/postgres-backup:9.6
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build & Push
+      run: |
+        echo ${{ secrets.CR_PAT }} | docker login ghcr.io -u ${GITHUB_ACTOR} --password-stdin
+        docker build -t "${IMAGE_NAME}" cli-tools/postgres-backup/versions/9.6/
+        docker push "${IMAGE_NAME}"
