@@ -190,8 +190,13 @@ jobs:
       IMAGE_NAME: ghcr.io/supinf/postgres-backup:9.6
     steps:
     - uses: actions/checkout@v3
+    - uses: actions/create-github-app-token@2986852ad836768dfea7781f31828eb3e17990fa #v1.6.2
+      id: app-token
+      with:
+        app-id: ${{ vars.APP_ID }}
+        private-key: ${{ secrets.PRIVATE_KEY }}
     - name: Build & Push
       run: |
-        echo ${{ secrets.CR_PAT }} | docker login ghcr.io -u ${GITHUB_ACTOR} --password-stdin
+        echo ${{ steps.app-token.outputs.token }} | docker login ghcr.io -u ${GITHUB_ACTOR} --password-stdin
         docker build -t "${IMAGE_NAME}" cli-tools/postgres-backup/versions/9.6/
         docker push "${IMAGE_NAME}"
