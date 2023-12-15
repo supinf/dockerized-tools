@@ -184,7 +184,7 @@ jobs:
 
   postgres-backup:
     name: Postgres Backup
-    if: github.event_name == 'push' && contains(github.ref, 'gh-postgres-backup-v9.6')
+    if: github.event_name == 'push' && contains(github.ref, 'gh-postgres-backup-v9.6-test')
     runs-on: ubuntu-22.04
     env:
       IMAGE_NAME: ghcr.io/supinf/postgres-backup:9.6
