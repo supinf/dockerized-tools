@@ -6,13 +6,13 @@
 # docker run --rm -it -v `pwd`:/src supinf/swagger-codegen:2.4 \
 #    generate -i /src/swagger.yaml -o /src/generated -l javascript
 
-FROM openjdk:8u131-jre-alpine
+FROM maven:3-jdk-8-alpine
 
 ENV SWAGGER_CODEGEN_VERSION=2.4.7
 
 ADD swagger-codegen /usr/bin/
 RUN chmod +x /usr/bin/swagger-codegen \
-    && apk --no-cache add bash
+    && apk upgrade && apk --no-cache add bash
 
 RUN apk --no-cache add --virtual build-deps curl \
     && repo="https://repo1.maven.org/maven2/io/swagger/swagger-codegen-cli/${SWAGGER_CODEGEN_VERSION}" \
