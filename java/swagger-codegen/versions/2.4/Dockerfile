@@ -6,7 +6,7 @@
 # docker run --rm -it -v `pwd`:/src supinf/swagger-codegen:2.4 \
 #    generate -i /src/swagger.yaml -o /src/generated -l javascript
 
-FROM maven:3-jdk-8-alpine
+FROM openjdk:8u131-jre-alpine
 
 ENV SWAGGER_CODEGEN_VERSION=2.4.7
 
