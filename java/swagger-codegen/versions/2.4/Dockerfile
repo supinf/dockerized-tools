@@ -12,7 +12,7 @@ ENV SWAGGER_CODEGEN_VERSION=2.4.7
 
 ADD swagger-codegen /usr/bin/
 RUN chmod +x /usr/bin/swagger-codegen \
-    && apk --no-cache add bash
+    && apk upgrade && apk --no-cache add bash
 
 RUN apk --no-cache add --virtual build-deps curl \
     && repo="https://repo1.maven.org/maven2/io/swagger/swagger-codegen-cli/${SWAGGER_CODEGEN_VERSION}" \
