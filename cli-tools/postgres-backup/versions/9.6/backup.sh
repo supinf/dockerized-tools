@@ -4,7 +4,7 @@ set -e
 echo "Creating dump of ${POSTGRES_DATABASE} @ ${POSTGRES_HOST}:${POSTGRES_PORT}"
 
 export PGPASSWORD=$POSTGRES_PASSWORD
-shellcheck disable=SC2086
+# shellcheck disable=SC2086
 pg_dump -h "${POSTGRES_HOST}" -p "${POSTGRES_PORT}" -U "${POSTGRES_USER}" \
   $POSTGRES_EXTRA_OPTS "${POSTGRES_DATABASE}" | gzip > dump.sql.gz
 
