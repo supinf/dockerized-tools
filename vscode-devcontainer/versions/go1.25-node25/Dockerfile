@@ -20,16 +20,17 @@ ENV CGO_ENABLED=0 \
     GOOS=linux \
     GOARCH=${TARGETARCH}
 
-ENV AIR_VERSION=v1.63.4 \
+ENV AIR_VERSION=v1.63.6 \
     DELVE_VERSION=v1.26.0 \
     MOCKGEN_VERSION=v0.6.0 \
-    BUF_VERSION=v1.61.0 \
+    BUF_VERSION=v1.63.0 \
+    PROTOC_GEN_VALIDATE_VERSION=v1.2.1 \
     PROTOC_GEN_GO_VERSION=v1.36.10 \
     PROTOC_GEN_GO_GRPC_VERSION=v1.6.0 \
     PROTOC_GEN_CONNECT_GO_VERSION=v1.19.1 \
     GRPC_GATEWAY_VERSION=v2.27.4 \
     OAPI_VERSION=v2.5.1 \
-    GOLANGCI_LINT_VERSION=v2.7.2
+    GOLANGCI_LINT_VERSION=v2.8.0
 
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
@@ -37,6 +38,7 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     go install github.com/go-delve/delve/cmd/dlv@${DELVE_VERSION} && \
     go install go.uber.org/mock/mockgen@${MOCKGEN_VERSION} && \
     go install github.com/bufbuild/buf/cmd/buf@${BUF_VERSION} && \
+    go install github.com/envoyproxy/protoc-gen-validate/cmd/protoc-gen-validate-go@${PROTOC_GEN_VALIDATE_VERSION} && \
     go install google.golang.org/protobuf/cmd/protoc-gen-go@${PROTOC_GEN_GO_VERSION} && \
     go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@${PROTOC_GEN_GO_GRPC_VERSION} && \
     go install connectrpc.com/connect/cmd/protoc-gen-connect-go@${PROTOC_GEN_CONNECT_GO_VERSION} && \
@@ -110,9 +112,9 @@ ENV PATH=/root/.local/bin:$PATH
 # Node.js Tools (pnpm, rulesync など)
 # ------------------------------------------------------------------------------
 ENV NPM_VERSION=11.7.0 \
-    PNPM_VERSION=10.26.2 \
-    RULESYNC_VERSION=4.3.1 \
-    CONTEXT7_VERSION=2.0.0
+    PNPM_VERSION=10.27.0 \
+    RULESYNC_VERSION=5.2.0 \
+    CONTEXT7_VERSION=2.1.0
 
 RUN curl -fsSL https://deb.nodesource.com/setup_current.x | bash - \
     && apt-get install -y nodejs
@@ -171,7 +173,7 @@ ENV CLAUDE_CODE_USE_BEDROCK=false \
 ENV GOOGLE_CLOUD_LOCATION=global \
     GOOGLE_GENAI_USE_VERTEXAI=true \
     GEMINI_MODEL="gemini-3-flash-preview" \
-    GEMINI_CLI_VERSION=0.22.5
+    GEMINI_CLI_VERSION=0.23.0
 
 RUN npm install -g "@google/gemini-cli@${GEMINI_CLI_VERSION}"
 
