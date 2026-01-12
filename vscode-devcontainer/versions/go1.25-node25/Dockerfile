@@ -9,10 +9,14 @@ ARG DEBIAN_VERSION=trixie-20251208
 # ARG DEBIAN_VERSION=trixie-debian13-fips
 
 # ==============================================================================
-# Stage 1: Go Tool Builder
+# Stage 0: Go SDK (Target Architecture)
 # ==============================================================================
-FROM golang:${GO_VERSION}-bookworm AS go-builder
-# FROM dhi.io/golang:${GO_VERSION}-dev AS go-builder
+FROM golang:${GO_VERSION}-bookworm AS go-sdk
+
+# ==============================================================================
+# Stage 1: Go Tool Builder (Cross-Compilation)
+# ==============================================================================
+FROM --platform=$BUILDPLATFORM golang:${GO_VERSION}-bookworm AS tool-builder
 
 ARG TARGETARCH
 
@@ -78,6 +82,7 @@ RUN --mount=type=cache,target=/var/cache/apt/archives,id=apt-archives-${TARGETAR
     libprotobuf-dev \
     gnupg lsb-release \
     locales \
+    lsof iproute2 \
     && localedef -f UTF-8 -i ja_JP ja_JP.UTF-8 \
     && rm -rf /var/lib/apt/lists/*
 
@@ -95,14 +100,6 @@ RUN curl -L -o flyway.tar.gz https://repo1.maven.org/maven2/org/flywaydb/flyway-
     && rm flyway.tar.gz
 
 # ------------------------------------------------------------------------------
-# OpenAPI Generator CLI
-# ------------------------------------------------------------------------------
-ENV OPENAPI_GENERATOR_VERSION=7.17.0
-
-RUN curl -fsSL https://raw.githubusercontent.com/OpenAPITools/openapi-generator/"v${OPENAPI_GENERATOR_VERSION}"/bin/utils/openapi-generator-cli.sh -o /usr/local/bin/openapi-generator-cli \
-    && chmod +x /usr/local/bin/openapi-generator-cli
-
-# ------------------------------------------------------------------------------
 # Python Tools (uv など)
 # ------------------------------------------------------------------------------
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -113,7 +110,7 @@ ENV PATH=/root/.local/bin:$PATH
 # ------------------------------------------------------------------------------
 ENV NPM_VERSION=11.7.0 \
     PNPM_VERSION=10.27.0 \
-    RULESYNC_VERSION=5.2.0 \
+    RULESYNC_VERSION=5.2.1 \
     CONTEXT7_VERSION=2.1.0
 
 RUN curl -fsSL https://deb.nodesource.com/setup_current.x | bash - \
@@ -180,11 +177,11 @@ RUN npm install -g "@google/gemini-cli@${GEMINI_CLI_VERSION}"
 # ------------------------------------------------------------------------------
 # Go
 # ------------------------------------------------------------------------------
-COPY --from=go-builder /usr/local/go /usr/local/go
+COPY --from=go-sdk /usr/local/go /usr/local/go
 ENV PATH=$PATH:/usr/local/go/bin:/go/bin
 ENV GOPATH=/go
 
-COPY --from=go-builder /go/bin /go/bin
+COPY --from=tool-builder /go/bin /go/bin
 
 ENV CGO_ENABLED=0 \
     GO111MODULE=on \

@@ -23,7 +23,7 @@ jobs:
       matrix:
         include:
           - image_name: vscode-devcontainer
-            image_tag: 20260109
+            image_tag: 20260112
             filter_ref: gh-devcontainer
             dockerfile_path: vscode-devcontainer/versions/go1.25-node25/
             platforms: linux/amd64,linux/arm64
@@ -79,6 +79,17 @@ jobs:
             dockerfile_path: cli-tools/postgres-backup/versions/9.6/
 
     steps:
+      - name: Delete huge unnecessary tools folder
+        run: rm -rf /opt/hostedtoolcache
+
+      # Docker ボリュームの調整
+      - name: Adjutment docker volumes
+        run: |
+          docker system df
+          docker system prune -a --volumes -f
+          docker system df
+
+      # Checkout repository
       - name: Checkout repository
         if: contains(github.ref, matrix.filter_ref)
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
