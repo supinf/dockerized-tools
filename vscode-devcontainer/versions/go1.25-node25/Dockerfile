@@ -24,7 +24,7 @@ ENV CGO_ENABLED=0 \
     GOOS=linux \
     GOARCH=${TARGETARCH}
 
-ENV AIR_VERSION=v1.63.6 \
+ENV AIR_VERSION=v1.64.0 \
     DELVE_VERSION=v1.26.0 \
     MOCKGEN_VERSION=v0.6.0 \
     BUF_VERSION=v1.63.0 \
@@ -110,7 +110,7 @@ ENV PATH=/root/.local/bin:$PATH
 # ------------------------------------------------------------------------------
 ENV NPM_VERSION=11.7.0 \
     PNPM_VERSION=10.27.0 \
-    RULESYNC_VERSION=5.2.1 \
+    RULESYNC_VERSION=5.3.0 \
     CONTEXT7_VERSION=2.1.0
 
 RUN curl -fsSL https://deb.nodesource.com/setup_current.x | bash - \
@@ -170,7 +170,7 @@ ENV CLAUDE_CODE_USE_BEDROCK=false \
 ENV GOOGLE_CLOUD_LOCATION=global \
     GOOGLE_GENAI_USE_VERTEXAI=true \
     GEMINI_MODEL="gemini-3-flash-preview" \
-    GEMINI_CLI_VERSION=0.23.0
+    GEMINI_CLI_VERSION=0.24.0
 
 RUN npm install -g "@google/gemini-cli@${GEMINI_CLI_VERSION}"
 
