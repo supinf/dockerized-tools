@@ -3,9 +3,9 @@
 # ==============================================================================
 # Global Arguments
 # ==============================================================================
-ARG GO_VERSION=1.25.5
-ARG DEBIAN_VERSION=trixie-20251208
-# ARG GO_VERSION=1.25.5-debian13
+ARG GO_VERSION=1.26.0
+ARG DEBIAN_VERSION=trixie-20260202
+# ARG GO_VERSION=1.26.0-debian13
 # ARG DEBIAN_VERSION=trixie-debian13-fips
 
 # ==============================================================================
@@ -24,17 +24,17 @@ ENV CGO_ENABLED=0 \
     GOOS=linux \
     GOARCH=${TARGETARCH}
 
-ENV AIR_VERSION=v1.64.0 \
+ENV AIR_VERSION=v1.64.5 \
     DELVE_VERSION=v1.26.0 \
     MOCKGEN_VERSION=v0.6.0 \
-    BUF_VERSION=v1.63.0 \
+    BUF_VERSION=v1.65.0 \
     PROTOC_GEN_VALIDATE_VERSION=v1.2.1 \
     PROTOC_GEN_GO_VERSION=v1.36.10 \
     PROTOC_GEN_GO_GRPC_VERSION=v1.6.0 \
     PROTOC_GEN_CONNECT_GO_VERSION=v1.19.1 \
-    GRPC_GATEWAY_VERSION=v2.27.4 \
+    GRPC_GATEWAY_VERSION=v2.27.8 \
     OAPI_VERSION=v2.5.1 \
-    GOLANGCI_LINT_VERSION=v2.8.0
+    GOLANGCI_LINT_VERSION=v2.9.0
 
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
@@ -108,9 +108,9 @@ ENV PATH=/root/.local/bin:$PATH
 # ------------------------------------------------------------------------------
 # Node.js Tools (pnpm, rulesync など)
 # ------------------------------------------------------------------------------
-ENV NPM_VERSION=11.7.0 \
-    PNPM_VERSION=10.27.0 \
-    RULESYNC_VERSION=5.3.0 \
+ENV NPM_VERSION=11.10.0 \
+    PNPM_VERSION=10.29.3 \
+    RULESYNC_VERSION=7.3.0 \
     CONTEXT7_VERSION=2.1.0
 
 RUN curl -fsSL https://deb.nodesource.com/setup_current.x | bash - \
@@ -120,7 +120,6 @@ RUN --mount=type=cache,target=/root/.npm \
     npm install -g "npm@${NPM_VERSION}" --force && \
     npm install -g "pnpm@${PNPM_VERSION}" && \
     npm install -g "rulesync@${RULESYNC_VERSION}" && \
-    npm install -g "@upstash/context7-mcp@${CONTEXT7_VERSION}" && \
     npm cache clean --force
 
 # ------------------------------------------------------------------------------
@@ -169,8 +168,7 @@ ENV CLAUDE_CODE_USE_BEDROCK=false \
 # ------------------------------------------------------------------------------
 ENV GOOGLE_CLOUD_LOCATION=global \
     GOOGLE_GENAI_USE_VERTEXAI=true \
-    GEMINI_MODEL="gemini-3-flash-preview" \
-    GEMINI_CLI_VERSION=0.24.0
+    GEMINI_CLI_VERSION=0.28.2
 
 RUN npm install -g "@google/gemini-cli@${GEMINI_CLI_VERSION}"
 
