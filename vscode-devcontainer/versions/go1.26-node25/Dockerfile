@@ -3,9 +3,9 @@
 # ==============================================================================
 # Global Arguments
 # ==============================================================================
-ARG GO_VERSION=1.26.0
+ARG GO_VERSION=1.26.1
 ARG DEBIAN_VERSION=trixie-20260202
-# ARG GO_VERSION=1.26.0-debian13
+# ARG GO_VERSION=1.26.1-debian13
 # ARG DEBIAN_VERSION=trixie-debian13-fips
 
 # ==============================================================================
@@ -24,23 +24,29 @@ ENV CGO_ENABLED=0 \
     GOOS=linux \
     GOARCH=${TARGETARCH}
 
-ENV AIR_VERSION=v1.64.5 \
-    DELVE_VERSION=v1.26.0 \
+ENV TBLS_VERSION=v1.92.3 \
+    AIR_VERSION=v1.64.5 \
+    DELVE_VERSION=v1.26.1 \
     MOCKGEN_VERSION=v0.6.0 \
-    BUF_VERSION=v1.65.0 \
-    PROTOC_GEN_VALIDATE_VERSION=v1.2.1 \
-    PROTOC_GEN_GO_VERSION=v1.36.10 \
-    PROTOC_GEN_GO_GRPC_VERSION=v1.6.0 \
+    TEMPL_VERSION=v0.3.1001 \
+    BUF_VERSION=v1.66.1 \
+    PROTOC_GEN_VALIDATE_VERSION=v1.3.3 \
+    PROTOC_GEN_GO_VERSION=v1.36.11 \
+    PROTOC_GEN_GO_GRPC_VERSION=v1.6.1 \
     PROTOC_GEN_CONNECT_GO_VERSION=v1.19.1 \
-    GRPC_GATEWAY_VERSION=v2.27.8 \
-    OAPI_VERSION=v2.5.1 \
-    GOLANGCI_LINT_VERSION=v2.9.0
+    GRPC_GATEWAY_VERSION=v2.28.0 \
+    OAPI_VERSION=v2.6.0 \
+    GOLANGCI_LINT_VERSION=v2.11.3
 
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
+    go install golang.org/x/tools/gopls@latest && \
+    go install golang.org/x/tools/cmd/goimports@latest && \
+    go install github.com/k1LoW/tbls@${TBLS_VERSION} && \
     go install github.com/air-verse/air@${AIR_VERSION} && \
     go install github.com/go-delve/delve/cmd/dlv@${DELVE_VERSION} && \
     go install go.uber.org/mock/mockgen@${MOCKGEN_VERSION} && \
+    go install github.com/a-h/templ/cmd/templ@${TEMPL_VERSION} && \
     go install github.com/bufbuild/buf/cmd/buf@${BUF_VERSION} && \
     go install github.com/envoyproxy/protoc-gen-validate/cmd/protoc-gen-validate-go@${PROTOC_GEN_VALIDATE_VERSION} && \
     go install google.golang.org/protobuf/cmd/protoc-gen-go@${PROTOC_GEN_GO_VERSION} && \
@@ -76,11 +82,13 @@ RUN --mount=type=cache,target=/var/cache/apt/archives,id=apt-archives-${TARGETAR
     openjdk-25-jdk-headless \
     maven \
     jq \
+    less \
     python3 \
     python3-pip \
     protobuf-compiler \
     libprotobuf-dev \
     gnupg lsb-release \
+    postgresql-client \
     locales \
     lsof iproute2 \
     && localedef -f UTF-8 -i ja_JP ja_JP.UTF-8 \
@@ -100,6 +108,14 @@ RUN curl -L -o flyway.tar.gz https://repo1.maven.org/maven2/org/flywaydb/flyway-
     && rm flyway.tar.gz
 
 # ------------------------------------------------------------------------------
+# OpenAPI Generator
+# ------------------------------------------------------------------------------
+ENV OPENAPI_GENERATOR_VERSION=7.20.0
+
+RUN curl -fsSL https://raw.githubusercontent.com/OpenAPITools/openapi-generator/"v${OPENAPI_GENERATOR_VERSION}"/bin/utils/openapi-generator-cli.sh -o /usr/local/bin/openapi-generator-cli \
+    && chmod +x /usr/local/bin/openapi-generator-cli
+
+# ------------------------------------------------------------------------------
 # Python Tools (uv など)
 # ------------------------------------------------------------------------------
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -108,10 +124,9 @@ ENV PATH=/root/.local/bin:$PATH
 # ------------------------------------------------------------------------------
 # Node.js Tools (pnpm, rulesync など)
 # ------------------------------------------------------------------------------
-ENV NPM_VERSION=11.10.0 \
-    PNPM_VERSION=10.29.3 \
-    RULESYNC_VERSION=7.3.0 \
-    CONTEXT7_VERSION=2.1.0
+ENV NPM_VERSION=11.11.1 \
+    PNPM_VERSION=10.32.1 \
+    RULESYNC_VERSION=7.18.2
 
 RUN curl -fsSL https://deb.nodesource.com/setup_current.x | bash - \
     && apt-get install -y nodejs
@@ -160,15 +175,16 @@ ENV CLAUDE_CODE_USE_BEDROCK=false \
     AWS_REGION=ap-northeast-1 \
     CLAUDE_CODE_USE_VERTEX=false \
     CLOUD_ML_REGION=global \
-    ANTHROPIC_MODEL=claude-sonnet-4-5-20250929 \
-    ANTHROPIC_SMALL_FAST_MODEL=claude-haiku-4-5-20251001
+    ANTHROPIC_MODEL=claude-sonnet-4-6@default \
+    ANTHROPIC_SMALL_FAST_MODEL=claude-haiku-4-5@20251001
 
 # ------------------------------------------------------------------------------
 # Gemini
 # ------------------------------------------------------------------------------
 ENV GOOGLE_CLOUD_LOCATION=global \
     GOOGLE_GENAI_USE_VERTEXAI=true \
-    GEMINI_CLI_VERSION=0.28.2
+    GEMINI_CLI_VERSION=0.33.1 \
+    ADK_SUPPRESS_GEMINI_LITELLM_WARNINGS=true
 
 RUN npm install -g "@google/gemini-cli@${GEMINI_CLI_VERSION}"
 
@@ -182,7 +198,6 @@ ENV GOPATH=/go
 COPY --from=tool-builder /go/bin /go/bin
 
 ENV CGO_ENABLED=0 \
-    GO111MODULE=on \
-    GOEXPERIMENT=rangefunc
+    GO111MODULE=on
 
 ENTRYPOINT [ "sleep", "infinity" ]
