@@ -24,7 +24,7 @@ ENV CGO_ENABLED=0 \
     GOOS=linux \
     GOARCH=${TARGETARCH}
 
-ENV TBLS_VERSION=v1.92.3 \
+ENV TBLS_VERSION=v1.93.0 \
     AIR_VERSION=v1.64.5 \
     DELVE_VERSION=v1.26.1 \
     MOCKGEN_VERSION=v0.6.0 \
@@ -75,6 +75,7 @@ RUN --mount=type=cache,target=/var/cache/apt/archives,id=apt-archives-${TARGETAR
     apt-get update && apt-get install -y --no-install-recommends \
     git \
     bash \
+    make \
     curl \
     wget \
     unzip \
@@ -116,6 +117,13 @@ RUN curl -fsSL https://raw.githubusercontent.com/OpenAPITools/openapi-generator/
     && chmod +x /usr/local/bin/openapi-generator-cli
 
 # ------------------------------------------------------------------------------
+# GitHub CLI (gh)
+# ------------------------------------------------------------------------------
+RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | gpg --dearmor -o /usr/share/keyrings/githubcli-archive-keyring.gpg && \
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null && \
+    apt update && apt install -y gh && rm -rf /var/lib/apt/lists/*
+
+# ------------------------------------------------------------------------------
 # Python Tools (uv など)
 # ------------------------------------------------------------------------------
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -124,9 +132,9 @@ ENV PATH=/root/.local/bin:$PATH
 # ------------------------------------------------------------------------------
 # Node.js Tools (pnpm, rulesync など)
 # ------------------------------------------------------------------------------
-ENV NPM_VERSION=11.11.1 \
+ENV NPM_VERSION=11.12.0 \
     PNPM_VERSION=10.32.1 \
-    RULESYNC_VERSION=7.18.2
+    RULESYNC_VERSION=7.21.0
 
 RUN curl -fsSL https://deb.nodesource.com/setup_current.x | bash - \
     && apt-get install -y nodejs
@@ -183,7 +191,7 @@ ENV CLAUDE_CODE_USE_BEDROCK=false \
 # ------------------------------------------------------------------------------
 ENV GOOGLE_CLOUD_LOCATION=global \
     GOOGLE_GENAI_USE_VERTEXAI=true \
-    GEMINI_CLI_VERSION=0.33.1 \
+    GEMINI_CLI_VERSION=0.34.0 \
     ADK_SUPPRESS_GEMINI_LITELLM_WARNINGS=true
 
 RUN npm install -g "@google/gemini-cli@${GEMINI_CLI_VERSION}"
