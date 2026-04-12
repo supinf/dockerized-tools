@@ -4,7 +4,7 @@
 # Global Arguments
 # ==============================================================================
 ARG GO_VERSION=1.26.1
-ARG DEBIAN_VERSION=trixie-20260202
+ARG DEBIAN_VERSION=trixie-20260406
 # ARG GO_VERSION=1.26.1-debian13
 # ARG DEBIAN_VERSION=trixie-debian13-fips
 
@@ -24,19 +24,19 @@ ENV CGO_ENABLED=0 \
     GOOS=linux \
     GOARCH=${TARGETARCH}
 
-ENV TBLS_VERSION=v1.93.0 \
-    AIR_VERSION=v1.64.5 \
+ENV TBLS_VERSION=v1.94.4 \
+    AIR_VERSION=v1.65.0 \
     DELVE_VERSION=v1.26.1 \
     MOCKGEN_VERSION=v0.6.0 \
     TEMPL_VERSION=v0.3.1001 \
-    BUF_VERSION=v1.66.1 \
+    BUF_VERSION=v1.67.0 \
     PROTOC_GEN_VALIDATE_VERSION=v1.3.3 \
     PROTOC_GEN_GO_VERSION=v1.36.11 \
     PROTOC_GEN_GO_GRPC_VERSION=v1.6.1 \
     PROTOC_GEN_CONNECT_GO_VERSION=v1.19.1 \
     GRPC_GATEWAY_VERSION=v2.28.0 \
     OAPI_VERSION=v2.6.0 \
-    GOLANGCI_LINT_VERSION=v2.11.3
+    GOLANGCI_LINT_VERSION=v2.11.4
 
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
@@ -111,7 +111,7 @@ RUN curl -L -o flyway.tar.gz https://repo1.maven.org/maven2/org/flywaydb/flyway-
 # ------------------------------------------------------------------------------
 # OpenAPI Generator
 # ------------------------------------------------------------------------------
-ENV OPENAPI_GENERATOR_VERSION=7.20.0
+ENV OPENAPI_GENERATOR_VERSION=7.21.0
 
 RUN curl -fsSL https://raw.githubusercontent.com/OpenAPITools/openapi-generator/"v${OPENAPI_GENERATOR_VERSION}"/bin/utils/openapi-generator-cli.sh -o /usr/local/bin/openapi-generator-cli \
     && chmod +x /usr/local/bin/openapi-generator-cli
@@ -132,9 +132,9 @@ ENV PATH=/root/.local/bin:$PATH
 # ------------------------------------------------------------------------------
 # Node.js Tools (pnpm, rulesync など)
 # ------------------------------------------------------------------------------
-ENV NPM_VERSION=11.12.0 \
-    PNPM_VERSION=10.32.1 \
-    RULESYNC_VERSION=7.21.0
+ENV NPM_VERSION=11.12.1 \
+    PNPM_VERSION=10.33.0 \
+    RULESYNC_VERSION=7.28.0
 
 RUN curl -fsSL https://deb.nodesource.com/setup_current.x | bash - \
     && apt-get install -y nodejs
@@ -191,10 +191,47 @@ ENV CLAUDE_CODE_USE_BEDROCK=false \
 # ------------------------------------------------------------------------------
 ENV GOOGLE_CLOUD_LOCATION=global \
     GOOGLE_GENAI_USE_VERTEXAI=true \
-    GEMINI_CLI_VERSION=0.34.0 \
+    GEMINI_CLI_VERSION=0.37.1 \
     ADK_SUPPRESS_GEMINI_LITELLM_WARNINGS=true
 
 RUN npm install -g "@google/gemini-cli@${GEMINI_CLI_VERSION}"
+
+# ------------------------------------------------------------------------------
+# Archgate
+# ------------------------------------------------------------------------------
+# ARCHGATE_GIT_SHA: the git commit SHA corresponding to ARCHGATE_VERSION.
+# Update both together when bumping the version.
+# To find the SHA: npm view archgate@<version> gitHead
+ENV ARCHGATE_VERSION=0.27.0 \
+    ARCHGATE_GIT_SHA=708e9fbfdf2c6f297d0f9cff43985fcf749dc686
+
+RUN if [ "$TARGETARCH" = "arm64" ]; then \
+    # arm64: pre-built archgate binary not available — build from source using Bun \
+    curl -fsSL https://bun.sh/install | BUN_INSTALL=/tmp/bun bash && \
+    git clone https://github.com/archgate/cli.git /tmp/archgate-src && \
+    git -C /tmp/archgate-src checkout "${ARCHGATE_GIT_SHA}" && \
+    /tmp/bun/bin/bun install --cwd /tmp/archgate-src && \
+    /tmp/bun/bin/bun build /tmp/archgate-src/src/cli.ts \
+        --compile --bytecode --target=bun-linux-arm64 \
+        --outfile /usr/local/bin/archgate && \
+    rm -rf /tmp/archgate-src /tmp/bun; \
+  else \
+    npm install -g "archgate@${ARCHGATE_VERSION}"; \
+  fi
+
+# ------------------------------------------------------------------------------
+# Gitleaks
+# ------------------------------------------------------------------------------
+ENV GITLEAKS_VERSION=8.30.1
+
+RUN case ${TARGETARCH} in \
+         "amd64") GITLEAKS_ARCH="x64"  ;; \
+         "arm64") GITLEAKS_ARCH="arm64" ;; \
+         *) echo "Unsupported architecture: ${TARGETARCH}"; exit 1 ;; \
+    esac && \
+    curl -fsSL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_${GITLEAKS_ARCH}.tar.gz" -o gitleaks.tar.gz && \
+    tar -xzf gitleaks.tar.gz -C /usr/local/bin gitleaks && \
+    rm gitleaks.tar.gz
 
 # ------------------------------------------------------------------------------
 # Go
