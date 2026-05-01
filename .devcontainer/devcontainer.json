@@ -1,0 +1,51 @@
+{
+  "name": "supinf-tools",
+  "dockerComposeFile": ["compose.yaml"],
+  "service": "workspace",
+  // "forwardPorts": [3000, 4173],
+  "workspaceFolder": "/workspace",
+  "containerEnv": {
+    "LANG": "ja_JP.UTF-8"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "biomejs.biome",
+        "RooVeterinaryInc.roo-cline",
+        "anthropic.claude-code",
+        "DrBlury.protobuf-vsc",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "bradlc.vscode-tailwindcss",
+        "ms-playwright.playwright",
+        "vitest.explorer"
+      ],
+      "settings": {
+        // for Git
+        "git.openRepositoryInParentFolders": "always",
+        // for Terminal
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "editor.codeActionsOnSave": {
+          "source.fixAll.biome": "explicit",
+          "source.organizeImports.biome": "explicit"
+        },
+        "editor.formatOnSave": true,
+        "editor.linkedEditing": true,
+        "files.insertFinalNewline": true,
+        // for Biome
+        "biome.lsp.bin": "node_modules/.bin/biome",
+        "biome.searchInPath": false,
+        // for TanStack Router
+        "files.watcherExclude": {
+          "**/routeTree.gen.ts": true
+        },
+        "search.exclude": {
+          "**/routeTree.gen.ts": true
+        },
+        "files.readonlyInclude": {
+          "**/routeTree.gen.ts": true
+        }
+      }
+    }
+  }
+}

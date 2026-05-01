@@ -1,0 +1,18 @@
+services:
+  workspace:
+    # https://github.com/supinf/dockerized-tools/blob/master/vscode-devcontainer/versions/go1.26-node25/Dockerfile
+    image: ghcr.io/supinf/vscode-devcontainer:20260412
+    volumes:
+      - ../:/workspace
+      - $HOME/.config/gcloud:/root/.config/gcloud
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      # Coding agents
+      - CLAUDE_CODE_USE_BEDROCK
+      - AWS_REGION
+      - CLAUDE_CODE_USE_VERTEX
+      - ANTHROPIC_VERTEX_PROJECT_ID
+      - ANTHROPIC_MODEL
+      - ANTHROPIC_SMALL_FAST_MODEL
+      - GOOGLE_CLOUD_PROJECT
+      - GEMINI_MODEL
