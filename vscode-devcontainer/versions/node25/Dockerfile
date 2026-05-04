@@ -62,8 +62,8 @@ ENV PATH=/root/.local/bin:$PATH
 # Node.js Tools (pnpm, rulesync など)
 # ------------------------------------------------------------------------------
 ENV NPM_VERSION=11.13.0 \
-    PNPM_VERSION=10.33.0 \
-    RULESYNC_VERSION=8.2.0
+    PNPM_VERSION=10.33.2 \
+    RULESYNC_VERSION=8.15.0
 
 RUN curl -fsSL https://deb.nodesource.com/setup_current.x | bash - \
     && apt-get install -y nodejs
@@ -103,7 +103,7 @@ ENV CLAUDE_CODE_USE_BEDROCK=false \
 # ------------------------------------------------------------------------------
 ENV GOOGLE_CLOUD_LOCATION=global \
     GOOGLE_GENAI_USE_VERTEXAI=true \
-    GEMINI_CLI_VERSION=0.40.0 \
+    GEMINI_CLI_VERSION=0.40.1 \
     ADK_SUPPRESS_GEMINI_LITELLM_WARNINGS=true
 
 RUN npm install -g "@google/gemini-cli@${GEMINI_CLI_VERSION}"
@@ -114,8 +114,8 @@ RUN npm install -g "@google/gemini-cli@${GEMINI_CLI_VERSION}"
 # ARCHGATE_GIT_SHA: the git commit SHA corresponding to ARCHGATE_VERSION.
 # Update both together when bumping the version.
 # To find the SHA: npm view archgate@<version> gitHead
-ENV ARCHGATE_VERSION=0.31.1 \
-    ARCHGATE_GIT_SHA=237f773f952b0a4715989fe3f6e1634dce5a6642
+ENV ARCHGATE_VERSION=0.31.2 \
+    ARCHGATE_GIT_SHA=b2ec6511aab6d49da4a84001e6ee71195c42eb86
 
 RUN if [ "$TARGETARCH" = "arm64" ]; then \
     # arm64: pre-built archgate binary not available — build from source using Bun \

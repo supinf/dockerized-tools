@@ -24,19 +24,19 @@ ENV CGO_ENABLED=0 \
     GOOS=linux \
     GOARCH=${TARGETARCH}
 
-ENV TBLS_VERSION=v1.94.4 \
-    AIR_VERSION=v1.65.0 \
-    DELVE_VERSION=v1.26.2 \
+ENV TBLS_VERSION=v1.94.5 \
+    AIR_VERSION=v1.65.1 \
+    DELVE_VERSION=v1.26.3 \
     MOCKGEN_VERSION=v0.6.0 \
     TEMPL_VERSION=v0.3.1001 \
-    BUF_VERSION=v1.68.4 \
+    BUF_VERSION=v1.69.0 \
     PROTOC_GEN_VALIDATE_VERSION=v1.3.3 \
     PROTOC_GEN_GO_VERSION=v1.36.11 \
     PROTOC_GEN_GO_GRPC_VERSION=v1.6.1 \
-    PROTOC_GEN_CONNECT_GO_VERSION=v1.19.1 \
+    PROTOC_GEN_CONNECT_GO_VERSION=v1.19.2 \
     GRPC_GATEWAY_VERSION=v2.29.0 \
-    OAPI_VERSION=v2.6.0 \
-    GOLANGCI_LINT_VERSION=v2.11.4
+    OAPI_VERSION=v2.7.0 \
+    GOLANGCI_LINT_VERSION=v2.12.1
 
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
@@ -133,8 +133,8 @@ ENV PATH=/root/.local/bin:$PATH
 # Node.js Tools (pnpm, rulesync など)
 # ------------------------------------------------------------------------------
 ENV NPM_VERSION=11.13.0 \
-    PNPM_VERSION=10.33.0 \
-    RULESYNC_VERSION=8.2.0
+    PNPM_VERSION=10.33.2 \
+    RULESYNC_VERSION=8.15.0
 
 RUN curl -fsSL https://deb.nodesource.com/setup_current.x | bash - \
     && apt-get install -y nodejs
@@ -191,7 +191,7 @@ ENV CLAUDE_CODE_USE_BEDROCK=false \
 # ------------------------------------------------------------------------------
 ENV GOOGLE_CLOUD_LOCATION=global \
     GOOGLE_GENAI_USE_VERTEXAI=true \
-    GEMINI_CLI_VERSION=0.40.0 \
+    GEMINI_CLI_VERSION=0.40.1 \
     ADK_SUPPRESS_GEMINI_LITELLM_WARNINGS=true
 
 RUN npm install -g "@google/gemini-cli@${GEMINI_CLI_VERSION}"
@@ -202,8 +202,8 @@ RUN npm install -g "@google/gemini-cli@${GEMINI_CLI_VERSION}"
 # ARCHGATE_GIT_SHA: the git commit SHA corresponding to ARCHGATE_VERSION.
 # Update both together when bumping the version.
 # To find the SHA: npm view archgate@<version> gitHead
-ENV ARCHGATE_VERSION=0.31.1 \
-    ARCHGATE_GIT_SHA=237f773f952b0a4715989fe3f6e1634dce5a6642
+ENV ARCHGATE_VERSION=0.31.2 \
+    ARCHGATE_GIT_SHA=b2ec6511aab6d49da4a84001e6ee71195c42eb86
 
 RUN if [ "$TARGETARCH" = "arm64" ]; then \
     # arm64: pre-built archgate binary not available — build from source using Bun \

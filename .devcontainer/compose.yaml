@@ -1,11 +1,12 @@
 services:
   workspace:
     # https://github.com/supinf/dockerized-tools/blob/master/vscode-devcontainer/versions/go1.26-node25/Dockerfile
-    image: ghcr.io/supinf/vscode-devcontainer:20260412
+    image: ghcr.io/supinf/vscode-devcontainer:20260501
     volumes:
       - ../:/workspace
       - $HOME/.config/gcloud:/root/.config/gcloud
-      - /var/run/docker.sock:/var/run/docker.sock
+      # - /var/run/docker.sock:/var/run/docker.sock
+      - /run/user/501/docker.sock:/var/run/docker.sock
     environment:
       # Coding agents
       - CLAUDE_CODE_USE_BEDROCK
