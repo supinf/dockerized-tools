@@ -143,12 +143,18 @@ When adding a new tool, insert it in the logically closest group. Add a `# ---` 
 
 All tools must support both `linux/amd64` and `linux/arm64`. If a pre-built binary is only available for one arch, provide a source-build fallback for the other (see Archgate section in the Dockerfile for the pattern).
 
-## Append-Only Rule
+## Version Directory Policy
 
-**Never edit an existing `versions/<tag>/Dockerfile`.** Always write to a new directory:
+Directory names follow the pattern `go<major.minor>-node<major>`, derived from the Go and Node.js major versions in use.
+
+**You may overwrite an existing Dockerfile** if the Go or Node.js major versions remain unchanged (e.g., Go 1.26.1 → 1.26.2, or Node 25.1 → 25.3).
+
+**Create a new version directory** only when a major version changes:
+- Go major.minor changes (e.g., 1.26 → 1.27)
+- Node.js major version changes (e.g., 25 → 26)
+
+In these cases, create a new directory:
 
 ```
 vscode-devcontainer/versions/<new-tag>/Dockerfile
 ```
-
-The new directory name follows the pattern `go<major.minor>-node<major>`, derived from the Go and Node.js versions in use.

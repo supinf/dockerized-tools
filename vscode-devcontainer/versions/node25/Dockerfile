@@ -99,6 +99,26 @@ ENV CLAUDE_CODE_USE_BEDROCK=false \
     ANTHROPIC_SMALL_FAST_MODEL=claude-haiku-4-5@20251001
 
 # ------------------------------------------------------------------------------
+# Cline
+# ------------------------------------------------------------------------------
+ENV CLINE_AWS_REGION=ap-northeast-1 \
+    CLINE_BEDROCK_MODEL_ID=global.anthropic.claude-sonnet-4-6 \
+    CLINE_VERTEX_REGION=global \
+    CLINE_VERTEX_MODEL_ID=claude-sonnet-4-6@default \
+    CLINE_OPENAI_BASE_URL=https://api.openai.com/v1 \
+    CLINE_OPENAI_MODEL=gpt-5.3-codex
+
+# ------------------------------------------------------------------------------
+# Codex
+# ------------------------------------------------------------------------------
+ENV CODEX_CLI_VERSION=0.128.0 \
+    CODEX_HOME=/root/.codex \
+    OPENAI_BASE_URL=https://api.openai.com/v1 \
+    CODEX_MODEL=gpt-5.3-codex
+
+RUN npm install -g "@openai/codex@${CODEX_CLI_VERSION}"
+
+# ------------------------------------------------------------------------------
 # Gemini
 # ------------------------------------------------------------------------------
 ENV GOOGLE_CLOUD_LOCATION=global \

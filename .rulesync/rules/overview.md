@@ -34,7 +34,7 @@ The `vscode-devcontainer` image (`vscode-devcontainer/versions/go1.26-node25/`) 
 ## Critical Rules
 
 - **No edits to generated AI config files** — `.claude/`, `.cursor/`, `.gemini/`, `.roo/`, `CLAUDE.md`, `GEMINI.md` etc. are auto-generated. Edit source files under `.rulesync/` and run `bash .rulesync/rulesync.sh` to regenerate.
-- **Version directories are append-only** — never modify an existing `versions/<tag>/Dockerfile` once released. Add a new version directory instead.
+- **Version directory policy** — directory names follow `go<major.minor>-node<major>` format. You may overwrite an existing Dockerfile if the Go/Node.js major versions remain unchanged. Create a new version directory only when a major version changes (e.g., Go 1.26 → 1.27, or Node 25 → 26).
 - **One Dockerfile per version directory** — keep each `versions/<tag>/` self-contained.
 - **Tag-based CI** — releases are triggered by git tags. Each image in `main.yml` has a `filter_ref`; push a tag containing that string to build and push only that image.
 - **Registry target** — all new images go to `ghcr.io/supinf/<image-name>:<tag>` (not Docker Hub).

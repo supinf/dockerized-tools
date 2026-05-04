@@ -1,18 +1,19 @@
 ---
 name: update-versions
-description: "Updates all pinned dependency versions in a Dockerfile to their latest stable releases and writes the result into a new version directory. Runs analyze-dependencies and find-proper-software-version skills as sub-steps."
+description: "Updates all pinned dependency versions in a Dockerfile to their latest stable releases and writes the result into a new version directory. Runs analyze-dependencies, find-proper-software-version, and verify-dependency-security skills as sub-steps."
 targets: ["*"]
 claudecode:
   skills:
     - analyze-dependencies
     - find-proper-software-version
+    - verify-dependency-security
   allowed-tools: Read, Write, Edit, Bash(find *), Bash(ls *), Bash(bash .rulesync/rulesync.sh), WebSearch, WebFetch
   disable-model-invocation: true
 ---
 
 # Update Dependency Versions
 
-Brings every pinned dependency in a Dockerfile up to its latest stable release, then writes a new version directory. Because version directories are append-only, this command **always creates a new directory** — it never edits an existing Dockerfile.
+Brings every pinned dependency in a Dockerfile up to its latest stable release. If the Go or Node.js major versions remain unchanged, the command **overwrites the existing Dockerfile**. If a major version changes, it **creates a new version directory**.
 
 ## Procedure
 
@@ -28,7 +29,7 @@ Brings every pinned dependency in a Dockerfile up to its latest stable release, 
 
 2. Read the selected Dockerfile in full.
 
-3. Note the current version directory name (e.g. `go1.26-node25`). The new directory will use updated major version numbers from `GO_VERSION` and the Node.js major in use.
+3. Note the current version directory name (e.g. `go1.26-node25`). If the Go or Node.js major versions will change, a new directory will be created; otherwise, the existing Dockerfile will be overwritten.
 
 ### Phase 2: Analyze Dependencies
 
@@ -69,11 +70,48 @@ Collect all results into a version-update table:
 | ... | ... | ... | ... | ... |
 ```
 
-### Phase 4: Present Diff for Approval
+### Phase 4: Security Verification
+
+**CRITICAL**: Before presenting the version updates for approval, verify that none of the proposed updates introduce security risks.
+
+Apply the **verify-dependency-security** skill to all dependencies with proposed version changes.
+
+For each dependency, pass:
+
+- Package name
+- Current version
+- Proposed version
+- Source type
+- Package URL (GitHub repo, npm registry, Maven Central, etc.)
+
+The security verification will produce a risk assessment for each dependency, including:
+
+- Known vulnerabilities (CVEs) in the proposed version
+- Suspicious release patterns (supply-chain attack indicators)
+- Trust signals (repository activity, community trust, maintainer history)
+
+**If any dependency is flagged as High or Critical risk:**
+
+1. Present the security report to the user immediately.
+2. Ask whether to:
+   - **Exclude** the high-risk dependency from the update (keep current version)
+   - **Proceed anyway** (user accepts the risk)
+   - **Cancel** the entire update operation
+
+**If all dependencies are Low or Medium risk:**
+
+- Include the security summary in the next phase (approval).
+- Medium-risk dependencies should be highlighted for user awareness but do not block approval.
+
+Do not proceed to Phase 5 if any Critical-risk dependency is included without explicit user override.
+
+### Phase 5: Present Diff for Approval
 
 Show the complete version-update table to the user. Highlight:
 
-- Any **major** version bumps (highest risk)
+- **Security summary**: Count of dependencies by risk level (Low / Medium / High / Critical)
+- Any **Medium-risk dependencies** (from Phase 4) — note these for user awareness
+- Any **major** version bumps (highest change risk)
 - Any entries where `Change Level: none` (already up to date)
 - Any coordination pairs that will be updated together
 
@@ -83,21 +121,23 @@ Use your interactive confirmation capability to request explicit user approval b
 - Approve a subset (specify which variables to skip)
 - Cancel entirely
 
-Do not proceed to Phase 5 without explicit approval.
+Do not proceed to Phase 6 without explicit approval.
 
-### Phase 5: Determine the New Version Directory Name
+### Phase 6: Determine the Target Directory Name
 
-Derive the new directory name from the approved version updates:
+Derive the target directory name from the approved version updates:
 
 - Extract the Go major.minor from the approved `GO_VERSION` (e.g. `1.27.1` → `go1.27`).
 - Extract the Node.js major from the currently installed Node version. If Node's major is unchanged, keep the existing suffix (e.g. `node25`).
 - Combine: `go<major.minor>-node<major>` (e.g. `go1.27-node25`).
 
-If the resulting name already exists as a directory, append `-2` (or the next available suffix) and inform the user.
+**If the resulting name matches the current directory name**, you will overwrite the existing Dockerfile.
 
-### Phase 6: Write the New Dockerfile
+**If the resulting name differs** (because a Go or Node.js major version changed), you will create a new directory. If that new directory already exists, append `-2` (or the next available suffix) and inform the user.
 
-1. Create the new directory:
+### Phase 7: Write the Updated Dockerfile
+
+1. If creating a new directory (because a major version changed):
 
    ```bash
    mkdir -p vscode-devcontainer/versions/<new-dir-name>
@@ -105,7 +145,7 @@ If the resulting name already exists as a directory, append `-2` (or the next av
 
 2. Copy the source Dockerfile content, applying every approved version substitution. Replace only the version strings — do not alter comments, structure, or formatting.
 
-3. Write the result to `vscode-devcontainer/versions/<new-dir-name>/Dockerfile`.
+3. Write the result to `vscode-devcontainer/versions/<target-dir-name>/Dockerfile`.
 
 4. Re-read the written file and verify that:
    - Every approved variable now contains the new version string.
@@ -114,23 +154,25 @@ If the resulting name already exists as a directory, append `-2` (or the next av
 
 Report any discrepancies before continuing.
 
-### Phase 7: Summarize and Next Steps
+### Phase 8: Summarize and Next Steps
 
 Report:
 
-- New Dockerfile path
+- Updated Dockerfile path
+- Whether the file was overwritten or a new directory was created
 - Count of versions updated vs. unchanged vs. skipped
+- **Security summary**: All dependencies passed security verification (or note any Medium-risk dependencies that were approved)
 - Full version-update table with before/after values
 
 Remind the user of the required next steps:
 
-1. **Build and smoke-test locally**: `docker build vscode-devcontainer/versions/<new-dir-name>/`
+1. **Build and smoke-test locally**: `docker build vscode-devcontainer/versions/<target-dir-name>/`
 2. **Push a git tag** containing the image's `filter_ref` value (see `.github/workflows/main.yml`) to trigger CI.
 3. **Update `.devcontainer/devcontainer.json`** if it references a specific image tag.
 
 ## Important Considerations
 
-- **Append-only**: Never edit any file under an existing `versions/<tag>/` directory. Always write to a new directory.
+- **Version directory policy**: Overwrite the existing Dockerfile if Go/Node.js major versions remain unchanged. Create a new directory only when a major version changes (e.g., Go 1.26 → 1.27, or Node 25 → 26).
 - **No silent changes**: Every version substitution must be shown to the user and approved in Phase 4 before Phase 6 begins.
 - **Minimal diff**: Only change version strings. Preserve all comments, whitespace, and structure from the source Dockerfile.
 - **Unpinned tools stay unpinned**: `gopls` and `goimports` use `@latest` by design. Do not pin them.

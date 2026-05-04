@@ -1,17 +1,18 @@
 ---
 name: add-software
-description: "Adds a new software package to a vscode-devcontainer Dockerfile. Analyzes the OS, existing dependencies, and correct placement before writing to a new version directory."
+description: "Adds a new software package to a vscode-devcontainer Dockerfile. Analyzes the OS, existing dependencies, and correct placement before writing to a new version directory. Includes security verification to prevent supply-chain attacks."
 targets: ["*"]
 claudecode:
   skills:
     - dockerfile-authoring
+    - verify-dependency-security
   allowed-tools: Read, Write, Edit, Bash(find *), Bash(ls *), Bash(mkdir *), WebSearch, WebFetch
   disable-model-invocation: true
 ---
 
 # Add Software
 
-Adds a new software package to a `vscode-devcontainer` Dockerfile, correctly selecting the installation method, version, and placement. Because version directories are append-only, this command always writes to a **new directory**.
+Adds a new software package to a `vscode-devcontainer` Dockerfile, correctly selecting the installation method, version, and placement. If the Go or Node.js major versions remain unchanged, the command **overwrites the existing Dockerfile**. If a major version changes, it **creates a new version directory**.
 
 ## Procedure
 
@@ -63,11 +64,47 @@ Apply the **dockerfile-authoring** skill's placement decision tree:
 
 Identify the exact position in the file for the new block, following the **Placement Order** defined in the dockerfile-authoring skill.
 
-### Phase 4: Present the Plan for Approval
+### Phase 4: Security Verification
+
+**CRITICAL**: Before presenting the plan for approval, verify that the new software package does not introduce security risks.
+
+Apply the **verify-dependency-security** skill to the new package.
+
+Pass:
+
+- Package name
+- Current version: `(none — new addition)`
+- Proposed version: the resolved version from Phase 2
+- Source type: the installation method determined in Phase 2
+- Package URL: the official repository or registry URL
+
+The security verification will produce a risk assessment, including:
+
+- Known vulnerabilities (CVEs) in the proposed version
+- Suspicious release patterns (supply-chain attack indicators)
+- Trust signals (repository activity, community trust, maintainer history)
+
+**If the package is flagged as High or Critical risk:**
+
+1. Present the security report to the user immediately.
+2. Ask whether to:
+   - **Select a different version** (find an earlier, patched version)
+   - **Proceed anyway** (user accepts the risk)
+   - **Cancel** the addition
+
+**If the package is Low or Medium risk:**
+
+- Include the security summary in the next phase (approval).
+- Medium-risk packages should be highlighted for user awareness but do not block approval.
+
+Do not proceed to Phase 5 if the package is Critical-risk without explicit user override.
+
+### Phase 5: Present the Plan for Approval
 
 Show the user:
 
 - **Package**: name and resolved version string
+- **Security summary**: Risk level (Low / Medium / High / Critical) from Phase 4
 - **Installation method**: source type
 - **Arch support**: both arches covered? any fallback needed?
 - **Placement**: which stage and position in the file
@@ -75,21 +112,22 @@ Show the user:
 
 Use your interactive confirmation capability to request explicit user approval before writing any files. The user may request adjustments to the version, placement, or method before approving.
 
-### Phase 5: Write the New Dockerfile
+### Phase 6: Write the Updated Dockerfile
 
-1. Determine the new directory name:
-   - Keep the same `go<major.minor>-node<major>` name unless Go or Node versions change.
-   - If the resulting name already exists, append `-2` (or the next available suffix) and inform the user.
+1. Determine the target directory name:
+   - Keep the same `go<major.minor>-node<major>` name unless Go or Node versions changed.
+   - If the name matches the current directory, you will overwrite the existing Dockerfile.
+   - If the name differs (because a major version changed), create a new directory. If it already exists, append `-2` (or the next available suffix) and inform the user.
 
-2. Create the new directory:
+2. Create the new directory if needed:
 
    ```bash
-   mkdir -p vscode-devcontainer/versions/<new-dir>/
+   mkdir -p vscode-devcontainer/versions/<target-dir>/
    ```
 
 3. Copy the source Dockerfile content, inserting the new software block at the approved location. Apply only the additions — do not alter any existing content.
 
-4. Write the result to `vscode-devcontainer/versions/<new-dir>/Dockerfile`.
+4. Write the result to `vscode-devcontainer/versions/<target-dir>/Dockerfile`.
 
 5. Re-read the written file and verify:
    - The new ENV variable and RUN step are present and correctly formatted.
@@ -98,23 +136,25 @@ Use your interactive confirmation capability to request explicit user approval b
 
 Report any discrepancies before continuing.
 
-### Phase 6: Report and Next Steps
+### Phase 7: Report and Next Steps
 
 Report:
 
-- New Dockerfile path
+- Updated Dockerfile path
+- Whether the file was overwritten or a new directory was created
 - Package name, version, and installation method used
+- **Security summary**: Package passed security verification (or note if Medium-risk and was approved)
 - Placement in the file
 
 Remind the user of next steps:
 
-1. **Build and smoke-test**: use the `test` command or run `docker build vscode-devcontainer/versions/<new-dir>/`.
+1. **Build and smoke-test**: use the `test` command or run `docker build vscode-devcontainer/versions/<target-dir>/`.
 2. **Verify the new binary**: `docker run --rm devcontainer-test:local <binary> --version`.
 3. **Push a git tag** with the appropriate `filter_ref` to trigger CI (see `.github/workflows/main.yml`).
 
 ## Important Considerations
 
-- **Append-only**: Never edit any existing `versions/<tag>/Dockerfile`. Always write to a new directory.
+- **Version directory policy**: Overwrite the existing Dockerfile if Go/Node.js major versions remain unchanged. Create a new directory only when a major version changes (e.g., Go 1.26 → 1.27, or Node 25 → 26).
 - **Version always pinned**: Never use `@latest` for a new tool (except `gopls` and `goimports`, which are intentionally unpinned).
 - **Arch support is mandatory**: Every added tool must run on both `linux/amd64` and `linux/arm64`. Document any build-from-source fallback using the Archgate section in the Dockerfile as a reference pattern.
 - **Confirm before write**: Show the full planned diff and get explicit approval before Phase 5.
