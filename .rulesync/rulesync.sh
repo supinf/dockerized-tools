@@ -1,17 +1,23 @@
 #!/bin/bash
 set -euo pipefail
 
+# OS detection for sed -i compatibility
+if [ "$(uname)" == "Darwin" ]; then
+  SED_INPLACE=(-i '')
+else
+  SED_INPLACE=(-i)
+fi
+
 # .claude/settings.local.json を事前に退避する（rm -rf .claude で消えるため）
 SAVED_SETTINGS_LOCAL=""
 if [ -f .claude/settings.local.json ]; then
   SAVED_SETTINGS_LOCAL=$(cat .claude/settings.local.json)
 fi
 
-rm -rf .claude .codex .cursor .gemini .roo .cursorignore .geminiignore .rooignore .mcp.json AGENTS.md CLAUDE.md GEMINI.md
+rm -rf .cursor .claude .codex .gemini .cursorignore .geminiignore .mcp.json AGENTS.md CLAUDE.md GEMINI.md
 
-rulesync generate --targets cursor,claudecode,codexcli,geminicli --features commands,subagents,skills,hooks
-rulesync generate --targets roo --features commands,subagents,skills --simulate-subagents
-rulesync generate --targets cursor,roo,claudecode,geminicli,codexcli --features mcp,rules,ignore,permissions
+rulesync generate --targets cursor,claudecode,geminicli --features commands,rules,skills,ignore
+rulesync generate --targets codexcli --features rules,skills
 
 TMP=$(mktemp)
 trap 'rm -f "$TMP"' EXIT
@@ -46,8 +52,8 @@ fi
 echo -e "\nFixing prompt format in .gemini/commands/*.toml files...\n"
 for f in .gemini/commands/*.toml; do
   [ -f "$f" ] || continue
-  sed -i "s/prompt = \"\"\"/prompt = '''/g" "$f"
-  sed -i "s/^\"\"\"$/'''/g" "$f"
+  sed "${SED_INPLACE[@]}" "s/prompt = \"\"\"/prompt = '''/g" "$f"
+  sed "${SED_INPLACE[@]}" "s/^\"\"\"$/'''/g" "$f"
 done
 
 echo -e "\nAll post-generation steps completed successfully.\n"

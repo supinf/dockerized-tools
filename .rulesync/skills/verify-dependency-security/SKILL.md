@@ -1,191 +1,162 @@
 ---
 name: verify-dependency-security
-description: Verifies the security and trustworthiness of dependency version updates before they are applied. Searches for known vulnerabilities (CVEs), suspicious release patterns, and supply-chain attack indicators. Use when updating or adding dependencies to ensure no security risks are introduced.
+description: Verifies a dependency update for supply chain attack indicators before applying version changes. Checks package ownership, release authenticity, known vulnerabilities, and suspicious patterns.
 ---
 
 # Verify Dependency Security
 
-Given a list of dependency updates (package name, current version, proposed version, source type), this skill performs comprehensive security verification to detect supply-chain attack risks, known vulnerabilities, and suspicious release patterns.
+Performs a security assessment of a dependency version update before approval.
 
-## When to Use
+## Input Parameters
 
-- Before applying any dependency version updates (via `update-versions` command)
-- Before adding a new software package (via `add-software` command)
-- When auditing existing dependencies for security issues
+This skill expects the following inputs:
+
+- **Package name**: The human-readable name of the dependency (e.g., `golangci-lint`, `typescript`, `aws-cli`)
+- **Current version**: The currently pinned version string, or `(none — new addition)` for new packages
+- **Proposed version**: The target version to verify
+- **Source type**: One of: `npm-package`, `github-release`, `python-package`, `debian-snapshot`, `go-module`, `maven-central`
+- **Package URL**: The official repository or registry URL (e.g., `https://github.com/golangci/golangci-lint`, `https://www.npmjs.com/package/typescript`)
 
 ## Instructions
 
-### Step 1: Receive the Dependency List
+### Step 1: Verify Package Registry Authenticity
 
-The caller provides a list of dependencies to verify, each with:
+Check the official registry based on source type.
 
-- **Package name**: e.g., `golang`, `node`, `golangci-lint`, `flyway`
-- **Current version**: the version currently in use
-- **Proposed version**: the version to update to
-- **Source type**: `go-module`, `npm-package`, `github-release`, `maven-central`, `debian-snapshot`
-- **Package URL**: the primary repository or registry URL
-
-### Step 2: Search for Known Vulnerabilities (CVEs)
-
-For each dependency, search for known vulnerabilities in the proposed version:
-
-| Source Type       | Vulnerability Database               | Query Pattern                                                   |
-| ----------------- | ------------------------------------ | --------------------------------------------------------------- |
-| `go-module`       | pkg.go.dev, GitHub Security Advisories | `site:pkg.go.dev "<module path>" vulnerabilities`               |
-| `npm-package`     | npm audit, Snyk, GitHub Advisories   | `site:npmjs.com "<package>" security OR site:snyk.io "<package>"` |
-| `github-release`  | GitHub Security Advisories, NVD      | `site:github.com "<owner>/<repo>" security advisories CVE`      |
-| `maven-central`   | Sonatype OSS Index, NVD              | `"<groupId>:<artifactId>" CVE vulnerability`                    |
-| `debian-snapshot` | Debian Security Tracker              | `site:security-tracker.debian.org "<package-name>"`             |
-
-Use WebSearch to query the appropriate database. For each vulnerability found:
-
-1. Record the CVE ID, severity (Critical, High, Medium, Low), and affected version range.
-2. Determine if the **proposed version** is affected. If the proposed version is patched, note it.
-3. If the current version is vulnerable but the proposed version is patched, mark this as a **security fix**.
-
-### Step 3: Analyze Release History and Patterns
-
-For each dependency, examine recent release activity to detect suspicious patterns:
-
-Use WebSearch or WebFetch to access:
-
-- GitHub releases page (for `github-release` and `go-module` from GitHub)
-- npm registry page (for `npm-package`)
-- Maven Central page (for `maven-central`)
-
-Look for the following **red flags**:
-
-1. **Sudden major version jump** without corresponding major feature changes (e.g., v1.2.3 → v5.0.0 with minimal changelog)
-2. **Unusual release frequency** — multiple releases in a short time after long inactivity
-3. **Change in maintainers** — new committers or npm package owners appearing suddenly
-4. **Minimal or suspicious changelog** — vague descriptions like "bug fixes" or "updates" without detail
-5. **Large diff in release size** — binary size increased significantly without explanation
-
-For each red flag detected, record the specific concern and the evidence (commit SHA, release note URL, etc.).
-
-### Step 4: Verify Package Integrity and Trust Signals
-
-Check the following trust signals:
-
-| Trust Signal              | What to Check                                                  | Good Sign                                      | Red Flag                                         |
-| ------------------------- | -------------------------------------------------------------- | ---------------------------------------------- | ------------------------------------------------ |
-| **Repository activity**   | Recent commits, PRs, issues                                    | Active development, responsive maintainers     | Abandoned repo, no recent activity               |
-| **Community trust**       | GitHub stars, forks, npm weekly downloads                      | High stars/downloads, established project      | Low engagement, sudden spike in downloads        |
-| **Maintainer history**    | Contributor list, commit history                               | Long-term contributors, consistent activity    | New or unknown contributors, single-maintainer   |
-| **Official source**       | Is this the canonical repository?                              | Links from official docs match this repo       | Ambiguous or unofficial source                   |
-| **Signed releases**       | Are releases signed? (GitHub releases, npm provenance)         | GPG/Sigstore signatures present                | Unsigned releases, no provenance                 |
-| **Dependencies**          | Does the package have unexpected or suspicious dependencies?   | Minimal, well-known dependencies               | Many unknown deps, obfuscated code               |
-
-Use WebSearch and WebFetch to gather this information.
-
-### Step 5: Generate the Security Report
-
-For each dependency, produce a structured security report:
+**For npm-package:**
 
 ```
-Package:            <package name>
-Current Version:    <current version>
-Proposed Version:   <proposed version>
-Source Type:        <source type>
-
---- Vulnerability Scan ---
-CVEs Found:         <count>
-  - <CVE-ID>: <severity> — <description> (Affected: <version range>)
-  - ...
-Proposed Version Affected: <Yes/No/Patched>
-
---- Release Pattern Analysis ---
-Red Flags:          <count>
-  - <flag description>: <evidence / URL>
-  - ...
-
---- Trust Signals ---
-Repository Activity:    <Active / Stale / Abandoned>
-Community Trust:        <High / Medium / Low>
-Maintainer History:     <Stable / New Contributors / Single Maintainer>
-Release Signatures:     <Signed / Unsigned>
-Dependencies:           <Clean / Suspicious>
-
---- Overall Risk Assessment ---
-Risk Level:         <Low / Medium / High / Critical>
-Recommendation:     <Approve / Review Carefully / Reject>
-Notes:              <any additional context or caveats>
+WebFetch: https://www.npmjs.com/package/<package-name>
+Prompt: "Extract: 1) Current maintainers list, 2) Weekly download count, 3) Latest published version, 4) Repository URL. List only the facts."
 ```
 
-**Risk Level Decision Matrix:**
+**For github-release:**
 
-| Condition                                               | Risk Level  |
-| ------------------------------------------------------- | ----------- |
-| Critical CVE in proposed version                        | **Critical** |
-| High CVE in proposed version + red flags                | **Critical** |
-| 2+ red flags detected                                   | **High**     |
-| 1 red flag + low trust signals                          | **High**     |
-| Medium CVE in proposed version                          | **Medium**   |
-| 1 red flag OR low trust signals                         | **Medium**   |
-| No CVEs, no red flags, high trust signals               | **Low**      |
-| Security fix (current version has CVE, proposed patched) | **Low** (note: security improvement) |
-
-**Recommendation:**
-
-- **Approve**: Risk Level = Low, no concerns
-- **Review Carefully**: Risk Level = Medium, user should manually verify
-- **Reject**: Risk Level = High or Critical, do not proceed without investigation
-
-### Step 6: Return the Aggregated Report
-
-After analyzing all dependencies, return:
-
-1. **Summary**: Total dependencies analyzed, count by risk level
-2. **High-Risk Dependencies**: List any dependencies with High or Critical risk
-3. **Recommendations**: Overall recommendation (Approve All, Review Some, Reject Some)
-4. **Individual Reports**: Full security report for each dependency
-
-If **any dependency is Critical or High risk**, strongly recommend the user to investigate before proceeding.
-
-## Common Issues
-
-**CVE database not accessible**: Fall back to searching NVD (National Vulnerability Database) or using GitHub's security advisories API.
-
-**Release history unavailable**: If the package has no GitHub repository, rely on the package registry's metadata (npm, Maven Central, etc.).
-
-**Ambiguous trust signals**: When in doubt, err on the side of caution. Flag the dependency as Medium risk and recommend manual review.
-
-**False positives**: Some packages may have low stars/downloads but are trustworthy (e.g., new projects, niche tools). Use judgment and cross-reference with official documentation.
-
-## Example Workflow
-
-Input:
 ```
-Package: golangci-lint
-Current: v1.50.0
-Proposed: v1.61.0
-Source: github-release
-URL: https://github.com/golangci/golangci-lint
+WebFetch: https://github.com/<owner>/<repo>/releases/tag/<version>
+Prompt: "Extract: 1) Release author username, 2) Is release signed (look for GPG signature or checksum files), 3) Release date, 4) Asset file names and sizes. List only the facts."
 ```
 
-Output:
+**For python-package:**
+
 ```
-Package:            golangci-lint
-Current Version:    v1.50.0
-Proposed Version:   v1.61.0
-Source Type:        github-release
-
---- Vulnerability Scan ---
-CVEs Found:         0
-Proposed Version Affected: No
-
---- Release Pattern Analysis ---
-Red Flags:          0
-
---- Trust Signals ---
-Repository Activity:    Active (last commit 2 days ago)
-Community Trust:        High (15k stars, 1.5k forks, 500k+ weekly downloads via Go)
-Maintainer History:     Stable (core team maintained since 2018)
-Release Signatures:     Signed (GPG signatures present)
-Dependencies:           Clean (standard Go tooling dependencies)
-
---- Overall Risk Assessment ---
-Risk Level:         Low
-Recommendation:     Approve
-Notes:              Well-established linter with strong community trust and active maintenance.
+WebFetch: https://pypi.org/project/<package-name>/<version>/
+Prompt: "Extract: 1) Maintainers, 2) Release date, 3) File hashes present (yes/no), 4) Project links. List only the facts."
 ```
+
+**For debian-snapshot:**
+
+```
+WebSearch: site:snapshot.debian.org <suite> <YYYYMMDD>
+```
+
+Confirm the snapshot date exists in the official Debian archive.
+
+**For go-module:**
+
+```
+WebFetch: https://pkg.go.dev/<module-path>@<version>
+Prompt: "Extract: 1) Module path, 2) Published date, 3) Repository link, 4) License. List only the facts."
+```
+
+Also check the GitHub repository if available:
+
+```
+WebFetch: https://github.com/<owner>/<repo>/releases/tag/<version>
+Prompt: "Extract: 1) Release author, 2) Commit SHA, 3) Release date. List only the facts."
+```
+
+**For maven-central:**
+
+```
+WebFetch: https://central.sonatype.com/artifact/<group-id>/<artifact-id>/<version>
+Prompt: "Extract: 1) Group ID, 2) Artifact ID, 3) Version, 4) Published date, 5) Repository URL. List only the facts."
+```
+
+### Step 2: Check for Known Vulnerabilities
+
+Search CVE databases and security advisories.
+
+```
+WebSearch: "<package-name>" "<proposed-version>" CVE vulnerability security advisory 2026
+```
+
+From search results, identify:
+- HIGH or CRITICAL severity CVEs
+- Security advisories recommending against this version
+- Known compromised releases
+
+### Step 3: Cross-Reference Community Reports
+
+Check for community reports and discussions (recommended for critical packages).
+
+```
+WebSearch: "<package-name>" "<version>" malicious supply chain attack 2026
+```
+
+Look for suspicious patterns such as sudden maintainer changes or re-publication after deletion.
+
+### Step 4: Return Structured Assessment
+
+Return the assessment in this format:
+
+```
+Package:         <human-readable name>
+Current Version: <current>
+Proposed Version: <proposed>
+Source Type:     <npm-package | github-release | python-package | debian-snapshot | go-module | maven-central>
+Package URL:     <official repository or registry URL>
+
+--- Registry Verification ---
+Status:          PASS | WARN | FAIL
+Details:         <What you found: maintainers, signatures, download patterns>
+Concerns:        <List any red flags, or "None">
+
+--- Vulnerability Check ---
+Status:          PASS | WARN | FAIL
+Known CVEs:      <Number and severity, or "None found">
+Advisories:      <Summary of any security advisories>
+Concerns:        <List any issues, or "None">
+
+--- Community/Pattern Check ---
+Status:          PASS | WARN | FAIL
+Findings:        <Summary of community reports or suspicious patterns>
+Concerns:        <List any red flags, or "None">
+
+--- RECOMMENDATION ---
+Decision:        APPROVE | REVIEW | REJECT
+Risk Level:      Low | Medium | High | Critical
+Reason:          <1-2 sentence explanation>
+Action Required: <What the user should do, or "None - proceed with update">
+```
+
+## Status Definitions
+
+- **PASS**: Check completed, no concerns detected
+- **WARN**: Minor concerns present, user review recommended
+- **FAIL**: Significant risk detected, update not recommended
+
+## Recommendation Guidelines
+
+- **APPROVE**: All checks PASS, or only minor WARNs with clear explanations
+- **REVIEW**: One or more WARN flags requiring user evaluation
+- **REJECT**: Any FAIL status, or multiple significant WARNs
+
+## Risk Level Mapping
+
+For integration with workflows that expect risk levels, map the recommendation to these categories:
+
+- **Low**: Decision is APPROVE with all checks PASS
+- **Medium**: Decision is APPROVE or REVIEW with one or more WARN status
+- **High**: Decision is REVIEW with multiple WARN status, or REJECT with one FAIL
+- **Critical**: Decision is REJECT with multiple FAIL status or known high-severity CVEs
+
+## Important Notes
+
+- If registry information cannot be fetched, note this explicitly and mark as WARN
+- New maintainers or repository transfers can be legitimate — provide context, not just flags
+- Apply stricter standards to critical packages (AWS CLI, GitHub CLI, Docker, Kubernetes tools, etc.)
+- When in doubt, recommend REVIEW and let the user decide with full information
+- For go-module packages, verify both pkg.go.dev and the upstream GitHub repository when available
+- For maven-central packages, verify the artifact exists on Maven Central and check the linked repository
+- **Always include Risk Level** in the final recommendation to support workflow integration

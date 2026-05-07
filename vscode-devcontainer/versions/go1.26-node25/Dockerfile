@@ -133,7 +133,7 @@ ENV PATH=/root/.local/bin:$PATH
 # Node.js Tools (pnpm, rulesync など)
 # ------------------------------------------------------------------------------
 ENV NPM_VERSION=11.13.0 \
-    PNPM_VERSION=10.33.2 \
+    PNPM_VERSION=10.33.4 \
     RULESYNC_VERSION=8.15.0
 
 RUN curl -fsSL https://deb.nodesource.com/setup_current.x | bash - \
@@ -204,17 +204,21 @@ ENV CODEX_CLI_VERSION=0.128.0 \
     OPENAI_BASE_URL=https://api.openai.com/v1 \
     CODEX_MODEL=gpt-5.3-codex
 
-RUN npm install -g "@openai/codex@${CODEX_CLI_VERSION}"
+RUN --mount=type=cache,target=/root/.npm \
+    npm install -g "@openai/codex@${CODEX_CLI_VERSION}" && \
+    npm cache clean --force
 
 # ------------------------------------------------------------------------------
 # Gemini
 # ------------------------------------------------------------------------------
 ENV GOOGLE_CLOUD_LOCATION=global \
     GOOGLE_GENAI_USE_VERTEXAI=true \
-    GEMINI_CLI_VERSION=0.40.1 \
+    GEMINI_CLI_VERSION=0.41.2 \
     ADK_SUPPRESS_GEMINI_LITELLM_WARNINGS=true
 
-RUN npm install -g "@google/gemini-cli@${GEMINI_CLI_VERSION}"
+RUN --mount=type=cache,target=/root/.npm \
+    npm install -g "@google/gemini-cli@${GEMINI_CLI_VERSION}" && \
+    npm cache clean --force
 
 # ------------------------------------------------------------------------------
 # Archgate
@@ -222,8 +226,8 @@ RUN npm install -g "@google/gemini-cli@${GEMINI_CLI_VERSION}"
 # ARCHGATE_GIT_SHA: the git commit SHA corresponding to ARCHGATE_VERSION.
 # Update both together when bumping the version.
 # To find the SHA: npm view archgate@<version> gitHead
-ENV ARCHGATE_VERSION=0.31.2 \
-    ARCHGATE_GIT_SHA=b2ec6511aab6d49da4a84001e6ee71195c42eb86
+ENV ARCHGATE_VERSION=0.33.1 \
+    ARCHGATE_GIT_SHA=1811b4391866c2a36ae196fccd9c3134bec4e29a
 
 RUN if [ "$TARGETARCH" = "arm64" ]; then \
     # arm64: pre-built archgate binary not available — build from source using Bun \
@@ -236,7 +240,7 @@ RUN if [ "$TARGETARCH" = "arm64" ]; then \
         --outfile /usr/local/bin/archgate && \
     rm -rf /tmp/archgate-src /tmp/bun; \
   else \
-    npm install -g "archgate@${ARCHGATE_VERSION}"; \
+    npm install -g "archgate@${ARCHGATE_VERSION}" && npm cache clean --force; \
   fi
 
 # ------------------------------------------------------------------------------
@@ -252,6 +256,20 @@ RUN case ${TARGETARCH} in \
     curl -fsSL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_${GITLEAKS_ARCH}.tar.gz" -o gitleaks.tar.gz && \
     tar -xzf gitleaks.tar.gz -C /usr/local/bin gitleaks && \
     rm gitleaks.tar.gz
+
+# ------------------------------------------------------------------------------
+# Lefthook
+# ------------------------------------------------------------------------------
+ENV LEFTHOOK_VERSION=2.1.6
+
+RUN case ${TARGETARCH} in \
+         "amd64") LEFTHOOK_ARCH="x86_64"  ;; \
+         "arm64") LEFTHOOK_ARCH="arm64" ;; \
+         *) echo "Unsupported architecture: ${TARGETARCH}"; exit 1 ;; \
+    esac && \
+    curl -fsSL "https://github.com/evilmartians/lefthook/releases/download/v${LEFTHOOK_VERSION}/lefthook_${LEFTHOOK_VERSION}_Linux_${LEFTHOOK_ARCH}.gz" -o /usr/local/bin/lefthook.gz && \
+    gunzip /usr/local/bin/lefthook.gz && \
+    chmod +x /usr/local/bin/lefthook
 
 # ------------------------------------------------------------------------------
 # Go
