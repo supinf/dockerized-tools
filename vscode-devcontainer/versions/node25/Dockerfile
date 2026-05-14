@@ -53,9 +53,9 @@ ENV PATH=/root/.local/bin:$PATH
 # ------------------------------------------------------------------------------
 # Node.js Tools (pnpm, rulesync など)
 # ------------------------------------------------------------------------------
-ENV NPM_VERSION=11.13.0 \
-    PNPM_VERSION=10.33.4 \
-    RULESYNC_VERSION=8.15.0
+ENV NPM_VERSION=11.14.1 \
+    PNPM_VERSION=11.1.1 \
+    RULESYNC_VERSION=8.17.0
 
 RUN curl -fsSL https://deb.nodesource.com/setup_current.x | bash - \
     && apt-get install -y nodejs
@@ -103,7 +103,7 @@ ENV CLINE_AWS_REGION=ap-northeast-1 \
 # ------------------------------------------------------------------------------
 # Codex
 # ------------------------------------------------------------------------------
-ENV CODEX_CLI_VERSION=0.128.0 \
+ENV CODEX_CLI_VERSION=0.130.0 \
     CODEX_HOME=/root/.codex \
     OPENAI_BASE_URL=https://api.openai.com/v1 \
     CODEX_MODEL=gpt-5.3-codex
@@ -117,7 +117,7 @@ RUN --mount=type=cache,target=/root/.npm \
 # ------------------------------------------------------------------------------
 ENV GOOGLE_CLOUD_LOCATION=global \
     GOOGLE_GENAI_USE_VERTEXAI=true \
-    GEMINI_CLI_VERSION=0.41.2 \
+    GEMINI_CLI_VERSION=0.42.0 \
     ADK_SUPPRESS_GEMINI_LITELLM_WARNINGS=true
 
 RUN --mount=type=cache,target=/root/.npm \
@@ -130,8 +130,8 @@ RUN --mount=type=cache,target=/root/.npm \
 # ARCHGATE_GIT_SHA: the git commit SHA corresponding to ARCHGATE_VERSION.
 # Update both together when bumping the version.
 # To find the SHA: npm view archgate@<version> gitHead
-ENV ARCHGATE_VERSION=0.33.1 \
-    ARCHGATE_GIT_SHA=1811b4391866c2a36ae196fccd9c3134bec4e29a
+ENV ARCHGATE_VERSION=0.36.2 \
+    ARCHGATE_GIT_SHA=aac72e9d0444a70a810ff77c6c49d162782f3e61
 
 RUN if [ "$TARGETARCH" = "arm64" ]; then \
     # arm64: pre-built archgate binary not available — build from source using Bun \

@@ -6,7 +6,12 @@
   "permissions": {
     "allow": [
       "WebSearch",
-      "WebFetch"
+      "WebFetch",
+      "Bash(npm view *)",
+      "Bash(npm show *)",
+      "Bash(curl -s *)",
+      "Bash(curl -fsSL *)",
+      "Bash(gh api *)"
     ],
     "deny": [
       "Bash(rm -rf*)",
