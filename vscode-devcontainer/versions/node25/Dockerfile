@@ -3,8 +3,7 @@
 # ==============================================================================
 # Global Arguments
 # ==============================================================================
-ARG DEBIAN_VERSION=trixie-20260421
-# ARG DEBIAN_VERSION=trixie-debian13-fips
+ARG DEBIAN_VERSION=trixie-20260518
 
 # ==============================================================================
 # Development Environment
@@ -53,9 +52,9 @@ ENV PATH=/root/.local/bin:$PATH
 # ------------------------------------------------------------------------------
 # Node.js Tools (pnpm, rulesync など)
 # ------------------------------------------------------------------------------
-ENV NPM_VERSION=11.14.1 \
-    PNPM_VERSION=11.1.1 \
-    RULESYNC_VERSION=8.17.0
+ENV NPM_VERSION=11.16.0 \
+    PNPM_VERSION=11.5.0 \
+    RULESYNC_VERSION=8.23.0
 
 RUN curl -fsSL https://deb.nodesource.com/setup_current.x | bash - \
     && apt-get install -y nodejs
@@ -103,7 +102,7 @@ ENV CLINE_AWS_REGION=ap-northeast-1 \
 # ------------------------------------------------------------------------------
 # Codex
 # ------------------------------------------------------------------------------
-ENV CODEX_CLI_VERSION=0.130.0 \
+ENV CODEX_CLI_VERSION=0.135.0 \
     CODEX_HOME=/root/.codex \
     OPENAI_BASE_URL=https://api.openai.com/v1 \
     CODEX_MODEL=gpt-5.3-codex
@@ -113,16 +112,31 @@ RUN --mount=type=cache,target=/root/.npm \
     npm cache clean --force
 
 # ------------------------------------------------------------------------------
-# Gemini
+# Antigravity
 # ------------------------------------------------------------------------------
+# ANTIGRAVITY_AMD64_URL / ANTIGRAVITY_ARM64_URL: The fixed version URL for GCS.
+# ANTIGRAVITY_AMD64_SHA512 / ANTIGRAVITY_ARM64_SHA512: SHA512 checksum.
+# When updating the version: Check the latest manifest at https://antigravity-cli-auto-updater-974169037036.us-central1.run.app/manifests/linux_{amd64,arm64}.json and update.
 ENV GOOGLE_CLOUD_LOCATION=global \
     GOOGLE_GENAI_USE_VERTEXAI=true \
-    GEMINI_CLI_VERSION=0.42.0 \
-    ADK_SUPPRESS_GEMINI_LITELLM_WARNINGS=true
+    ANTIGRAVITY_VERSION=1.0.3 \
+    ANTIGRAVITY_AMD64_URL=https://storage.googleapis.com/antigravity-public/antigravity-cli/1.0.3-6260531212976128/linux-x64/cli_linux_x64.tar.gz \
+    ANTIGRAVITY_AMD64_SHA512=f6cf890d494f5fd00c696b4d2e541c894d5b10ff50bfd9f6dc02b915386e08b61c56140f17115898fc49f4aa4534581393098f35db70be9aae20dfde3ba5787c \
+    ANTIGRAVITY_ARM64_URL=https://storage.googleapis.com/antigravity-public/antigravity-cli/1.0.3-6260531212976128/linux-arm/cli_linux_arm64.tar.gz \
+    ANTIGRAVITY_ARM64_SHA512=0f6d326ef28e57e473c7825583314636fa0bcda50e27117ff3d019196d048d764af29846910a2f238dc87a3f90062e29b5252232c7d586a86abaaea921697e52
 
-RUN --mount=type=cache,target=/root/.npm \
-    npm install -g "@google/gemini-cli@${GEMINI_CLI_VERSION}" && \
-    npm cache clean --force
+RUN case ${TARGETARCH} in \
+         "amd64") AGY_URL="${ANTIGRAVITY_AMD64_URL}"; AGY_SHA512="${ANTIGRAVITY_AMD64_SHA512}" ;; \
+         "arm64") AGY_URL="${ANTIGRAVITY_ARM64_URL}"; AGY_SHA512="${ANTIGRAVITY_ARM64_SHA512}" ;; \
+         *) echo "Unsupported architecture: ${TARGETARCH}"; exit 1 ;; \
+    esac && \
+    curl -fsSL "${AGY_URL}" -o /tmp/antigravity.tar.gz && \
+    echo "${AGY_SHA512}  /tmp/antigravity.tar.gz" | sha512sum -c - && \
+    tar -xzf /tmp/antigravity.tar.gz -C /tmp antigravity && \
+    mv /tmp/antigravity /usr/local/bin/agy && \
+    chmod +x /usr/local/bin/agy && \
+    rm /tmp/antigravity.tar.gz && \
+    agy install --dir /usr/local/bin || true
 
 # ------------------------------------------------------------------------------
 # Archgate
@@ -130,8 +144,8 @@ RUN --mount=type=cache,target=/root/.npm \
 # ARCHGATE_GIT_SHA: the git commit SHA corresponding to ARCHGATE_VERSION.
 # Update both together when bumping the version.
 # To find the SHA: npm view archgate@<version> gitHead
-ENV ARCHGATE_VERSION=0.36.2 \
-    ARCHGATE_GIT_SHA=aac72e9d0444a70a810ff77c6c49d162782f3e61
+ENV ARCHGATE_VERSION=0.41.1 \
+    ARCHGATE_GIT_SHA=ee3033b89aa25911c3e22cca1155df9651173ef2
 
 RUN if [ "$TARGETARCH" = "arm64" ]; then \
     # arm64: pre-built archgate binary not available — build from source using Bun \
@@ -164,7 +178,7 @@ RUN case ${TARGETARCH} in \
 # ------------------------------------------------------------------------------
 # Lefthook
 # ------------------------------------------------------------------------------
-ENV LEFTHOOK_VERSION=2.1.6
+ENV LEFTHOOK_VERSION=2.1.9
 
 RUN case ${TARGETARCH} in \
          "amd64") LEFTHOOK_ARCH="x86_64"  ;; \
