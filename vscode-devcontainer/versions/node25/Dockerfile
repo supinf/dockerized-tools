@@ -53,8 +53,8 @@ ENV PATH=/root/.local/bin:$PATH
 # Node.js Tools (pnpm, rulesync など)
 # ------------------------------------------------------------------------------
 ENV NPM_VERSION=11.16.0 \
-    PNPM_VERSION=11.5.0 \
-    RULESYNC_VERSION=8.23.0
+    PNPM_VERSION=11.5.2 \
+    RULESYNC_VERSION=8.24.1
 
 RUN curl -fsSL https://deb.nodesource.com/setup_current.x | bash - \
     && apt-get install -y nodejs
@@ -102,7 +102,7 @@ ENV CLINE_AWS_REGION=ap-northeast-1 \
 # ------------------------------------------------------------------------------
 # Codex
 # ------------------------------------------------------------------------------
-ENV CODEX_CLI_VERSION=0.135.0 \
+ENV CODEX_CLI_VERSION=0.137.0 \
     CODEX_HOME=/root/.codex \
     OPENAI_BASE_URL=https://api.openai.com/v1 \
     CODEX_MODEL=gpt-5.3-codex
@@ -119,11 +119,11 @@ RUN --mount=type=cache,target=/root/.npm \
 # When updating the version: Check the latest manifest at https://antigravity-cli-auto-updater-974169037036.us-central1.run.app/manifests/linux_{amd64,arm64}.json and update.
 ENV GOOGLE_CLOUD_LOCATION=global \
     GOOGLE_GENAI_USE_VERTEXAI=true \
-    ANTIGRAVITY_VERSION=1.0.3 \
-    ANTIGRAVITY_AMD64_URL=https://storage.googleapis.com/antigravity-public/antigravity-cli/1.0.3-6260531212976128/linux-x64/cli_linux_x64.tar.gz \
-    ANTIGRAVITY_AMD64_SHA512=f6cf890d494f5fd00c696b4d2e541c894d5b10ff50bfd9f6dc02b915386e08b61c56140f17115898fc49f4aa4534581393098f35db70be9aae20dfde3ba5787c \
-    ANTIGRAVITY_ARM64_URL=https://storage.googleapis.com/antigravity-public/antigravity-cli/1.0.3-6260531212976128/linux-arm/cli_linux_arm64.tar.gz \
-    ANTIGRAVITY_ARM64_SHA512=0f6d326ef28e57e473c7825583314636fa0bcda50e27117ff3d019196d048d764af29846910a2f238dc87a3f90062e29b5252232c7d586a86abaaea921697e52
+    ANTIGRAVITY_VERSION=1.0.6 \
+    ANTIGRAVITY_AMD64_URL=https://storage.googleapis.com/antigravity-public/antigravity-cli/1.0.6-6458082025406464/linux-x64/cli_linux_x64.tar.gz \
+    ANTIGRAVITY_AMD64_SHA512=1b57977be08398b0344ef5019089683c0aae9829545cdf3056c9a1d02b949ea98db6e643ef96ef4f6877654f4d48d5267035ef8a27652a8e023f65b91c06df76 \
+    ANTIGRAVITY_ARM64_URL=https://storage.googleapis.com/antigravity-public/antigravity-cli/1.0.6-6458082025406464/linux-arm/cli_linux_arm64.tar.gz \
+    ANTIGRAVITY_ARM64_SHA512=f9967fa8c318c31f78bcc2f813c754e0e6f7bac8030144561d5b303155720da8ca0485eca4b6c814299170526a1e8cc9dc9ec2091fccc1e9bdb864ddb9610757
 
 RUN case ${TARGETARCH} in \
          "amd64") AGY_URL="${ANTIGRAVITY_AMD64_URL}"; AGY_SHA512="${ANTIGRAVITY_AMD64_SHA512}" ;; \
@@ -144,8 +144,9 @@ RUN case ${TARGETARCH} in \
 # ARCHGATE_GIT_SHA: the git commit SHA corresponding to ARCHGATE_VERSION.
 # Update both together when bumping the version.
 # To find the SHA: npm view archgate@<version> gitHead
-ENV ARCHGATE_VERSION=0.41.1 \
-    ARCHGATE_GIT_SHA=ee3033b89aa25911c3e22cca1155df9651173ef2
+ENV ARCHGATE_VERSION=0.43.0 \
+    ARCHGATE_GIT_SHA=aab19dd755cac31e4eb9172243ae0244b3c651da \
+    ARCHGATE_TELEMETRY=0
 
 RUN if [ "$TARGETARCH" = "arm64" ]; then \
     # arm64: pre-built archgate binary not available — build from source using Bun \
