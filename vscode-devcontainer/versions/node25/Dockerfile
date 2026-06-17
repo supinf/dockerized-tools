@@ -3,7 +3,7 @@
 # ==============================================================================
 # Global Arguments
 # ==============================================================================
-ARG DEBIAN_VERSION=trixie-20260518
+ARG DEBIAN_VERSION=trixie-20260610
 
 # ==============================================================================
 # Development Environment
@@ -31,6 +31,7 @@ RUN --mount=type=cache,target=/var/cache/apt/archives,id=apt-archives-${TARGETAR
     libprotobuf-dev \
     gnupg lsb-release \
     postgresql-client \
+    xz-utils \
     locales \
     lsof iproute2 \
     && localedef -f UTF-8 -i ja_JP ja_JP.UTF-8 \
@@ -52,9 +53,9 @@ ENV PATH=/root/.local/bin:$PATH
 # ------------------------------------------------------------------------------
 # Node.js Tools (pnpm, rulesync など)
 # ------------------------------------------------------------------------------
-ENV NPM_VERSION=11.16.0 \
-    PNPM_VERSION=11.5.2 \
-    RULESYNC_VERSION=8.24.1
+ENV NPM_VERSION=11.17.0 \
+    PNPM_VERSION=11.7.0 \
+    RULESYNC_VERSION=8.30.0
 
 RUN curl -fsSL https://deb.nodesource.com/setup_current.x | bash - \
     && apt-get install -y nodejs
@@ -102,7 +103,7 @@ ENV CLINE_AWS_REGION=ap-northeast-1 \
 # ------------------------------------------------------------------------------
 # Codex
 # ------------------------------------------------------------------------------
-ENV CODEX_CLI_VERSION=0.137.0 \
+ENV CODEX_CLI_VERSION=0.140.0 \
     CODEX_HOME=/root/.codex \
     OPENAI_BASE_URL=https://api.openai.com/v1 \
     CODEX_MODEL=gpt-5.3-codex
@@ -119,11 +120,11 @@ RUN --mount=type=cache,target=/root/.npm \
 # When updating the version: Check the latest manifest at https://antigravity-cli-auto-updater-974169037036.us-central1.run.app/manifests/linux_{amd64,arm64}.json and update.
 ENV GOOGLE_CLOUD_LOCATION=global \
     GOOGLE_GENAI_USE_VERTEXAI=true \
-    ANTIGRAVITY_VERSION=1.0.6 \
-    ANTIGRAVITY_AMD64_URL=https://storage.googleapis.com/antigravity-public/antigravity-cli/1.0.6-6458082025406464/linux-x64/cli_linux_x64.tar.gz \
-    ANTIGRAVITY_AMD64_SHA512=1b57977be08398b0344ef5019089683c0aae9829545cdf3056c9a1d02b949ea98db6e643ef96ef4f6877654f4d48d5267035ef8a27652a8e023f65b91c06df76 \
-    ANTIGRAVITY_ARM64_URL=https://storage.googleapis.com/antigravity-public/antigravity-cli/1.0.6-6458082025406464/linux-arm/cli_linux_arm64.tar.gz \
-    ANTIGRAVITY_ARM64_SHA512=f9967fa8c318c31f78bcc2f813c754e0e6f7bac8030144561d5b303155720da8ca0485eca4b6c814299170526a1e8cc9dc9ec2091fccc1e9bdb864ddb9610757
+    ANTIGRAVITY_VERSION=1.0.9 \
+    ANTIGRAVITY_AMD64_URL=https://storage.googleapis.com/antigravity-public/antigravity-cli/1.0.9-6003845613092864/linux-x64/cli_linux_x64.tar.gz \
+    ANTIGRAVITY_AMD64_SHA512=9c09eef905ea34079988908067cb716aaeadf3807ea572403d792c5113533213f98f43159d63679408819869bfe143d8e2789e3fab0f28593ffd04f2a7dcf47b \
+    ANTIGRAVITY_ARM64_URL=https://storage.googleapis.com/antigravity-public/antigravity-cli/1.0.9-6003845613092864/linux-arm/cli_linux_arm64.tar.gz \
+    ANTIGRAVITY_ARM64_SHA512=e0b13d0cc3f1337962d1dff7f03f44b2c44b5e07dd483c9633a00235d7b5c8257c6dc5e084b12281aaa18e1c94aa81602c994ee19b5d2e376bc24d85f569372d
 
 RUN case ${TARGETARCH} in \
          "amd64") AGY_URL="${ANTIGRAVITY_AMD64_URL}"; AGY_SHA512="${ANTIGRAVITY_AMD64_SHA512}" ;; \
@@ -144,8 +145,8 @@ RUN case ${TARGETARCH} in \
 # ARCHGATE_GIT_SHA: the git commit SHA corresponding to ARCHGATE_VERSION.
 # Update both together when bumping the version.
 # To find the SHA: npm view archgate@<version> gitHead
-ENV ARCHGATE_VERSION=0.43.0 \
-    ARCHGATE_GIT_SHA=aab19dd755cac31e4eb9172243ae0244b3c651da \
+ENV ARCHGATE_VERSION=0.45.4 \
+    ARCHGATE_GIT_SHA=35720c91d0c5338cd5ff43eb12a5f5a532d1db48 \
     ARCHGATE_TELEMETRY=0
 
 RUN if [ "$TARGETARCH" = "arm64" ]; then \
@@ -189,5 +190,19 @@ RUN case ${TARGETARCH} in \
     curl -fsSL "https://github.com/evilmartians/lefthook/releases/download/v${LEFTHOOK_VERSION}/lefthook_${LEFTHOOK_VERSION}_Linux_${LEFTHOOK_ARCH}.gz" -o /usr/local/bin/lefthook.gz && \
     gunzip /usr/local/bin/lefthook.gz && \
     chmod +x /usr/local/bin/lefthook
+
+# ------------------------------------------------------------------------------
+# ShellCheck
+# ------------------------------------------------------------------------------
+ENV SHELLCHECK_VERSION=0.11.0
+
+RUN case ${TARGETARCH} in \
+         "amd64") SHELLCHECK_ARCH="x86_64"  ;; \
+         "arm64") SHELLCHECK_ARCH="aarch64" ;; \
+         *) echo "Unsupported architecture: ${TARGETARCH}"; exit 1 ;; \
+    esac && \
+    curl -fsSL "https://github.com/koalaman/shellcheck/releases/download/v${SHELLCHECK_VERSION}/shellcheck-v${SHELLCHECK_VERSION}.linux.${SHELLCHECK_ARCH}.tar.xz" -o shellcheck.tar.xz && \
+    tar -xJf shellcheck.tar.xz --strip-components=1 -C /usr/local/bin "shellcheck-v${SHELLCHECK_VERSION}/shellcheck" && \
+    rm shellcheck.tar.xz
 
 ENTRYPOINT [ "sleep", "infinity" ]

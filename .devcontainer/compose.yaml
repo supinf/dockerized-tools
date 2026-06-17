@@ -1,7 +1,7 @@
 services:
   workspace:
     # https://github.com/supinf/dockerized-tools/blob/master/vscode-devcontainer/versions/go1.26-node25/Dockerfile
-    image: ghcr.io/supinf/vscode-devcontainer:20260607
+    image: ghcr.io/supinf/vscode-devcontainer:go-20260607
     volumes:
       - ../:/workspace
       - $HOME/.config/gcloud:/root/.config/gcloud
