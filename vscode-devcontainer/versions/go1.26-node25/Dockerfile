@@ -4,7 +4,7 @@
 # Global Arguments
 # ==============================================================================
 ARG GO_VERSION=1.26.4
-ARG DEBIAN_VERSION=trixie-20260610
+ARG DEBIAN_VERSION=trixie-20260623
 
 # ==============================================================================
 # Stage 0: Go SDK (Target Architecture)
@@ -78,6 +78,7 @@ RUN --mount=type=cache,target=/var/cache/apt/archives,id=apt-archives-${TARGETAR
     wget \
     unzip \
     ca-certificates \
+    openssh-client \
     openjdk-25-jdk-headless \
     maven \
     jq \
@@ -132,8 +133,8 @@ ENV PATH=/root/.local/bin:$PATH
 # Node.js Tools (pnpm, rulesync など)
 # ------------------------------------------------------------------------------
 ENV NPM_VERSION=11.17.0 \
-    PNPM_VERSION=11.7.0 \
-    RULESYNC_VERSION=8.30.0
+    PNPM_VERSION=11.9.0 \
+    RULESYNC_VERSION=8.31.0
 
 RUN curl -fsSL https://deb.nodesource.com/setup_current.x | bash - \
     && apt-get install -y nodejs
@@ -178,9 +179,7 @@ RUN case ${TARGETARCH} in \
 # ------------------------------------------------------------------------------
 # Claude Code
 # ------------------------------------------------------------------------------
-ENV CLAUDE_CODE_USE_BEDROCK=false \
-    AWS_REGION=ap-northeast-1 \
-    CLAUDE_CODE_USE_VERTEX=false \
+ENV AWS_REGION=ap-northeast-1 \
     CLOUD_ML_REGION=global \
     ANTHROPIC_MODEL=claude-sonnet-4-6@default \
     ANTHROPIC_SMALL_FAST_MODEL=claude-haiku-4-5@20251001
@@ -198,7 +197,7 @@ ENV CLINE_AWS_REGION=ap-northeast-1 \
 # ------------------------------------------------------------------------------
 # Codex
 # ------------------------------------------------------------------------------
-ENV CODEX_CLI_VERSION=0.140.0 \
+ENV CODEX_CLI_VERSION=0.142.0 \
     CODEX_HOME=/root/.codex \
     OPENAI_BASE_URL=https://api.openai.com/v1 \
     CODEX_MODEL=gpt-5.3-codex
@@ -216,11 +215,11 @@ RUN --mount=type=cache,target=/root/.npm \
 ENV GOOGLE_CLOUD_LOCATION=global \
     GOOGLE_GENAI_USE_VERTEXAI=true \
     ADK_SUPPRESS_GEMINI_LITELLM_WARNINGS=true \
-    ANTIGRAVITY_VERSION=1.0.9 \
-    ANTIGRAVITY_AMD64_URL=https://storage.googleapis.com/antigravity-public/antigravity-cli/1.0.9-6003845613092864/linux-x64/cli_linux_x64.tar.gz \
-    ANTIGRAVITY_AMD64_SHA512=9c09eef905ea34079988908067cb716aaeadf3807ea572403d792c5113533213f98f43159d63679408819869bfe143d8e2789e3fab0f28593ffd04f2a7dcf47b \
-    ANTIGRAVITY_ARM64_URL=https://storage.googleapis.com/antigravity-public/antigravity-cli/1.0.9-6003845613092864/linux-arm/cli_linux_arm64.tar.gz \
-    ANTIGRAVITY_ARM64_SHA512=e0b13d0cc3f1337962d1dff7f03f44b2c44b5e07dd483c9633a00235d7b5c8257c6dc5e084b12281aaa18e1c94aa81602c994ee19b5d2e376bc24d85f569372d
+    ANTIGRAVITY_VERSION=1.0.11 \
+    ANTIGRAVITY_AMD64_URL=https://storage.googleapis.com/antigravity-public/antigravity-cli/1.0.11-6118976565149696/linux-x64/cli_linux_x64.tar.gz \
+    ANTIGRAVITY_AMD64_SHA512=01d4dc05f0aba7beb459821b46f75e8dded8fdc4970116468d3e141087a138a897935e05ef8bf500dc4edebb9d50ef17c782adae46097f77cc3971ef556e51b7 \
+    ANTIGRAVITY_ARM64_URL=https://storage.googleapis.com/antigravity-public/antigravity-cli/1.0.11-6118976565149696/linux-arm/cli_linux_arm64.tar.gz \
+    ANTIGRAVITY_ARM64_SHA512=7b8f2cab6a973c97a8b1fe1a0bf146a0a3d1c3870e1c6121de549a0fdb27d62f465980532f0fba9a2ebd3cfd416bd7eed737738b0b661b307e68d620ad5f5bc6
 
 RUN case ${TARGETARCH} in \
          "amd64") AGY_URL="${ANTIGRAVITY_AMD64_URL}"; AGY_SHA512="${ANTIGRAVITY_AMD64_SHA512}" ;; \
@@ -241,8 +240,8 @@ RUN case ${TARGETARCH} in \
 # ARCHGATE_GIT_SHA: the git commit SHA corresponding to ARCHGATE_VERSION.
 # Update both together when bumping the version.
 # To find the SHA: npm view archgate@<version> gitHead
-ENV ARCHGATE_VERSION=0.45.4 \
-    ARCHGATE_GIT_SHA=35720c91d0c5338cd5ff43eb12a5f5a532d1db48 \
+ENV ARCHGATE_VERSION=0.45.6 \
+    ARCHGATE_GIT_SHA=651518a5871daf4f29cc2dce5070006708b59db0 \
     ARCHGATE_TELEMETRY=0
 
 RUN if [ "$TARGETARCH" = "arm64" ]; then \
