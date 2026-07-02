@@ -49,14 +49,17 @@ RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | g
 # Python Tools (uv など)
 # ------------------------------------------------------------------------------
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
-ENV PATH=/root/.local/bin:$PATH
+ENV PATH=/root/.local/bin:$PATH \
+    CHECKOV_VERSION=3.3.6
+
+RUN uv tool install "checkov==${CHECKOV_VERSION}"
 
 # ------------------------------------------------------------------------------
 # Node.js Tools (pnpm, rulesync など)
 # ------------------------------------------------------------------------------
-ENV NPM_VERSION=11.17.0 \
+ENV NPM_VERSION=11.18.0 \
     PNPM_VERSION=11.9.0 \
-    RULESYNC_VERSION=8.31.0
+    RULESYNC_VERSION=9.1.0
 
 RUN curl -fsSL https://deb.nodesource.com/setup_current.x | bash - \
     && apt-get install -y nodejs
@@ -86,23 +89,23 @@ RUN case ${TARGETARCH} in \
 # ------------------------------------------------------------------------------
 ENV AWS_REGION=ap-northeast-1 \
     CLOUD_ML_REGION=global \
-    ANTHROPIC_MODEL=claude-sonnet-4-6@default \
+    ANTHROPIC_MODEL=claude-sonnet-5@default \
     ANTHROPIC_SMALL_FAST_MODEL=claude-haiku-4-5@20251001
 
 # ------------------------------------------------------------------------------
 # Cline
 # ------------------------------------------------------------------------------
 ENV CLINE_AWS_REGION=ap-northeast-1 \
-    CLINE_BEDROCK_MODEL_ID=global.anthropic.claude-sonnet-4-6 \
+    CLINE_BEDROCK_MODEL_ID=global.anthropic.claude-sonnet-5 \
     CLINE_VERTEX_REGION=global \
-    CLINE_VERTEX_MODEL_ID=claude-sonnet-4-6@default \
+    CLINE_VERTEX_MODEL_ID=claude-sonnet-5@default \
     CLINE_OPENAI_BASE_URL=https://api.openai.com/v1 \
     CLINE_OPENAI_MODEL=gpt-5.3-codex
 
 # ------------------------------------------------------------------------------
 # Codex
 # ------------------------------------------------------------------------------
-ENV CODEX_CLI_VERSION=0.142.0 \
+ENV CODEX_CLI_VERSION=0.142.5 \
     CODEX_HOME=/root/.codex \
     OPENAI_BASE_URL=https://api.openai.com/v1 \
     CODEX_MODEL=gpt-5.3-codex
@@ -119,11 +122,11 @@ RUN --mount=type=cache,target=/root/.npm \
 # When updating the version: Check the latest manifest at https://antigravity-cli-auto-updater-974169037036.us-central1.run.app/manifests/linux_{amd64,arm64}.json and update.
 ENV GOOGLE_CLOUD_LOCATION=global \
     GOOGLE_GENAI_USE_VERTEXAI=true \
-    ANTIGRAVITY_VERSION=1.0.11 \
-    ANTIGRAVITY_AMD64_URL=https://storage.googleapis.com/antigravity-public/antigravity-cli/1.0.11-6118976565149696/linux-x64/cli_linux_x64.tar.gz \
-    ANTIGRAVITY_AMD64_SHA512=01d4dc05f0aba7beb459821b46f75e8dded8fdc4970116468d3e141087a138a897935e05ef8bf500dc4edebb9d50ef17c782adae46097f77cc3971ef556e51b7 \
-    ANTIGRAVITY_ARM64_URL=https://storage.googleapis.com/antigravity-public/antigravity-cli/1.0.11-6118976565149696/linux-arm/cli_linux_arm64.tar.gz \
-    ANTIGRAVITY_ARM64_SHA512=7b8f2cab6a973c97a8b1fe1a0bf146a0a3d1c3870e1c6121de549a0fdb27d62f465980532f0fba9a2ebd3cfd416bd7eed737738b0b661b307e68d620ad5f5bc6
+    ANTIGRAVITY_VERSION=1.0.15 \
+    ANTIGRAVITY_AMD64_URL=https://storage.googleapis.com/antigravity-public/antigravity-cli/1.0.15-5090589570629632/linux-x64/cli_linux_x64.tar.gz \
+    ANTIGRAVITY_AMD64_SHA512=60e06b766c15da5b949350e232ace9253bfdfb56c12a7fb7a69b65387106936efea49d8d7bb81367ecfdc967c66242fc45f40d34eb7ffb5947f07f0fbf896986 \
+    ANTIGRAVITY_ARM64_URL=https://storage.googleapis.com/antigravity-public/antigravity-cli/1.0.15-5090589570629632/linux-arm/cli_linux_arm64.tar.gz \
+    ANTIGRAVITY_ARM64_SHA512=175107b1b8c996cbf84e5d48c644c85bf1033f479222548d72ac5a24a2a7f60a5146bd3c37d3858fafe857c4aa3765be4d365de218d7167a62045dbeab3b0bc3
 
 RUN case ${TARGETARCH} in \
          "amd64") AGY_URL="${ANTIGRAVITY_AMD64_URL}"; AGY_SHA512="${ANTIGRAVITY_AMD64_SHA512}" ;; \
@@ -144,8 +147,8 @@ RUN case ${TARGETARCH} in \
 # ARCHGATE_GIT_SHA: the git commit SHA corresponding to ARCHGATE_VERSION.
 # Update both together when bumping the version.
 # To find the SHA: npm view archgate@<version> gitHead
-ENV ARCHGATE_VERSION=0.45.6 \
-    ARCHGATE_GIT_SHA=651518a5871daf4f29cc2dce5070006708b59db0 \
+ENV ARCHGATE_VERSION=0.45.7 \
+    ARCHGATE_GIT_SHA=e656ac1795aa36a5f66bcf6c815cd01786cc855e \
     ARCHGATE_TELEMETRY=0
 
 RUN if [ "$TARGETARCH" = "arm64" ]; then \
