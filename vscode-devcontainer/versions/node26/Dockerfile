@@ -3,7 +3,7 @@
 # ==============================================================================
 # Global Arguments
 # ==============================================================================
-ARG DEBIAN_VERSION=trixie-20260713
+ARG DEBIAN_VERSION=trixie-20260803
 
 # ==============================================================================
 # Development Environment
@@ -59,16 +59,16 @@ RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | g
 # ------------------------------------------------------------------------------
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 ENV PATH=/root/.local/bin:$PATH \
-    CHECKOV_VERSION=3.3.8
+    CHECKOV_VERSION=3.3.9
 
 RUN uv tool install "checkov==${CHECKOV_VERSION}"
 
 # ------------------------------------------------------------------------------
 # Node.js Tools (pnpm, rulesync など)
 # ------------------------------------------------------------------------------
-ENV NPM_VERSION=12.0.1 \
-    PNPM_VERSION=11.15.0 \
-    RULESYNC_VERSION=14.0.1
+ENV NPM_VERSION=12.0.2 \
+    PNPM_VERSION=11.20.0 \
+    RULESYNC_VERSION=16.7.0
 
 RUN curl -fsSL https://deb.nodesource.com/setup_current.x | bash - \
     && apt-get install -y nodejs
@@ -105,25 +105,16 @@ RUN case ${TARGETARCH} in \
 # ------------------------------------------------------------------------------
 # Claude Code
 # ------------------------------------------------------------------------------
-ENV AWS_REGION=ap-northeast-1 \
-    CLOUD_ML_REGION=global \
-    ANTHROPIC_MODEL=claude-sonnet-5@default \
+ENV ANTHROPIC_MODEL=claude-sonnet-5@default \
     ANTHROPIC_SMALL_FAST_MODEL=claude-haiku-4-5@20251001
 
-# ------------------------------------------------------------------------------
-# Cline
-# ------------------------------------------------------------------------------
-ENV CLINE_AWS_REGION=ap-northeast-1 \
-    CLINE_BEDROCK_MODEL_ID=global.anthropic.claude-sonnet-5 \
-    CLINE_VERTEX_REGION=global \
-    CLINE_VERTEX_MODEL_ID=claude-sonnet-5@default \
-    CLINE_OPENAI_BASE_URL=https://api.openai.com/v1 \
-    CLINE_OPENAI_MODEL=gpt-5.3-codex
+RUN npm install -g "@anthropic-ai/claude-code" && \
+    npm cache clean --force
 
 # ------------------------------------------------------------------------------
 # Codex
 # ------------------------------------------------------------------------------
-ENV CODEX_CLI_VERSION=0.144.6 \
+ENV CODEX_CLI_VERSION=0.146.1 \
     CODEX_HOME=/root/.codex \
     OPENAI_BASE_URL=https://api.openai.com/v1 \
     CODEX_MODEL=gpt-5.3-codex
@@ -140,11 +131,11 @@ RUN --mount=type=cache,target=/root/.npm \
 # When updating the version: Check the latest manifest at https://antigravity-cli-auto-updater-974169037036.us-central1.run.app/manifests/linux_{amd64,arm64}.json and update.
 ENV GOOGLE_CLOUD_LOCATION=global \
     GOOGLE_GENAI_USE_VERTEXAI=true \
-    ANTIGRAVITY_VERSION=1.1.4 \
-    ANTIGRAVITY_AMD64_URL=https://storage.googleapis.com/antigravity-public/antigravity-cli/1.1.4-6277569641840640/linux-x64/cli_linux_x64.tar.gz \
-    ANTIGRAVITY_AMD64_SHA512=a088a1f231d8565b6673cecd8656fc3504e49c89e9c6b8c4116937b5fe7069c8dcfba78bbb2bc5c0ff8e87ba64fe21b63db7001e3a5794504927dad9e89da973 \
-    ANTIGRAVITY_ARM64_URL=https://storage.googleapis.com/antigravity-public/antigravity-cli/1.1.4-6277569641840640/linux-arm/cli_linux_arm64.tar.gz \
-    ANTIGRAVITY_ARM64_SHA512=8d3c464303b235b6f2c2d441eca07b0c1cc35efa68f7ae16b167a5a2d49373903efdf686b3e41063424f0cf0c5b5d5eb056f7944dade7abf1b8eb225cb8c438c
+    ANTIGRAVITY_VERSION=1.1.10 \
+    ANTIGRAVITY_AMD64_URL=https://storage.googleapis.com/antigravity-public/antigravity-cli/1.1.10-6423386432339968/linux-x64/cli_linux_x64.tar.gz \
+    ANTIGRAVITY_AMD64_SHA512=e64d4e58ede0f8440f2b3dc021f9d6d36b05f5c2f74d5a9215c1f11b20d536c8c2e020f4ce5257aa67e940e94c94d5a16d3aa6461cda18ee7f3e74d3a20ca1ac \
+    ANTIGRAVITY_ARM64_URL=https://storage.googleapis.com/antigravity-public/antigravity-cli/1.1.10-6423386432339968/linux-arm/cli_linux_arm64.tar.gz \
+    ANTIGRAVITY_ARM64_SHA512=2d64c4e09eb22c824bc298ca61e48cb0e62688353db4122996b2e4bba8c9a1570d2cbf6e6452ed7ef30df0940bf8f058789e466aed5264c1ae2e4613eca5b573
 
 RUN case ${TARGETARCH} in \
          "amd64") AGY_URL="${ANTIGRAVITY_AMD64_URL}"; AGY_SHA512="${ANTIGRAVITY_AMD64_SHA512}" ;; \
@@ -165,8 +156,8 @@ RUN case ${TARGETARCH} in \
 # ARCHGATE_GIT_SHA: the git commit SHA corresponding to ARCHGATE_VERSION.
 # Update both together when bumping the version.
 # To find the SHA: npm view archgate@<version> gitHead
-ENV ARCHGATE_VERSION=0.50.0 \
-    ARCHGATE_GIT_SHA=cd63671b590aa923b805eeee12fd3380e152a0ff \
+ENV ARCHGATE_VERSION=0.51.0 \
+    ARCHGATE_GIT_SHA=0dbc4b35e881de86950d98d1355fffed43374a7e \
     ARCHGATE_TELEMETRY=0
 
 RUN if [ "$TARGETARCH" = "arm64" ]; then \
@@ -186,29 +177,38 @@ RUN if [ "$TARGETARCH" = "arm64" ]; then \
 # ------------------------------------------------------------------------------
 # Gitleaks
 # ------------------------------------------------------------------------------
-ENV GITLEAKS_VERSION=8.30.1
+# GITLEAKS_SHA256_*: from https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_checksums.txt
+ENV GITLEAKS_VERSION=8.30.1 \
+    GITLEAKS_SHA256_X64=551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb \
+    GITLEAKS_SHA256_ARM64=e4a487ee7ccd7d3a7f7ec08657610aa3606637dab924210b3aee62570fb4b080
 
 RUN case ${TARGETARCH} in \
-         "amd64") GITLEAKS_ARCH="x64"  ;; \
-         "arm64") GITLEAKS_ARCH="arm64" ;; \
+         "amd64") GITLEAKS_ARCH="x64"; GITLEAKS_SHA256="${GITLEAKS_SHA256_X64}" ;; \
+         "arm64") GITLEAKS_ARCH="arm64"; GITLEAKS_SHA256="${GITLEAKS_SHA256_ARM64}" ;; \
          *) echo "Unsupported architecture: ${TARGETARCH}"; exit 1 ;; \
     esac && \
     curl -fsSL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_${GITLEAKS_ARCH}.tar.gz" -o gitleaks.tar.gz && \
+    echo "${GITLEAKS_SHA256}  gitleaks.tar.gz" | sha256sum -c - && \
     tar -xzf gitleaks.tar.gz -C /usr/local/bin gitleaks && \
     rm gitleaks.tar.gz
 
 # ------------------------------------------------------------------------------
 # Lefthook
 # ------------------------------------------------------------------------------
-ENV LEFTHOOK_VERSION=2.1.10
+# LEFTHOOK_SHA256_*: from https://github.com/evilmartians/lefthook/releases/download/v${LEFTHOOK_VERSION}/lefthook_checksums.txt
+ENV LEFTHOOK_VERSION=2.1.10 \
+    LEFTHOOK_SHA256_X86_64=0b14162a0bb2f0c64ae0759f6102f6e19c4d00981666a8ac73d4f5a6878ada4f \
+    LEFTHOOK_SHA256_ARM64=eb8a46b95a8405178b3eb55886225b107cbf65b6d7bd1b141cfa642c57bdc100
 
 RUN case ${TARGETARCH} in \
-         "amd64") LEFTHOOK_ARCH="x86_64"  ;; \
-         "arm64") LEFTHOOK_ARCH="arm64" ;; \
+         "amd64") LEFTHOOK_ARCH="x86_64"; LEFTHOOK_SHA256="${LEFTHOOK_SHA256_X86_64}" ;; \
+         "arm64") LEFTHOOK_ARCH="arm64"; LEFTHOOK_SHA256="${LEFTHOOK_SHA256_ARM64}" ;; \
          *) echo "Unsupported architecture: ${TARGETARCH}"; exit 1 ;; \
     esac && \
-    curl -fsSL "https://github.com/evilmartians/lefthook/releases/download/v${LEFTHOOK_VERSION}/lefthook_${LEFTHOOK_VERSION}_Linux_${LEFTHOOK_ARCH}.gz" -o /usr/local/bin/lefthook.gz && \
-    gunzip /usr/local/bin/lefthook.gz && \
+    curl -fsSL "https://github.com/evilmartians/lefthook/releases/download/v${LEFTHOOK_VERSION}/lefthook_${LEFTHOOK_VERSION}_Linux_${LEFTHOOK_ARCH}.gz" -o /tmp/lefthook.gz && \
+    echo "${LEFTHOOK_SHA256}  /tmp/lefthook.gz" | sha256sum -c - && \
+    gunzip -c /tmp/lefthook.gz > /usr/local/bin/lefthook && \
+    rm /tmp/lefthook.gz && \
     chmod +x /usr/local/bin/lefthook
 
 # ------------------------------------------------------------------------------
