@@ -14,7 +14,16 @@ ARG TARGETARCH
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN --mount=type=cache,target=/var/cache/apt/archives,id=apt-archives-${TARGETARCH} \
+RUN echo "path-exclude=/usr/share/doc/*" > /etc/dpkg/dpkg.cfg.d/01-nodoc \
+    && echo "path-exclude=/usr/share/man/*" >> /etc/dpkg/dpkg.cfg.d/01-nodoc \
+    && echo "path-exclude=/usr/share/groff/*" >> /etc/dpkg/dpkg.cfg.d/01-nodoc \
+    && echo "path-exclude=/usr/share/info/*" >> /etc/dpkg/dpkg.cfg.d/01-nodoc \
+    && echo "path-exclude=/usr/share/lintian/*" >> /etc/dpkg/dpkg.cfg.d/01-nodoc \
+    && echo "path-include=/usr/share/doc/*/copyright" >> /etc/dpkg/dpkg.cfg.d/01-nodoc
+    # copyright: ライセンス表記のため除外対象から除く
+
+RUN --mount=type=cache,target=/var/cache/apt/archives,id=apt-archives-${TARGETARCH},sharing=locked \
+    rm -f /var/cache/apt/archives/lock && \
     apt-get update && apt-get install -y --no-install-recommends \
     git \
     bash \
@@ -29,12 +38,14 @@ RUN --mount=type=cache,target=/var/cache/apt/archives,id=apt-archives-${TARGETAR
     python3 \
     python3-pip \
     protobuf-compiler \
-    libprotobuf-dev \
-    gnupg lsb-release \
+    gnupg \
+    lsb-release \
+    shellcheck \
     postgresql-client \
     xz-utils \
     locales \
-    lsof iproute2 \
+    lsof \
+    iproute2 \
     && localedef -f UTF-8 -i ja_JP ja_JP.UTF-8 \
     && rm -rf /var/lib/apt/lists/*
 
@@ -45,7 +56,18 @@ RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.
     | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list \
     && curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg \
     | gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg
-RUN apt-get update && apt-get install -y google-cloud-cli
+RUN --mount=type=cache,target=/var/cache/apt/archives,id=apt-archives-${TARGETARCH},sharing=locked \
+    rm -f /var/cache/apt/archives/lock && \
+    apt-get update && apt-get install -y --no-install-recommends google-cloud-cli \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /usr/bin/anthoscli /usr/lib/google-cloud-sdk/bin/anthoscli \
+              /usr/lib/google-cloud-sdk/platform/anthoscli_licenses \
+              /usr/lib/google-cloud-sdk/.install/anthoscli* \
+    && rm -rf /usr/bin/gsutil /usr/lib/google-cloud-sdk/bin/gsutil \
+              /usr/lib/google-cloud-sdk/platform/gsutil \
+              /usr/lib/google-cloud-sdk/.install/gsutil* \
+              /usr/lib/google-cloud-sdk/lib/third_party/botocore \
+              /usr/lib/google-cloud-sdk/lib/third_party/boto3
 
 # ------------------------------------------------------------------------------
 # GitHub CLI (gh)
@@ -67,25 +89,52 @@ RUN uv tool install "checkov==${CHECKOV_VERSION}"
 # Node.js Tools (pnpm, rulesync など)
 # ------------------------------------------------------------------------------
 ENV NPM_VERSION=12.0.2 \
-    PNPM_VERSION=11.20.0 \
-    RULESYNC_VERSION=16.7.0
+    PNPM_VERSION=11.21.0 \
+    RULESYNC_VERSION=16.9.1
 
 RUN curl -fsSL https://deb.nodesource.com/setup_current.x | bash - \
-    && apt-get install -y nodejs
+    && apt-get install -y --no-install-recommends nodejs
 
-RUN --mount=type=cache,target=/root/.npm \
+RUN --mount=type=cache,target=/root/.npm,sharing=locked \
     npm install -g "npm@${NPM_VERSION}" --force && \
     npm install -g "pnpm@${PNPM_VERSION}" && \
     npm install -g "rulesync@${RULESYNC_VERSION}" && \
     npm cache clean --force
 
 # ------------------------------------------------------------------------------
-# Playwright CLI
+# Playwright CLI + chromium
 # ------------------------------------------------------------------------------
-ENV PLAYWRIGHT_CLI_VERSION=0.1.17
+# `npx playwright install-deps chromium` が要求するパッケージ
+RUN --mount=type=cache,target=/var/cache/apt/archives,id=apt-archives-${TARGETARCH},sharing=locked \
+    rm -f /var/cache/apt/archives/lock && \
+    apt-get update && apt-get install -y --no-install-recommends \
+    libasound2t64 libatk-bridge2.0-0t64 libatk1.0-0t64 libatspi2.0-0t64 \
+    libcairo2 libcups2t64 libdbus-1-3 libdrm2 libgbm1 libglib2.0-0t64 \
+    libnspr4 libnss3 libpango-1.0-0 \
+    libx11-6 libxcb1 libxcomposite1 libxdamage1 libxext6 libxfixes3 \
+    libxkbcommon0 libxrandr2 \
+    libfontconfig1 libfreetype6 \
+    fonts-noto-color-emoji fonts-liberation \
+    fonts-ipafont-gothic fonts-wqy-zenhei fonts-tlwg-loma-otf fonts-freefont-ttf \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN --mount=type=cache,target=/root/.npm \
-    npm install -g "@playwright/cli@${PLAYWRIGHT_CLI_VERSION}" && \
+# PLAYWRIGHT_BROWSERS_VERSION は @playwright/test (pnpm-lock.yaml) と合わせること。
+# Playwright MCP（.mcp.json）は別バージョンなので別途 npx が自動解決する。
+ENV PLAYWRIGHT_BROWSERS_VERSION=1.62.1 \
+    PLAYWRIGHT_CLI_VERSION=0.1.18
+
+# /usr/local/bin/chrome: chromium (full build) 実体への symlink。
+# mermaid-cli/marp-cli から同一バイナリを再利用させ、二重ダウンロードを防ぐ
+# （後段 Diagram Tools セクションの PUPPETEER_EXECUTABLE_PATH / CHROME_PATH参照）。
+# --no-shell: chromium-headless-shell（arm64 実測 345MB）を入れない。
+# mermaid-cli/marp-cli は chromium 本体しか使わず、Playwright 自身の headless
+# 実行も shell 未インストール時は chromium 本体にフォールバックする
+# （公式ドキュメントに明記されたサポート済みオプション）。
+RUN --mount=type=cache,target=/root/.npm,sharing=locked \
+    npm install -g "@playwright/cli@${PLAYWRIGHT_CLI_VERSION}" \
+                   "playwright@${PLAYWRIGHT_BROWSERS_VERSION}" && \
+    npx --yes "playwright@${PLAYWRIGHT_BROWSERS_VERSION}" install chromium --no-shell && \
+    ln -s "$(find /root/.cache/ms-playwright -name chrome -type f -executable | head -n1)" /usr/local/bin/chrome && \
     npm cache clean --force
 
 # ------------------------------------------------------------------------------
@@ -100,55 +149,8 @@ RUN case ${TARGETARCH} in \
     && unzip -q awscliv2.zip \
     && ./aws/install \
     && rm -f awscliv2.zip \
-    && rm -rf aws
-
-# ------------------------------------------------------------------------------
-# Claude Code
-# ------------------------------------------------------------------------------
-ENV ANTHROPIC_MODEL=claude-sonnet-5@default \
-    ANTHROPIC_SMALL_FAST_MODEL=claude-haiku-4-5@20251001
-
-RUN npm install -g "@anthropic-ai/claude-code" && \
-    npm cache clean --force
-
-# ------------------------------------------------------------------------------
-# Codex
-# ------------------------------------------------------------------------------
-ENV CODEX_CLI_VERSION=0.146.1 \
-    CODEX_HOME=/root/.codex \
-    OPENAI_BASE_URL=https://api.openai.com/v1 \
-    CODEX_MODEL=gpt-5.3-codex
-
-RUN --mount=type=cache,target=/root/.npm \
-    npm install -g "@openai/codex@${CODEX_CLI_VERSION}" && \
-    npm cache clean --force
-
-# ------------------------------------------------------------------------------
-# Antigravity
-# ------------------------------------------------------------------------------
-# ANTIGRAVITY_AMD64_URL / ANTIGRAVITY_ARM64_URL: The fixed version URL for GCS.
-# ANTIGRAVITY_AMD64_SHA512 / ANTIGRAVITY_ARM64_SHA512: SHA512 checksum.
-# When updating the version: Check the latest manifest at https://antigravity-cli-auto-updater-974169037036.us-central1.run.app/manifests/linux_{amd64,arm64}.json and update.
-ENV GOOGLE_CLOUD_LOCATION=global \
-    GOOGLE_GENAI_USE_VERTEXAI=true \
-    ANTIGRAVITY_VERSION=1.1.10 \
-    ANTIGRAVITY_AMD64_URL=https://storage.googleapis.com/antigravity-public/antigravity-cli/1.1.10-6423386432339968/linux-x64/cli_linux_x64.tar.gz \
-    ANTIGRAVITY_AMD64_SHA512=e64d4e58ede0f8440f2b3dc021f9d6d36b05f5c2f74d5a9215c1f11b20d536c8c2e020f4ce5257aa67e940e94c94d5a16d3aa6461cda18ee7f3e74d3a20ca1ac \
-    ANTIGRAVITY_ARM64_URL=https://storage.googleapis.com/antigravity-public/antigravity-cli/1.1.10-6423386432339968/linux-arm/cli_linux_arm64.tar.gz \
-    ANTIGRAVITY_ARM64_SHA512=2d64c4e09eb22c824bc298ca61e48cb0e62688353db4122996b2e4bba8c9a1570d2cbf6e6452ed7ef30df0940bf8f058789e466aed5264c1ae2e4613eca5b573
-
-RUN case ${TARGETARCH} in \
-         "amd64") AGY_URL="${ANTIGRAVITY_AMD64_URL}"; AGY_SHA512="${ANTIGRAVITY_AMD64_SHA512}" ;; \
-         "arm64") AGY_URL="${ANTIGRAVITY_ARM64_URL}"; AGY_SHA512="${ANTIGRAVITY_ARM64_SHA512}" ;; \
-         *) echo "Unsupported architecture: ${TARGETARCH}"; exit 1 ;; \
-    esac && \
-    curl -fsSL "${AGY_URL}" -o /tmp/antigravity.tar.gz && \
-    echo "${AGY_SHA512}  /tmp/antigravity.tar.gz" | sha512sum -c - && \
-    tar -xzf /tmp/antigravity.tar.gz -C /tmp antigravity && \
-    mv /tmp/antigravity /usr/local/bin/agy && \
-    chmod +x /usr/local/bin/agy && \
-    rm /tmp/antigravity.tar.gz && \
-    agy install --dir /usr/local/bin || true
+    && rm -rf aws \
+    && find /usr/local/aws-cli -type d -name examples -exec rm -rf {} +
 
 # ------------------------------------------------------------------------------
 # Archgate
@@ -156,8 +158,8 @@ RUN case ${TARGETARCH} in \
 # ARCHGATE_GIT_SHA: the git commit SHA corresponding to ARCHGATE_VERSION.
 # Update both together when bumping the version.
 # To find the SHA: npm view archgate@<version> gitHead
-ENV ARCHGATE_VERSION=0.51.0 \
-    ARCHGATE_GIT_SHA=0dbc4b35e881de86950d98d1355fffed43374a7e \
+ENV ARCHGATE_VERSION=0.52.0 \
+    ARCHGATE_GIT_SHA=c36b360bad9cbf748ffaf45fc5eb8fbdd5a4700d \
     ARCHGATE_TELEMETRY=0
 
 RUN if [ "$TARGETARCH" = "arm64" ]; then \
@@ -169,7 +171,7 @@ RUN if [ "$TARGETARCH" = "arm64" ]; then \
     /tmp/bun/bin/bun build /tmp/archgate-src/src/cli.ts \
         --compile --bytecode --target=bun-linux-arm64 \
         --outfile /usr/local/bin/archgate && \
-    rm -rf /tmp/archgate-src /tmp/bun; \
+    rm -rf /tmp/archgate-src /tmp/bun /root/.bun; \
   else \
     npm install -g "archgate@${ARCHGATE_VERSION}" && npm cache clean --force; \
   fi
@@ -210,19 +212,5 @@ RUN case ${TARGETARCH} in \
     gunzip -c /tmp/lefthook.gz > /usr/local/bin/lefthook && \
     rm /tmp/lefthook.gz && \
     chmod +x /usr/local/bin/lefthook
-
-# ------------------------------------------------------------------------------
-# ShellCheck
-# ------------------------------------------------------------------------------
-ENV SHELLCHECK_VERSION=0.11.0
-
-RUN case ${TARGETARCH} in \
-         "amd64") SHELLCHECK_ARCH="x86_64"  ;; \
-         "arm64") SHELLCHECK_ARCH="aarch64" ;; \
-         *) echo "Unsupported architecture: ${TARGETARCH}"; exit 1 ;; \
-    esac && \
-    curl -fsSL "https://github.com/koalaman/shellcheck/releases/download/v${SHELLCHECK_VERSION}/shellcheck-v${SHELLCHECK_VERSION}.linux.${SHELLCHECK_ARCH}.tar.xz" -o shellcheck.tar.xz && \
-    tar -xJf shellcheck.tar.xz --strip-components=1 -C /usr/local/bin "shellcheck-v${SHELLCHECK_VERSION}/shellcheck" && \
-    rm shellcheck.tar.xz
 
 ENTRYPOINT [ "sleep", "infinity" ]
