@@ -23,14 +23,14 @@ jobs:
       matrix:
         include:
           - image_name: vscode-devcontainer
-            image_tag: 20260805
+            image_tag: 20260902
             filter_ref: gh-devcontainer
             dockerfile_path: vscode-devcontainer/versions/node26/
             platforms: linux/amd64,linux/arm64
           - image_name: vscode-devcontainer
-            image_tag: 20260805-go
+            image_tag: 20260902-go
             filter_ref: gh-devcontainer
-            dockerfile_path: vscode-devcontainer/versions/go1.26-node26/
+            dockerfile_path: vscode-devcontainer/versions/go1.27-node26/
             platforms: linux/amd64,linux/arm64
           - image_name: shellcheck
             image_tag: 0.7
