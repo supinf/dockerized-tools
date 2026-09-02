@@ -3,12 +3,71 @@
 # ==============================================================================
 # Global Arguments
 # ==============================================================================
+ARG GO_VERSION=1.27.1
 ARG DEBIAN_VERSION=trixie-20260824
 
 # ==============================================================================
-# Development Environment
+# Stage 0: Go SDK (Target Architecture)
+# ==============================================================================
+FROM golang:${GO_VERSION}-bookworm AS go-sdk
+
+# ==============================================================================
+# Stage 1: Go Tool Builder (Cross-Compilation)
+# ==============================================================================
+FROM --platform=$BUILDPLATFORM golang:${GO_VERSION}-bookworm AS tool-builder
+
+ARG TARGETARCH
+
+ENV CGO_ENABLED=0 \
+    GOOS=linux \
+    GOARCH=${TARGETARCH}
+
+ENV TBLS_VERSION=v1.95.0 \
+    AIR_VERSION=v1.67.4 \
+    DELVE_VERSION=v1.27.1 \
+    MOCKGEN_VERSION=v0.6.0 \
+    TEMPL_VERSION=v0.3.1020 \
+    BUF_VERSION=v1.72.0 \
+    PROTOC_GEN_VALIDATE_VERSION=v1.3.3 \
+    PROTOC_GEN_GO_VERSION=v1.36.12 \
+    PROTOC_GEN_GO_GRPC_VERSION=v1.6.2 \
+    PROTOC_GEN_CONNECT_GO_VERSION=v1.20.0 \
+    GRPC_GATEWAY_VERSION=v2.30.0 \
+    OAPI_VERSION=v2.8.0 \
+    GOLANGCI_LINT_VERSION=v2.13.2 \
+    CONFTEST_VERSION=v0.69.0 \
+    D2_VERSION=v0.8.2
+
+RUN --mount=type=cache,target=/go/pkg/mod,sharing=locked \
+    --mount=type=cache,target=/root/.cache/go-build,sharing=locked \
+    go install -ldflags="-s -w" golang.org/x/tools/gopls@latest && \
+    go install -ldflags="-s -w" golang.org/x/tools/cmd/goimports@latest && \
+    go install -ldflags="-s -w" github.com/k1LoW/tbls@${TBLS_VERSION} && \
+    go install -ldflags="-s -w" github.com/air-verse/air@${AIR_VERSION} && \
+    go install -ldflags="-s -w" github.com/go-delve/delve/cmd/dlv@${DELVE_VERSION} && \
+    go install -ldflags="-s -w" go.uber.org/mock/mockgen@${MOCKGEN_VERSION} && \
+    go install -ldflags="-s -w" github.com/a-h/templ/cmd/templ@${TEMPL_VERSION} && \
+    go install -ldflags="-s -w" github.com/bufbuild/buf/cmd/buf@${BUF_VERSION} && \
+    go install -ldflags="-s -w" github.com/envoyproxy/protoc-gen-validate/cmd/protoc-gen-validate-go@${PROTOC_GEN_VALIDATE_VERSION} && \
+    go install -ldflags="-s -w" google.golang.org/protobuf/cmd/protoc-gen-go@${PROTOC_GEN_GO_VERSION} && \
+    go install -ldflags="-s -w" google.golang.org/grpc/cmd/protoc-gen-go-grpc@${PROTOC_GEN_GO_GRPC_VERSION} && \
+    go install -ldflags="-s -w" connectrpc.com/connect/cmd/protoc-gen-connect-go@${PROTOC_GEN_CONNECT_GO_VERSION} && \
+    go install -ldflags="-s -w" github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@${GRPC_GATEWAY_VERSION} && \
+    go install -ldflags="-s -w" github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@${GRPC_GATEWAY_VERSION} && \
+    go install -ldflags="-s -w" github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@${OAPI_VERSION} && \
+    go install -ldflags="-s -w" github.com/golangci/golangci-lint/v2/cmd/golangci-lint@${GOLANGCI_LINT_VERSION} && \
+    go install -ldflags="-s -w" github.com/open-policy-agent/conftest@${CONFTEST_VERSION} && \
+    go install -ldflags="-s -w" github.com/d2lang/d2@${D2_VERSION} && \
+    if [ -d "/go/bin/linux_${TARGETARCH}" ]; then \
+        mv /go/bin/linux_${TARGETARCH}/* /go/bin/; \
+        rmdir /go/bin/linux_${TARGETARCH}; \
+    fi
+
+# ==============================================================================
+# Stage 2: Development Environment
 # ==============================================================================
 FROM debian:${DEBIAN_VERSION}
+# FROM dhi.io/debian-base:${DEBIAN_VERSION}
 
 ARG TARGETARCH
 
@@ -33,6 +92,7 @@ RUN --mount=type=cache,target=/var/cache/apt/archives,id=apt-archives-${TARGETAR
     unzip \
     ca-certificates \
     openssh-client \
+    openjdk-25-jre-headless \
     jq \
     less \
     python3 \
@@ -46,8 +106,36 @@ RUN --mount=type=cache,target=/var/cache/apt/archives,id=apt-archives-${TARGETAR
     locales \
     lsof \
     iproute2 \
+    librsvg2-bin \
+    fonts-noto-cjk \
     && localedef -f UTF-8 -i ja_JP ja_JP.UTF-8 \
     && rm -rf /var/lib/apt/lists/*
+
+# ------------------------------------------------------------------------------
+# Flyway
+# ------------------------------------------------------------------------------
+ENV FLYWAY_VERSION=9.9.0 \
+    JAVA_ARGS="--enable-native-access=ALL-UNNAMED"
+
+RUN curl -L -o flyway.tar.gz https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/${FLYWAY_VERSION}/flyway-commandline-${FLYWAY_VERSION}-linux-x64.tar.gz \
+    && tar -xzf flyway.tar.gz \
+    && mv flyway-${FLYWAY_VERSION} /opt/flyway \
+    && rm -rf /opt/flyway/jre \
+    && find /opt/flyway/drivers -mindepth 1 -maxdepth 1 ! -name 'postgresql-*.jar' -exec rm -rf {} + \
+    && ln -s /opt/flyway/flyway /usr/local/bin/flyway \
+    && rm flyway.tar.gz
+
+# ------------------------------------------------------------------------------
+# OpenAPI Generator
+# ------------------------------------------------------------------------------
+ENV OPENAPI_GENERATOR_VERSION=7.25.0 \
+    OPENAPI_GENERATOR_SHA1=56a9bb79e3bb565f477eddca2c6daa288a9c6f35
+
+RUN mkdir -p /opt/openapi-generator \
+    && curl -fsSL "https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/${OPENAPI_GENERATOR_VERSION}/openapi-generator-cli-${OPENAPI_GENERATOR_VERSION}.jar" -o /opt/openapi-generator/openapi-generator-cli.jar \
+    && echo "${OPENAPI_GENERATOR_SHA1}  /opt/openapi-generator/openapi-generator-cli.jar" | sha1sum -c - \
+    && printf '#!/bin/sh\nexec java -jar /opt/openapi-generator/openapi-generator-cli.jar "$@"\n' > /usr/local/bin/openapi-generator-cli \
+    && chmod +x /usr/local/bin/openapi-generator-cli
 
 # ------------------------------------------------------------------------------
 # gcloud
@@ -115,7 +203,7 @@ RUN --mount=type=cache,target=/var/cache/apt/archives,id=apt-archives-${TARGETAR
     libxkbcommon0 libxrandr2 \
     libfontconfig1 libfreetype6 \
     fonts-noto-color-emoji fonts-liberation \
-    fonts-ipafont-gothic fonts-wqy-zenhei fonts-tlwg-loma-otf fonts-freefont-ttf \
+    fonts-tlwg-loma-otf fonts-freefont-ttf \
     && rm -rf /var/lib/apt/lists/*
 
 # PLAYWRIGHT_BROWSERS_VERSION は @playwright/test (pnpm-lock.yaml) と合わせること。
@@ -138,6 +226,26 @@ RUN --mount=type=cache,target=/root/.npm,sharing=locked \
     npm cache clean --force
 
 # ------------------------------------------------------------------------------
+# Docker CLI（daemon なし）
+# ------------------------------------------------------------------------------
+RUN dpkg --get-selections docker.io docker-doc docker-compose docker-compose-v2 \
+    podman-docker containerd runc 2>/dev/null | cut -f1 | xargs -r apt-get remove -y \
+    && apt autoremove -y
+RUN --mount=type=cache,target=/var/cache/apt/archives,id=apt-archives-${TARGETARCH},sharing=locked \
+    rm -f /var/cache/apt/archives/lock && \
+    install -m 0755 -d /etc/apt/keyrings \
+    && curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc \
+    && chmod a+r /etc/apt/keyrings/docker.asc \
+    && printf "Types: deb\n\
+URIs: https://download.docker.com/linux/debian\n\
+Suites: %s\n\
+Components: stable\n\
+Signed-By: /etc/apt/keyrings/docker.asc\n" "$(. /etc/os-release && echo "$VERSION_CODENAME")" > /etc/apt/sources.list.d/docker.sources \
+    && apt-get update \
+    && apt install -y --no-install-recommends docker-ce-cli docker-buildx-plugin docker-compose-plugin \
+    && rm -rf /var/lib/apt/lists/*
+
+# ------------------------------------------------------------------------------
 # AWS CLI v2
 # ------------------------------------------------------------------------------
 RUN case ${TARGETARCH} in \
@@ -151,6 +259,34 @@ RUN case ${TARGETARCH} in \
     && rm -f awscliv2.zip \
     && rm -rf aws \
     && find /usr/local/aws-cli -type d -name examples -exec rm -rf {} +
+
+# ------------------------------------------------------------------------------
+# Antigravity
+# ------------------------------------------------------------------------------
+# ANTIGRAVITY_AMD64_URL / ANTIGRAVITY_ARM64_URL: The fixed version URL for GCS.
+# ANTIGRAVITY_AMD64_SHA512 / ANTIGRAVITY_ARM64_SHA512: SHA512 checksum.
+# When updating the version: Check the latest manifest at https://antigravity-cli-auto-updater-974169037036.us-central1.run.app/manifests/linux_{amd64,arm64}.json and update.
+ENV GOOGLE_CLOUD_LOCATION=global \
+    GOOGLE_GENAI_USE_VERTEXAI=true \
+    ADK_SUPPRESS_GEMINI_LITELLM_WARNINGS=true \
+    ANTIGRAVITY_VERSION=1.1.24 \
+    ANTIGRAVITY_AMD64_URL=https://storage.googleapis.com/antigravity-public/antigravity-cli/1.1.24-6130423206641664/linux-x64/cli_linux_x64.tar.gz \
+    ANTIGRAVITY_AMD64_SHA512=ed4df91ea7ced986aa14507a0ab8225d92985190f7d551010eba0c46c569587e602cb36af81c9cde7af0d6b380e8dd3a82131361806cd96012d44a3e47fb369a \
+    ANTIGRAVITY_ARM64_URL=https://storage.googleapis.com/antigravity-public/antigravity-cli/1.1.24-6130423206641664/linux-arm/cli_linux_arm64.tar.gz \
+    ANTIGRAVITY_ARM64_SHA512=316ca00d50389a08b162c66066b4e2db201e4ffb85acea05029e3c4532c69d5b8f7c741cf027325889f898ea8f747af8cd15c802e15fcf5d73b7137b6e2420a1
+
+RUN case ${TARGETARCH} in \
+         "amd64") AGY_URL="${ANTIGRAVITY_AMD64_URL}"; AGY_SHA512="${ANTIGRAVITY_AMD64_SHA512}" ;; \
+         "arm64") AGY_URL="${ANTIGRAVITY_ARM64_URL}"; AGY_SHA512="${ANTIGRAVITY_ARM64_SHA512}" ;; \
+         *) echo "Unsupported architecture: ${TARGETARCH}"; exit 1 ;; \
+    esac && \
+    curl -fsSL "${AGY_URL}" -o /tmp/antigravity.tar.gz && \
+    echo "${AGY_SHA512}  /tmp/antigravity.tar.gz" | sha512sum -c - && \
+    tar -xzf /tmp/antigravity.tar.gz -C /tmp antigravity && \
+    mv /tmp/antigravity /usr/local/bin/agy && \
+    chmod +x /usr/local/bin/agy && \
+    rm /tmp/antigravity.tar.gz && \
+    agy install --dir /usr/local/bin || true
 
 # ------------------------------------------------------------------------------
 # Archgate
@@ -212,5 +348,41 @@ RUN case ${TARGETARCH} in \
     gunzip -c /tmp/lefthook.gz > /usr/local/bin/lefthook && \
     rm /tmp/lefthook.gz && \
     chmod +x /usr/local/bin/lefthook
+
+# ------------------------------------------------------------------------------
+# Diagram Tools
+# ------------------------------------------------------------------------------
+# mermaid-cli (puppeteer 経由) は PUPPETEER_EXECUTABLE_PATH を、
+# marp-cli (puppeteer-core + 独自 chrome-launcher) は CHROME_PATH を参照。
+ENV MERMAID_CLI_VERSION=11.16.0 \
+    MARP_CLI_VERSION=4.5.0 \
+    PUPPETEER_SKIP_DOWNLOAD=true \
+    PUPPETEER_EXECUTABLE_PATH=/usr/local/bin/chrome \
+    CHROME_PATH=/usr/local/bin/chrome
+
+RUN --mount=type=cache,target=/root/.npm,sharing=locked \
+    npm install -g "@mermaid-js/mermaid-cli@${MERMAID_CLI_VERSION}" \
+                   "@marp-team/marp-cli@${MARP_CLI_VERSION}" && \
+    npm cache clean --force
+
+# LibreOffice (soffice) + poppler-utils (pdftoppm)
+RUN --mount=type=cache,target=/var/cache/apt/archives,id=apt-archives-${TARGETARCH},sharing=locked \
+    rm -f /var/cache/apt/archives/lock && \
+    apt-get update && apt-get install -y --no-install-recommends \
+    libreoffice-impress-nogui \
+    poppler-utils \
+    && rm -rf /var/lib/apt/lists/*
+
+# ------------------------------------------------------------------------------
+# Go
+# ------------------------------------------------------------------------------
+COPY --from=go-sdk /usr/local/go /usr/local/go
+ENV PATH=$PATH:/usr/local/go/bin:/go/bin
+ENV GOPATH=/go
+
+COPY --from=tool-builder /go/bin /go/bin
+
+ENV CGO_ENABLED=0 \
+    GO111MODULE=on
 
 ENTRYPOINT [ "sleep", "infinity" ]
