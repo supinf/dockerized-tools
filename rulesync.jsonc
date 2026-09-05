@@ -1,0 +1,9 @@
+{
+  "$schema": "https://github.com/dyoshikawa/rulesync/releases/latest/download/config-schema.json",
+  "targets": {
+    "cursor": ["commands", "rules", "skills", "ignore"],
+    "claudecode": ["commands", "rules", "skills", "ignore"],
+    "antigravity-cli": ["commands", "rules", "skills", "ignore"],
+    "codexcli": ["rules", "skills"]
+  }
+}

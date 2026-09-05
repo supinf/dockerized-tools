@@ -29,11 +29,11 @@ Categories: `golang/`, `python/`, `nodejs/`, `java/`, `ruby/`, `haskell/`, `c/`,
 | `vscode-devcontainer` | ✅ Active — primary development environment |
 | All others            | ⚠️ Legacy — maintained only as needed       |
 
-The `vscode-devcontainer` image (`vscode-devcontainer/versions/go1.26-node25/`) is a multi-stage Debian-based image bundling Go, Node.js, and a wide set of development tools (golangci-lint, buf, protoc plugins, flyway, gh, Docker, AWS CLI, Claude Code, Gemini CLI, etc.).
+The `vscode-devcontainer` image (`vscode-devcontainer/versions/go1.27-node26/`) is a multi-stage Debian-based image bundling Go, Node.js, and a wide set of development tools (golangci-lint, buf, protoc plugins, flyway, gh, Docker, AWS CLI, Claude Code, Gemini CLI, etc.).
 
 ## Critical Rules
 
-- **No edits to generated AI config files** — `.claude/`, `.cursor/`, `.gemini/`, `.roo/`, `CLAUDE.md`, `GEMINI.md` etc. are auto-generated. Edit source files under `.rulesync/` and run `bash .rulesync/rulesync.sh` to regenerate.
+- **No edits to generated AI config files** — `.claude/`, `.cursor/`, `.agents/`, `CLAUDE.md`, `AGENTS.md` etc. are auto-generated. Edit source files under `.rulesync/` and run `bash .rulesync/rulesync.sh` to regenerate.
 - **Version directory policy** — directory names follow `go<major.minor>-node<major>` format. You may overwrite an existing Dockerfile if the Go/Node.js major versions remain unchanged. Create a new version directory only when a major version changes (e.g., Go 1.26 → 1.27, or Node 25 → 26).
 - **One Dockerfile per version directory** — keep each `versions/<tag>/` self-contained.
 - **Tag-based CI** — releases are triggered by git tags. Each image in `main.yml` has a `filter_ref`; push a tag containing that string to build and push only that image.
