@@ -4,7 +4,7 @@
 # Global Arguments
 # ==============================================================================
 ARG GO_VERSION=1.27.1
-ARG DEBIAN_VERSION=trixie-20260905
+ARG DEBIAN_VERSION=trixie-20260824
 
 # ==============================================================================
 # Stage 0: Go SDK (Target Architecture)

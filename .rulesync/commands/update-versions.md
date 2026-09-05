@@ -74,7 +74,7 @@ Process coordination-constrained pairs together:
 | `npm-package` (multi-track) | `npm dist-tag ls <pkg>` | Use when a package has parallel major-version tracks (e.g. pnpm v11/v12). Pick the track that matches the currently pinned major. |
 | `pypi-package` | `curl -s "https://pypi.org/pypi/<pkg>/json" \| python3 -c "import sys,json; print(json.load(sys.stdin)['info']['version'])"` | Used for packages installed via `uv tool install` or `pip` |
 | `maven-central` | `curl -s "https://search.maven.org/solrsearch/select?q=g:<groupId>+AND+a:<artifactId>&rows=1&wt=json"` | Fall back to `maven-metadata.xml` if solrsearch returns a stale version |
-| `debian-snapshot` | `curl -s "https://snapshot.debian.org/archive/debian/?year=YYYY&month=MM"` | Query current month; fall back to previous month if no results |
+| `debian-snapshot` | 1. `curl -s "https://snapshot.debian.org/archive/debian/?year=YYYY&month=MM"` to find the latest snapshot date. 2. Verify the tag exists on Docker Hub: `curl -s "https://hub.docker.com/v2/repositories/library/debian/tags/trixie-YYYYMMDD"` — if `"name"` is absent, the tag is not yet published. Fall back to the previous date. | Docker Hub publication lags behind `snapshot.debian.org` by several days. A snapshot existing on `snapshot.debian.org` does **not** mean `FROM debian:trixie-YYYYMMDD` will work. Always confirm on Docker Hub. |
 | GCS / custom URL | Check the tool's auto-updater manifest endpoint (documented in the Dockerfile comment above the ENV block) | e.g. Antigravity CLI uses a GCS manifest URL |
 
 #### Post-lookup verification for npm packages
@@ -122,7 +122,7 @@ The security verification will produce a risk assessment for each dependency, in
 
 #### Known verification quirks
 
-- **debian-snapshot**: `snapshot.debian.org` returns **HTTP 302** (redirect) for valid snapshot dates — this is normal. Follow the redirect with `curl -sL --head` and confirm the final response is **HTTP 200** before treating it as confirmed.
+- **debian-snapshot**: `snapshot.debian.org` returns **HTTP 302** (redirect) for valid snapshot dates — this is normal. Follow the redirect with `curl -sL --head` and confirm the final response is **HTTP 200** before treating it as confirmed. However, a 200 from `snapshot.debian.org` is **not sufficient**: Docker Hub publishes `debian:trixie-YYYYMMDD` images with a lag of several days after the snapshot is created. Always separately verify that the Docker Hub tag exists before selecting the date — see the lookup table row for `debian-snapshot`.
 - **npm packages with registry 403**: npmjs.com returns 403 on WebFetch for many packages. Fall back to `npm view <pkg>@<version> version` via Bash to confirm the version exists, and use WebSearch for maintainer / CVE information.
 - **REVIEW due to stale search index**: a security agent may return REVIEW simply because a very recent release isn't yet indexed by search engines. Resolve by checking directly via `gh release view` or `npm view` and upgrading to APPROVE if no actual security concerns are found.
 
