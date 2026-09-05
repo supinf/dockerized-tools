@@ -1,6 +1,6 @@
 ---
 name: verify-dependency-security
-description: Verifies a dependency update for supply chain attack indicators before applying version changes. Checks package ownership, release authenticity, known vulnerabilities, and suspicious patterns.
+description: Verifies a dependency update for supply chain attack indicators before applying version changes. Checks package ownership, release authenticity, known vulnerabilities, and suspicious patterns. Use when proposing a dependency version bump or adding a new third-party package to a Dockerfile, to confirm it is safe before writing the change.
 ---
 
 # Verify Dependency Security
@@ -78,7 +78,7 @@ Prompt: "Extract: 1) Group ID, 2) Artifact ID, 3) Version, 4) Published date, 5)
 Search CVE databases and security advisories.
 
 ```
-WebSearch: "<package-name>" "<proposed-version>" CVE vulnerability security advisory 2026
+WebSearch: "<package-name>" "<proposed-version>" CVE vulnerability security advisory
 ```
 
 From search results, identify:
@@ -91,7 +91,7 @@ From search results, identify:
 Check for community reports and discussions (recommended for critical packages).
 
 ```
-WebSearch: "<package-name>" "<version>" malicious supply chain attack 2026
+WebSearch: "<package-name>" "<version>" malicious supply chain attack
 ```
 
 Look for suspicious patterns such as sudden maintainer changes or re-publication after deletion.

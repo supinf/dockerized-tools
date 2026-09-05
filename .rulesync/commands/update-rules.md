@@ -17,10 +17,10 @@ To perform this task, follow these detailed steps:
 
 1.  **Review Recent Git Logs**:
     - Execute `git log --since="1 week ago" --name-only --pretty=format:"%h - %an, %ar : %s"` to retrieve recent commits and associated file changes.
-    - Identify changes relevant to documentation files in `/.rulesync/commands/`, `/.rulesync/rules/**`, `/.rulesync/skills/**` and `/.rulesync/rules/`.
+    - Identify changes relevant to documentation files in `/.rulesync/commands/`, `/.rulesync/rules/**`, and `/.rulesync/skills/**`.
 
 2.  **Read Relevant Documentation Files**:
-    - Identify all markdown files within `/.rulesync/commands/`, `/.rulesync/rules/**`, `/.rulesync/skills/**` and `/.rulesync/rules/`.
+    - Identify all markdown files within `/.rulesync/commands/`, `/.rulesync/rules/**`, and `/.rulesync/skills/**`.
     - Use the `Read` tool to load the content of each identified file.
 
 3.  **Analyze and Identify Necessary Changes**:
@@ -59,12 +59,6 @@ When reviewing `.rulesync/commands/` and `.rulesync/subagents/`, verify these st
 - [ ] Commands that invoke `Edit`, `Write`, or `Bash` (i.e., modify files or run code) have `claudecode: disable-model-invocation: true` set in frontmatter. This prevents the agent from auto-triggering destructive workflows without explicit user intent.
 - [ ] Skill files (`.rulesync/skills/`) do **not** have `disable-model-invocation: true`. Setting this on a skill breaks any CLAUDE.md instruction that tells Claude to auto-load that skill.
 - [ ] Phase gate language in command bodies uses agent-agnostic phrasing — for example, "use your interactive confirmation capability to request explicit user approval" — rather than naming a specific tool (e.g., `AskUserQuestion`). This ensures compatibility with agents other than Claude Code (Cursor, Roo, Gemini CLI, etc.).
-
-### Subagents (`.rulesync/subagents/`)
-
-- [ ] Subagents that require domain-specific patterns have `claudecode: skills:` set in their frontmatter. This pre-injects skill content into the subagent's context at startup, which is more reliable than instructing the subagent to read skill files manually at runtime.
-- [ ] The `claudecode: skills:` list only includes skills that are directly needed by that subagent's role. Avoid over-loading context with irrelevant skills.
-- [ ] Subagents do **not** contain instructions like "always read this skill file using the Read tool" when the skill is already listed in `claudecode: skills:`. These two approaches are mutually exclusive; the frontmatter field is preferred.
 
 ### General
 

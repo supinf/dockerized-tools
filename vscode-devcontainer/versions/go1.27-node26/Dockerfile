@@ -4,7 +4,7 @@
 # Global Arguments
 # ==============================================================================
 ARG GO_VERSION=1.27.1
-ARG DEBIAN_VERSION=trixie-20260824
+ARG DEBIAN_VERSION=trixie-20260905
 
 # ==============================================================================
 # Stage 0: Go SDK (Target Architecture)
@@ -22,7 +22,7 @@ ENV CGO_ENABLED=0 \
     GOOS=linux \
     GOARCH=${TARGETARCH}
 
-ENV TBLS_VERSION=v1.95.0 \
+ENV TBLS_VERSION=v1.96.0 \
     AIR_VERSION=v1.67.4 \
     DELVE_VERSION=v1.27.1 \
     MOCKGEN_VERSION=v0.6.0 \
@@ -153,9 +153,7 @@ RUN --mount=type=cache,target=/var/cache/apt/archives,id=apt-archives-${TARGETAR
               /usr/lib/google-cloud-sdk/.install/anthoscli* \
     && rm -rf /usr/bin/gsutil /usr/lib/google-cloud-sdk/bin/gsutil \
               /usr/lib/google-cloud-sdk/platform/gsutil \
-              /usr/lib/google-cloud-sdk/.install/gsutil* \
-              /usr/lib/google-cloud-sdk/lib/third_party/botocore \
-              /usr/lib/google-cloud-sdk/lib/third_party/boto3
+              /usr/lib/google-cloud-sdk/.install/gsutil*
 
 # ------------------------------------------------------------------------------
 # GitHub CLI (gh)
@@ -177,8 +175,8 @@ RUN uv tool install "checkov==${CHECKOV_VERSION}"
 # Node.js Tools (pnpm, rulesync など)
 # ------------------------------------------------------------------------------
 ENV NPM_VERSION=12.0.2 \
-    PNPM_VERSION=12.2.1 \
-    RULESYNC_VERSION=16.20.0
+    PNPM_VERSION=12.3.4 \
+    RULESYNC_VERSION=16.24.0
 
 RUN curl -fsSL https://deb.nodesource.com/setup_current.x | bash - \
     && apt-get install -y --no-install-recommends nodejs
@@ -208,7 +206,7 @@ RUN --mount=type=cache,target=/var/cache/apt/archives,id=apt-archives-${TARGETAR
 
 # PLAYWRIGHT_BROWSERS_VERSION は @playwright/test (pnpm-lock.yaml) と合わせること。
 # Playwright MCP（.mcp.json）は別バージョンなので別途 npx が自動解決する。
-ENV PLAYWRIGHT_BROWSERS_VERSION=1.62.1 \
+ENV PLAYWRIGHT_BROWSERS_VERSION=1.63.0 \
     PLAYWRIGHT_CLI_VERSION=0.1.19
 
 # /usr/local/bin/chrome: chromium (full build) 実体への symlink。
@@ -269,11 +267,11 @@ RUN case ${TARGETARCH} in \
 ENV GOOGLE_CLOUD_LOCATION=global \
     GOOGLE_GENAI_USE_VERTEXAI=true \
     ADK_SUPPRESS_GEMINI_LITELLM_WARNINGS=true \
-    ANTIGRAVITY_VERSION=1.1.24 \
-    ANTIGRAVITY_AMD64_URL=https://storage.googleapis.com/antigravity-public/antigravity-cli/1.1.24-6130423206641664/linux-x64/cli_linux_x64.tar.gz \
-    ANTIGRAVITY_AMD64_SHA512=ed4df91ea7ced986aa14507a0ab8225d92985190f7d551010eba0c46c569587e602cb36af81c9cde7af0d6b380e8dd3a82131361806cd96012d44a3e47fb369a \
-    ANTIGRAVITY_ARM64_URL=https://storage.googleapis.com/antigravity-public/antigravity-cli/1.1.24-6130423206641664/linux-arm/cli_linux_arm64.tar.gz \
-    ANTIGRAVITY_ARM64_SHA512=316ca00d50389a08b162c66066b4e2db201e4ffb85acea05029e3c4532c69d5b8f7c741cf027325889f898ea8f747af8cd15c802e15fcf5d73b7137b6e2420a1
+    ANTIGRAVITY_VERSION=1.1.27 \
+    ANTIGRAVITY_AMD64_URL=https://storage.googleapis.com/antigravity-public/antigravity-cli/1.1.27-5211191891591168/linux-x64/cli_linux_x64.tar.gz \
+    ANTIGRAVITY_AMD64_SHA512=793d4b9ea2c08d9a7e50bafa02cfc8c19424bd60d6e83f91408d45f9c6d4ce79a5d576fede5bef164d823abf84f81359a14b4ca665952c47b0a7cfd743bb69c0 \
+    ANTIGRAVITY_ARM64_URL=https://storage.googleapis.com/antigravity-public/antigravity-cli/1.1.27-5211191891591168/linux-arm/cli_linux_arm64.tar.gz \
+    ANTIGRAVITY_ARM64_SHA512=ed45f6930785aa4b42f14e07ace1c9d91a94fb76e760f54acbd7d3d3951e1f957fd456a0dae2a3124dd9a3b689bf7afb7c9303a3e4ba95037fc10063424d9bf9
 
 RUN case ${TARGETARCH} in \
          "amd64") AGY_URL="${ANTIGRAVITY_AMD64_URL}"; AGY_SHA512="${ANTIGRAVITY_AMD64_SHA512}" ;; \
@@ -354,7 +352,7 @@ RUN case ${TARGETARCH} in \
 # ------------------------------------------------------------------------------
 # mermaid-cli (puppeteer 経由) は PUPPETEER_EXECUTABLE_PATH を、
 # marp-cli (puppeteer-core + 独自 chrome-launcher) は CHROME_PATH を参照。
-ENV MERMAID_CLI_VERSION=11.16.0 \
+ENV MERMAID_CLI_VERSION=11.17.0 \
     MARP_CLI_VERSION=4.5.0 \
     PUPPETEER_SKIP_DOWNLOAD=true \
     PUPPETEER_EXECUTABLE_PATH=/usr/local/bin/chrome \

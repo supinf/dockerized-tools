@@ -1,4 +1,5 @@
 .env
+/Dockerfile
 
 # AI tool configuration files
 **/AGENTS.md

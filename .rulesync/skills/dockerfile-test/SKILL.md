@@ -44,20 +44,43 @@ From the Dockerfile, identify the key binaries that should be present in the fin
 
 Example canary set:
 
-| Binary | Source Type |
-|---|---|
-| `go version` | Go SDK (COPY from go-sdk stage) |
-| `dlv version` | Go tool (go install) |
-| `golangci-lint --version` | Go tool (go install) |
-| `node --version` | Node.js (apt/nodesource) |
-| `flyway -v` | Maven Central |
-| `gh --version` | GitHub CLI (custom apt) |
-| `aws --version` | AWS CLI (custom installer) |
-| `docker --version` | Docker (custom apt) |
-| `buf --version` | Go tool |
-| `gitleaks version` | GitHub Release binary |
+| Binary                    | Source Type                     |
+| ------------------------- | ------------------------------- |
+| `go version`              | Go SDK (COPY from go-sdk stage) |
+| `dlv version`             | Go tool (go install)            |
+| `golangci-lint --version` | Go tool (go install)            |
+| `node --version`          | Node.js (apt/nodesource)        |
+| `flyway -v`               | Maven Central                   |
+| `gh --version`            | GitHub CLI (custom apt)         |
+| `aws --version`           | AWS CLI (custom installer)      |
+| `docker --version`        | Docker (custom apt)             |
+| `buf --version`           | Go tool                         |
+| `gitleaks version`        | GitHub Release binary           |
 
-## Step 4: Run Smoke Tests
+## Step 4: Docker Scout Security Scan
+
+Run Docker Scout against the built image to check for known vulnerabilities:
+
+```bash
+# Quick overview — C/H/M/L counts, base image status, and update availability
+docker scout quickview devcontainer-test:local
+
+# Detailed CVE list filtered to critical and high severity only
+docker scout cves devcontainer-test:local --only-severity critical,high
+```
+
+If Docker Scout is not installed or not logged in, skip this step and note it in the report.
+
+**Interpreting results:**
+
+| Severity        | Action                                                                         |
+| --------------- | ------------------------------------------------------------------------------ |
+| Critical / High | Investigate before release. Check if `--only-fixed` reveals a patched version. |
+| Medium / Low    | Track but do not block the release.                                            |
+
+A freshly updated `DEBIAN_VERSION` (latest Debian snapshot) typically reduces the majority of base-layer findings. If critical CVEs originate from the base image, update `DEBIAN_VERSION` and rebuild before retesting.
+
+## Step 5: Run Smoke Tests
 
 Run each binary with a version flag inside the image:
 
@@ -78,7 +101,7 @@ For each command, record: pass / fail and the output line.
 
 If any binary is missing (`command not found`) or exits non-zero, report the error and investigate the Dockerfile for the root cause.
 
-## Step 5: Report Results
+## Step 6: Report Results
 
 Produce a summary table:
 

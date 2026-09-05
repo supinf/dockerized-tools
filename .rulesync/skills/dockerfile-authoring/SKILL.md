@@ -1,6 +1,6 @@
 ---
 name: dockerfile-authoring
-description: Conventions and patterns for writing Dockerfiles in this repository. Use when creating a new Dockerfile or adding software to an existing one.
+description: Defines stage architecture, ENV conventions, placement rules, and tool-installation patterns for vscode-devcontainer Dockerfiles. Use when creating a new Dockerfile, adding a tool to an existing one, or deciding which stage and block position a new dependency belongs in.
 ---
 
 # Dockerfile Authoring

@@ -14,10 +14,9 @@ if [ -f .claude/settings.local.json ]; then
   SAVED_SETTINGS_LOCAL=$(cat .claude/settings.local.json)
 fi
 
-rm -rf .cursor .claude .codex .gemini .cursorignore .geminiignore .mcp.json AGENTS.md CLAUDE.md GEMINI.md
+rm -rf .cursor .claude .codex .agents .cursorignore .geminiignore .mcp.json AGENTS.md CLAUDE.md
 
-rulesync generate --targets cursor,claudecode,geminicli --features commands,rules,skills,ignore
-rulesync generate --targets codexcli --features rules,skills
+rulesync generate
 
 TMP=$(mktemp)
 trap 'rm -f "$TMP"' EXIT
@@ -47,13 +46,5 @@ if [ -n "$SAVED_SETTINGS_LOCAL" ]; then
 else
   cp .rulesync/configs/.claude-settings.local.json .claude/settings.local.json
 fi
-
-# .gemini/commands/*.toml ファイル内のプロンプト形式を修正
-echo -e "\nFixing prompt format in .gemini/commands/*.toml files...\n"
-for f in .gemini/commands/*.toml; do
-  [ -f "$f" ] || continue
-  sed "${SED_INPLACE[@]}" "s/prompt = \"\"\"/prompt = '''/g" "$f"
-  sed "${SED_INPLACE[@]}" "s/^\"\"\"$/'''/g" "$f"
-done
 
 echo -e "\nAll post-generation steps completed successfully.\n"

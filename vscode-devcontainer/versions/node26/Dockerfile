@@ -3,7 +3,7 @@
 # ==============================================================================
 # Global Arguments
 # ==============================================================================
-ARG DEBIAN_VERSION=trixie-20260824
+ARG DEBIAN_VERSION=trixie-20260905
 
 # ==============================================================================
 # Development Environment
@@ -65,9 +65,7 @@ RUN --mount=type=cache,target=/var/cache/apt/archives,id=apt-archives-${TARGETAR
               /usr/lib/google-cloud-sdk/.install/anthoscli* \
     && rm -rf /usr/bin/gsutil /usr/lib/google-cloud-sdk/bin/gsutil \
               /usr/lib/google-cloud-sdk/platform/gsutil \
-              /usr/lib/google-cloud-sdk/.install/gsutil* \
-              /usr/lib/google-cloud-sdk/lib/third_party/botocore \
-              /usr/lib/google-cloud-sdk/lib/third_party/boto3
+              /usr/lib/google-cloud-sdk/.install/gsutil*
 
 # ------------------------------------------------------------------------------
 # GitHub CLI (gh)
@@ -89,8 +87,8 @@ RUN uv tool install "checkov==${CHECKOV_VERSION}"
 # Node.js Tools (pnpm, rulesync など)
 # ------------------------------------------------------------------------------
 ENV NPM_VERSION=12.0.2 \
-    PNPM_VERSION=12.2.1 \
-    RULESYNC_VERSION=16.20.0
+    PNPM_VERSION=12.3.4 \
+    RULESYNC_VERSION=16.24.0
 
 RUN curl -fsSL https://deb.nodesource.com/setup_current.x | bash - \
     && apt-get install -y --no-install-recommends nodejs
@@ -120,7 +118,7 @@ RUN --mount=type=cache,target=/var/cache/apt/archives,id=apt-archives-${TARGETAR
 
 # PLAYWRIGHT_BROWSERS_VERSION は @playwright/test (pnpm-lock.yaml) と合わせること。
 # Playwright MCP（.mcp.json）は別バージョンなので別途 npx が自動解決する。
-ENV PLAYWRIGHT_BROWSERS_VERSION=1.62.1 \
+ENV PLAYWRIGHT_BROWSERS_VERSION=1.63.0 \
     PLAYWRIGHT_CLI_VERSION=0.1.19
 
 # /usr/local/bin/chrome: chromium (full build) 実体への symlink。
