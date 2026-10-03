@@ -3,7 +3,7 @@
 # ==============================================================================
 # Global Arguments
 # ==============================================================================
-ARG DEBIAN_VERSION=trixie-20260824
+ARG DEBIAN_VERSION=trixie-20260918
 
 # ==============================================================================
 # Development Environment
@@ -79,16 +79,16 @@ RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | g
 # ------------------------------------------------------------------------------
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 ENV PATH=/root/.local/bin:$PATH \
-    CHECKOV_VERSION=3.3.16
+    CHECKOV_VERSION=3.3.22
 
 RUN uv tool install "checkov==${CHECKOV_VERSION}"
 
 # ------------------------------------------------------------------------------
 # Node.js Tools (pnpm, rulesync など)
 # ------------------------------------------------------------------------------
-ENV NPM_VERSION=12.0.2 \
-    PNPM_VERSION=12.3.4 \
-    RULESYNC_VERSION=16.24.0
+ENV NPM_VERSION=12.2.0 \
+    PNPM_VERSION=12.8.1 \
+    RULESYNC_VERSION=26.0.0
 
 RUN curl -fsSL https://deb.nodesource.com/setup_current.x | bash - \
     && apt-get install -y --no-install-recommends nodejs
@@ -116,10 +116,17 @@ RUN --mount=type=cache,target=/var/cache/apt/archives,id=apt-archives-${TARGETAR
     fonts-ipafont-gothic fonts-wqy-zenhei fonts-tlwg-loma-otf fonts-freefont-ttf \
     && rm -rf /var/lib/apt/lists/*
 
-# PLAYWRIGHT_BROWSERS_VERSION は @playwright/test (pnpm-lock.yaml) と合わせること。
-# Playwright MCP（.mcp.json）は別バージョンなので別途 npx が自動解決する。
+# PLAYWRIGHT_BROWSERS_VERSION: mermaid-cli / marp-cli が使う Chromium のバージョン。
+# このバージョンで chromium をインストールし /usr/local/bin/chrome にリンクする。
+#
+# E2E テスト用ブラウザはプロジェクトが管理する @playwright/test のバージョンと
+# 一致させる必要があるため、Dockerfile ではなく devcontainer.json の
+# postCreateCommand で「pnpm exec playwright install chromium --no-shell」を
+# 実行してプロジェクト側の revision にインストールすること。
+# Playwright MCP（.mcp.json）は別バージョンのため npx が自動解決する。
 ENV PLAYWRIGHT_BROWSERS_VERSION=1.63.0 \
-    PLAYWRIGHT_CLI_VERSION=0.1.19
+    PLAYWRIGHT_CLI_VERSION=0.1.22 \
+    PLAYWRIGHT_BROWSERS_PATH=/root/.cache/ms-playwright
 
 # /usr/local/bin/chrome: chromium (full build) 実体への symlink。
 # mermaid-cli/marp-cli から同一バイナリを再利用させ、二重ダウンロードを防ぐ
@@ -156,8 +163,8 @@ RUN case ${TARGETARCH} in \
 # ARCHGATE_GIT_SHA: the git commit SHA corresponding to ARCHGATE_VERSION.
 # Update both together when bumping the version.
 # To find the SHA: npm view archgate@<version> gitHead
-ENV ARCHGATE_VERSION=0.55.0 \
-    ARCHGATE_GIT_SHA=47a2ac35a049fc4a27a28f4199ad67d3a17f8390 \
+ENV ARCHGATE_VERSION=0.58.1 \
+    ARCHGATE_GIT_SHA=3c6b2c4793d075bfc07015426b75d6ef2fb42e28 \
     ARCHGATE_TELEMETRY=0
 
 RUN if [ "$TARGETARCH" = "arm64" ]; then \
@@ -196,9 +203,9 @@ RUN case ${TARGETARCH} in \
 # Lefthook
 # ------------------------------------------------------------------------------
 # LEFTHOOK_SHA256_*: from https://github.com/evilmartians/lefthook/releases/download/v${LEFTHOOK_VERSION}/lefthook_checksums.txt
-ENV LEFTHOOK_VERSION=2.1.12 \
-    LEFTHOOK_SHA256_X86_64=dad908593c859d139b886c14913a44401d95288aa7642d9bdf6f3bd36bd788ff \
-    LEFTHOOK_SHA256_ARM64=0e29b0232d91e57509cb97062996bb98ff7113f2374b260ade3331a178d3263a
+ENV LEFTHOOK_VERSION=2.1.16 \
+    LEFTHOOK_SHA256_X86_64=bcf67d241ebb062a4fe9053ef0d7fde6692f846e504843ed33ab39b08334f299 \
+    LEFTHOOK_SHA256_ARM64=ec1c4fd453a532a8009c9bc8c29b0413370ae2607e0f50008cb2f1017309ca5e
 
 RUN case ${TARGETARCH} in \
          "amd64") LEFTHOOK_ARCH="x86_64"; LEFTHOOK_SHA256="${LEFTHOOK_SHA256_X86_64}" ;; \

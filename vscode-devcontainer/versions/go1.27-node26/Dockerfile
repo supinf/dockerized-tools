@@ -4,7 +4,7 @@
 # Global Arguments
 # ==============================================================================
 ARG GO_VERSION=1.27.1
-ARG DEBIAN_VERSION=trixie-20260824
+ARG DEBIAN_VERSION=trixie-20260918
 
 # ==============================================================================
 # Stage 0: Go SDK (Target Architecture)
@@ -22,21 +22,21 @@ ENV CGO_ENABLED=0 \
     GOOS=linux \
     GOARCH=${TARGETARCH}
 
-ENV TBLS_VERSION=v1.96.0 \
+ENV TBLS_VERSION=v1.96.1 \
     AIR_VERSION=v1.67.4 \
-    DELVE_VERSION=v1.27.1 \
+    DELVE_VERSION=v1.27.2 \
     MOCKGEN_VERSION=v0.6.0 \
     TEMPL_VERSION=v0.3.1020 \
-    BUF_VERSION=v1.72.0 \
+    BUF_VERSION=v1.73.0 \
     PROTOC_GEN_VALIDATE_VERSION=v1.3.3 \
     PROTOC_GEN_GO_VERSION=v1.36.12 \
     PROTOC_GEN_GO_GRPC_VERSION=v1.6.2 \
-    PROTOC_GEN_CONNECT_GO_VERSION=v1.20.0 \
-    GRPC_GATEWAY_VERSION=v2.30.0 \
+    PROTOC_GEN_CONNECT_GO_VERSION=v1.21.0 \
+    GRPC_GATEWAY_VERSION=v2.31.0 \
     OAPI_VERSION=v2.8.0 \
-    GOLANGCI_LINT_VERSION=v2.13.2 \
-    CONFTEST_VERSION=v0.69.0 \
-    D2_VERSION=v0.8.2
+    GOLANGCI_LINT_VERSION=v2.14.0 \
+    CONFTEST_VERSION=v0.71.0 \
+    D2_VERSION=v0.9.0
 
 RUN --mount=type=cache,target=/go/pkg/mod,sharing=locked \
     --mount=type=cache,target=/root/.cache/go-build,sharing=locked \
@@ -167,16 +167,16 @@ RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | g
 # ------------------------------------------------------------------------------
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 ENV PATH=/root/.local/bin:$PATH \
-    CHECKOV_VERSION=3.3.16
+    CHECKOV_VERSION=3.3.22
 
 RUN uv tool install "checkov==${CHECKOV_VERSION}"
 
 # ------------------------------------------------------------------------------
 # Node.js Tools (pnpm, rulesync など)
 # ------------------------------------------------------------------------------
-ENV NPM_VERSION=12.0.2 \
-    PNPM_VERSION=12.3.4 \
-    RULESYNC_VERSION=16.24.0
+ENV NPM_VERSION=12.2.0 \
+    PNPM_VERSION=12.8.1 \
+    RULESYNC_VERSION=26.0.0
 
 RUN curl -fsSL https://deb.nodesource.com/setup_current.x | bash - \
     && apt-get install -y --no-install-recommends nodejs
@@ -204,10 +204,17 @@ RUN --mount=type=cache,target=/var/cache/apt/archives,id=apt-archives-${TARGETAR
     fonts-tlwg-loma-otf fonts-freefont-ttf \
     && rm -rf /var/lib/apt/lists/*
 
-# PLAYWRIGHT_BROWSERS_VERSION は @playwright/test (pnpm-lock.yaml) と合わせること。
-# Playwright MCP（.mcp.json）は別バージョンなので別途 npx が自動解決する。
+# PLAYWRIGHT_BROWSERS_VERSION: mermaid-cli / marp-cli が使う Chromium のバージョン。
+# このバージョンで chromium をインストールし /usr/local/bin/chrome にリンクする。
+#
+# E2E テスト用ブラウザはプロジェクトが管理する @playwright/test のバージョンと
+# 一致させる必要があるため、Dockerfile ではなく devcontainer.json の
+# postCreateCommand で「pnpm exec playwright install chromium --no-shell」を
+# 実行してプロジェクト側の revision にインストールすること。
+# Playwright MCP（.mcp.json）は別バージョンのため npx が自動解決する。
 ENV PLAYWRIGHT_BROWSERS_VERSION=1.63.0 \
-    PLAYWRIGHT_CLI_VERSION=0.1.19
+    PLAYWRIGHT_CLI_VERSION=0.1.22 \
+    PLAYWRIGHT_BROWSERS_PATH=/root/.cache/ms-playwright
 
 # /usr/local/bin/chrome: chromium (full build) 実体への symlink。
 # mermaid-cli/marp-cli から同一バイナリを再利用させ、二重ダウンロードを防ぐ
@@ -267,11 +274,11 @@ RUN case ${TARGETARCH} in \
 ENV GOOGLE_CLOUD_LOCATION=global \
     GOOGLE_GENAI_USE_VERTEXAI=true \
     ADK_SUPPRESS_GEMINI_LITELLM_WARNINGS=true \
-    ANTIGRAVITY_VERSION=1.1.27 \
-    ANTIGRAVITY_AMD64_URL=https://storage.googleapis.com/antigravity-public/antigravity-cli/1.1.27-5211191891591168/linux-x64/cli_linux_x64.tar.gz \
-    ANTIGRAVITY_AMD64_SHA512=793d4b9ea2c08d9a7e50bafa02cfc8c19424bd60d6e83f91408d45f9c6d4ce79a5d576fede5bef164d823abf84f81359a14b4ca665952c47b0a7cfd743bb69c0 \
-    ANTIGRAVITY_ARM64_URL=https://storage.googleapis.com/antigravity-public/antigravity-cli/1.1.27-5211191891591168/linux-arm/cli_linux_arm64.tar.gz \
-    ANTIGRAVITY_ARM64_SHA512=ed45f6930785aa4b42f14e07ace1c9d91a94fb76e760f54acbd7d3d3951e1f957fd456a0dae2a3124dd9a3b689bf7afb7c9303a3e4ba95037fc10063424d9bf9
+    ANTIGRAVITY_VERSION=1.2.16 \
+    ANTIGRAVITY_AMD64_URL=https://storage.googleapis.com/antigravity-public/antigravity-cli/1.2.16-5594158052802560/linux-x64/cli_linux_x64.tar.gz \
+    ANTIGRAVITY_AMD64_SHA512=c31f09265d4f6aef7c03b5105661ae98f9a8365c6c812c68adcc4a5e1f8b8f96c05fd2e4408a52f5e87e1b561ac350f4ffa7ad41a191893be7a3730ccf9d6553 \
+    ANTIGRAVITY_ARM64_URL=https://storage.googleapis.com/antigravity-public/antigravity-cli/1.2.16-5594158052802560/linux-arm/cli_linux_arm64.tar.gz \
+    ANTIGRAVITY_ARM64_SHA512=d17d8044736d31e24ce7c4cb3b75faef3ce5102ecaad31aef95785c0f3c13fa0615d7b11fa411eb73b848489adf9d411178446f3148e30353a2048cd3e731971
 
 RUN case ${TARGETARCH} in \
          "amd64") AGY_URL="${ANTIGRAVITY_AMD64_URL}"; AGY_SHA512="${ANTIGRAVITY_AMD64_SHA512}" ;; \
@@ -292,8 +299,8 @@ RUN case ${TARGETARCH} in \
 # ARCHGATE_GIT_SHA: the git commit SHA corresponding to ARCHGATE_VERSION.
 # Update both together when bumping the version.
 # To find the SHA: npm view archgate@<version> gitHead
-ENV ARCHGATE_VERSION=0.55.0 \
-    ARCHGATE_GIT_SHA=47a2ac35a049fc4a27a28f4199ad67d3a17f8390 \
+ENV ARCHGATE_VERSION=0.58.1 \
+    ARCHGATE_GIT_SHA=3c6b2c4793d075bfc07015426b75d6ef2fb42e28 \
     ARCHGATE_TELEMETRY=0
 
 RUN if [ "$TARGETARCH" = "arm64" ]; then \
@@ -332,9 +339,9 @@ RUN case ${TARGETARCH} in \
 # Lefthook
 # ------------------------------------------------------------------------------
 # LEFTHOOK_SHA256_*: from https://github.com/evilmartians/lefthook/releases/download/v${LEFTHOOK_VERSION}/lefthook_checksums.txt
-ENV LEFTHOOK_VERSION=2.1.12 \
-    LEFTHOOK_SHA256_X86_64=dad908593c859d139b886c14913a44401d95288aa7642d9bdf6f3bd36bd788ff \
-    LEFTHOOK_SHA256_ARM64=0e29b0232d91e57509cb97062996bb98ff7113f2374b260ade3331a178d3263a
+ENV LEFTHOOK_VERSION=2.1.16 \
+    LEFTHOOK_SHA256_X86_64=bcf67d241ebb062a4fe9053ef0d7fde6692f846e504843ed33ab39b08334f299 \
+    LEFTHOOK_SHA256_ARM64=ec1c4fd453a532a8009c9bc8c29b0413370ae2607e0f50008cb2f1017309ca5e
 
 RUN case ${TARGETARCH} in \
          "amd64") LEFTHOOK_ARCH="x86_64"; LEFTHOOK_SHA256="${LEFTHOOK_SHA256_X86_64}" ;; \
@@ -352,8 +359,8 @@ RUN case ${TARGETARCH} in \
 # ------------------------------------------------------------------------------
 # mermaid-cli (puppeteer 経由) は PUPPETEER_EXECUTABLE_PATH を、
 # marp-cli (puppeteer-core + 独自 chrome-launcher) は CHROME_PATH を参照。
-ENV MERMAID_CLI_VERSION=11.17.0 \
-    MARP_CLI_VERSION=4.5.0 \
+ENV MERMAID_CLI_VERSION=12.0.0 \
+    MARP_CLI_VERSION=4.5.1 \
     PUPPETEER_SKIP_DOWNLOAD=true \
     PUPPETEER_EXECUTABLE_PATH=/usr/local/bin/chrome \
     CHROME_PATH=/usr/local/bin/chrome

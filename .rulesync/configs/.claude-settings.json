@@ -11,7 +11,10 @@
       "Bash(npm show *)",
       "Bash(curl -s *)",
       "Bash(curl -fsSL *)",
-      "Bash(gh api *)"
+      "Bash(gh api *)",
+      "Bash(grep -E *)",
+      "Bash(python3 -c ' *)",
+      "Bash(curl -sL *)"
     ],
     "deny": [
       "Bash(rm -rf*)",

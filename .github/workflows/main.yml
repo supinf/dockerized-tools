@@ -87,6 +87,22 @@ jobs:
       - name: Delete huge unnecessary tools folder
         run: rm -rf /opt/hostedtoolcache
 
+      - name: Free disk space
+        run: |
+          # hostedtoolcache (Node, Python, Ruby versions etc.)
+          sudo rm -rf /opt/hostedtoolcache
+          # Android SDK
+          sudo rm -rf /usr/local/lib/android
+          # .NET SDK
+          sudo rm -rf /usr/share/dotnet
+          # Haskell / GHC
+          sudo rm -rf /usr/local/.ghcup
+          # PowerShell
+          sudo rm -rf /usr/local/share/powershell
+          # Swift
+          sudo rm -rf /usr/share/swift
+          df -h
+
       # Docker ボリュームの調整
       - name: Adjutment docker volumes
         run: |
