@@ -3,7 +3,7 @@
 # ==============================================================================
 # Global Arguments
 # ==============================================================================
-ARG DEBIAN_VERSION=trixie-20260918
+ARG DEBIAN_VERSION=trixie-20261020
 
 # ==============================================================================
 # Development Environment
@@ -49,6 +49,12 @@ RUN --mount=type=cache,target=/var/cache/apt/archives,id=apt-archives-${TARGETAR
     && localedef -f UTF-8 -i ja_JP ja_JP.UTF-8 \
     && rm -rf /var/lib/apt/lists/*
 
+# eMudhra Intermediate CA Compromise 対応: Debian の ca-certificates 修正反映までの暫定措置
+RUN sed -i \
+    -e 's|^mozilla/emSign_ECC_Root_CA_-_G3.crt|!&|' \
+    -e 's|^mozilla/Comodo_AAA_Services_root.crt|!&|' \
+    /etc/ca-certificates.conf && update-ca-certificates
+
 # ------------------------------------------------------------------------------
 # gcloud
 # ------------------------------------------------------------------------------
@@ -79,7 +85,7 @@ RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | g
 # ------------------------------------------------------------------------------
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 ENV PATH=/root/.local/bin:$PATH \
-    CHECKOV_VERSION=3.3.22
+    CHECKOV_VERSION=3.3.30
 
 RUN uv tool install "checkov==${CHECKOV_VERSION}"
 
@@ -87,11 +93,12 @@ RUN uv tool install "checkov==${CHECKOV_VERSION}"
 # Node.js Tools (pnpm, rulesync など)
 # ------------------------------------------------------------------------------
 ENV NPM_VERSION=12.2.0 \
-    PNPM_VERSION=12.8.1 \
-    RULESYNC_VERSION=26.0.0
+    NODE_VERSION=26.12.1 \
+    PNPM_VERSION=12.14.0 \
+    RULESYNC_VERSION=39.0.0
 
 RUN curl -fsSL https://deb.nodesource.com/setup_current.x | bash - \
-    && apt-get install -y --no-install-recommends nodejs
+    && apt-get install -y --no-install-recommends "nodejs=${NODE_VERSION}-1nodesource1"
 
 RUN --mount=type=cache,target=/root/.npm,sharing=locked \
     npm install -g "npm@${NPM_VERSION}" --force && \
@@ -124,7 +131,7 @@ RUN --mount=type=cache,target=/var/cache/apt/archives,id=apt-archives-${TARGETAR
 # postCreateCommand で「pnpm exec playwright install chromium --no-shell」を
 # 実行してプロジェクト側の revision にインストールすること。
 # Playwright MCP（.mcp.json）は別バージョンのため npx が自動解決する。
-ENV PLAYWRIGHT_BROWSERS_VERSION=1.63.0 \
+ENV PLAYWRIGHT_BROWSERS_VERSION=1.64.1 \
     PLAYWRIGHT_CLI_VERSION=0.1.22 \
     PLAYWRIGHT_BROWSERS_PATH=/root/.cache/ms-playwright
 
@@ -163,8 +170,8 @@ RUN case ${TARGETARCH} in \
 # ARCHGATE_GIT_SHA: the git commit SHA corresponding to ARCHGATE_VERSION.
 # Update both together when bumping the version.
 # To find the SHA: npm view archgate@<version> gitHead
-ENV ARCHGATE_VERSION=0.58.1 \
-    ARCHGATE_GIT_SHA=3c6b2c4793d075bfc07015426b75d6ef2fb42e28 \
+ENV ARCHGATE_VERSION=0.60.0 \
+    ARCHGATE_GIT_SHA=6075eafb55fc2425537a52690d2d2486e452811d \
     ARCHGATE_TELEMETRY=0
 
 RUN if [ "$TARGETARCH" = "arm64" ]; then \
@@ -203,9 +210,9 @@ RUN case ${TARGETARCH} in \
 # Lefthook
 # ------------------------------------------------------------------------------
 # LEFTHOOK_SHA256_*: from https://github.com/evilmartians/lefthook/releases/download/v${LEFTHOOK_VERSION}/lefthook_checksums.txt
-ENV LEFTHOOK_VERSION=2.1.16 \
-    LEFTHOOK_SHA256_X86_64=bcf67d241ebb062a4fe9053ef0d7fde6692f846e504843ed33ab39b08334f299 \
-    LEFTHOOK_SHA256_ARM64=ec1c4fd453a532a8009c9bc8c29b0413370ae2607e0f50008cb2f1017309ca5e
+ENV LEFTHOOK_VERSION=2.2.2 \
+    LEFTHOOK_SHA256_X86_64=2b8d7fd52771f26d7a50260ef10cd6fe704d66f60102e566362b84da09884ab7 \
+    LEFTHOOK_SHA256_ARM64=f28231481dc0539776165565d4c3a425a775b047030708b914d52ff91be3a536
 
 RUN case ${TARGETARCH} in \
          "amd64") LEFTHOOK_ARCH="x86_64"; LEFTHOOK_SHA256="${LEFTHOOK_SHA256_X86_64}" ;; \

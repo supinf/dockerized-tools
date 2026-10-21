@@ -3,8 +3,8 @@
 # ==============================================================================
 # Global Arguments
 # ==============================================================================
-ARG GO_VERSION=1.27.1
-ARG DEBIAN_VERSION=trixie-20260918
+ARG GO_VERSION=1.27.3
+ARG DEBIAN_VERSION=trixie-20261020
 
 # ==============================================================================
 # Stage 0: Go SDK (Target Architecture)
@@ -26,16 +26,16 @@ ENV TBLS_VERSION=v1.96.1 \
     AIR_VERSION=v1.67.4 \
     DELVE_VERSION=v1.27.2 \
     MOCKGEN_VERSION=v0.6.0 \
-    TEMPL_VERSION=v0.3.1020 \
-    BUF_VERSION=v1.73.0 \
+    TEMPL_VERSION=v0.3.1070 \
+    BUF_VERSION=v1.74.0 \
     PROTOC_GEN_VALIDATE_VERSION=v1.3.3 \
     PROTOC_GEN_GO_VERSION=v1.36.12 \
     PROTOC_GEN_GO_GRPC_VERSION=v1.6.2 \
     PROTOC_GEN_CONNECT_GO_VERSION=v1.21.0 \
-    GRPC_GATEWAY_VERSION=v2.31.0 \
+    GRPC_GATEWAY_VERSION=v2.32.0 \
     OAPI_VERSION=v2.8.0 \
-    GOLANGCI_LINT_VERSION=v2.14.0 \
-    CONFTEST_VERSION=v0.71.0 \
+    GOLANGCI_LINT_VERSION=v2.15.0 \
+    CONFTEST_VERSION=v0.71.1 \
     D2_VERSION=v0.9.0
 
 RUN --mount=type=cache,target=/go/pkg/mod,sharing=locked \
@@ -111,6 +111,12 @@ RUN --mount=type=cache,target=/var/cache/apt/archives,id=apt-archives-${TARGETAR
     && localedef -f UTF-8 -i ja_JP ja_JP.UTF-8 \
     && rm -rf /var/lib/apt/lists/*
 
+# eMudhra Intermediate CA Compromise 対応: Debian の ca-certificates 修正反映までの暫定措置
+RUN sed -i \
+    -e 's|^mozilla/emSign_ECC_Root_CA_-_G3.crt|!&|' \
+    -e 's|^mozilla/Comodo_AAA_Services_root.crt|!&|' \
+    /etc/ca-certificates.conf && update-ca-certificates
+
 # ------------------------------------------------------------------------------
 # Flyway
 # ------------------------------------------------------------------------------
@@ -128,8 +134,8 @@ RUN curl -L -o flyway.tar.gz https://repo1.maven.org/maven2/org/flywaydb/flyway-
 # ------------------------------------------------------------------------------
 # OpenAPI Generator
 # ------------------------------------------------------------------------------
-ENV OPENAPI_GENERATOR_VERSION=7.25.0 \
-    OPENAPI_GENERATOR_SHA1=56a9bb79e3bb565f477eddca2c6daa288a9c6f35
+ENV OPENAPI_GENERATOR_VERSION=7.26.0 \
+    OPENAPI_GENERATOR_SHA1=b96b148fcf482808037f68fbad99cb4d7e65d40b
 
 RUN mkdir -p /opt/openapi-generator \
     && curl -fsSL "https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/${OPENAPI_GENERATOR_VERSION}/openapi-generator-cli-${OPENAPI_GENERATOR_VERSION}.jar" -o /opt/openapi-generator/openapi-generator-cli.jar \
@@ -167,7 +173,7 @@ RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | g
 # ------------------------------------------------------------------------------
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 ENV PATH=/root/.local/bin:$PATH \
-    CHECKOV_VERSION=3.3.22
+    CHECKOV_VERSION=3.3.30
 
 RUN uv tool install "checkov==${CHECKOV_VERSION}"
 
@@ -175,11 +181,12 @@ RUN uv tool install "checkov==${CHECKOV_VERSION}"
 # Node.js Tools (pnpm, rulesync など)
 # ------------------------------------------------------------------------------
 ENV NPM_VERSION=12.2.0 \
-    PNPM_VERSION=12.8.1 \
-    RULESYNC_VERSION=26.0.0
+    NODE_VERSION=26.12.1 \
+    PNPM_VERSION=12.14.0 \
+    RULESYNC_VERSION=39.0.0
 
 RUN curl -fsSL https://deb.nodesource.com/setup_current.x | bash - \
-    && apt-get install -y --no-install-recommends nodejs
+    && apt-get install -y --no-install-recommends "nodejs=${NODE_VERSION}-1nodesource1"
 
 RUN --mount=type=cache,target=/root/.npm,sharing=locked \
     npm install -g "npm@${NPM_VERSION}" --force && \
@@ -212,7 +219,7 @@ RUN --mount=type=cache,target=/var/cache/apt/archives,id=apt-archives-${TARGETAR
 # postCreateCommand で「pnpm exec playwright install chromium --no-shell」を
 # 実行してプロジェクト側の revision にインストールすること。
 # Playwright MCP（.mcp.json）は別バージョンのため npx が自動解決する。
-ENV PLAYWRIGHT_BROWSERS_VERSION=1.63.0 \
+ENV PLAYWRIGHT_BROWSERS_VERSION=1.64.1 \
     PLAYWRIGHT_CLI_VERSION=0.1.22 \
     PLAYWRIGHT_BROWSERS_PATH=/root/.cache/ms-playwright
 
@@ -274,11 +281,11 @@ RUN case ${TARGETARCH} in \
 ENV GOOGLE_CLOUD_LOCATION=global \
     GOOGLE_GENAI_USE_VERTEXAI=true \
     ADK_SUPPRESS_GEMINI_LITELLM_WARNINGS=true \
-    ANTIGRAVITY_VERSION=1.2.16 \
-    ANTIGRAVITY_AMD64_URL=https://storage.googleapis.com/antigravity-public/antigravity-cli/1.2.16-5594158052802560/linux-x64/cli_linux_x64.tar.gz \
-    ANTIGRAVITY_AMD64_SHA512=c31f09265d4f6aef7c03b5105661ae98f9a8365c6c812c68adcc4a5e1f8b8f96c05fd2e4408a52f5e87e1b561ac350f4ffa7ad41a191893be7a3730ccf9d6553 \
-    ANTIGRAVITY_ARM64_URL=https://storage.googleapis.com/antigravity-public/antigravity-cli/1.2.16-5594158052802560/linux-arm/cli_linux_arm64.tar.gz \
-    ANTIGRAVITY_ARM64_SHA512=d17d8044736d31e24ce7c4cb3b75faef3ce5102ecaad31aef95785c0f3c13fa0615d7b11fa411eb73b848489adf9d411178446f3148e30353a2048cd3e731971
+    ANTIGRAVITY_VERSION=1.4.4 \
+    ANTIGRAVITY_AMD64_URL=https://storage.googleapis.com/antigravity-public/antigravity-cli/1.4.4-4783783166214144/linux-x64/cli_linux_x64.tar.gz \
+    ANTIGRAVITY_AMD64_SHA512=7ce149d350344c1046c7b59b6659bcc5d659f351bf3a07c6c085887d93427ceb89d927752e4ccd0844b53ffb91d33d6a49f72835ceb276c7cffdd13cfb8023b8 \
+    ANTIGRAVITY_ARM64_URL=https://storage.googleapis.com/antigravity-public/antigravity-cli/1.4.4-4783783166214144/linux-arm/cli_linux_arm64.tar.gz \
+    ANTIGRAVITY_ARM64_SHA512=7bfc4f7e5e2dda4cd0c536c72cf9725c2918a038028ad11fa4f7f5e57db77e9ff7d6b9beca05cd85618b77dd3e77de64b63629d33e5779f29111390dc53c7aaf
 
 RUN case ${TARGETARCH} in \
          "amd64") AGY_URL="${ANTIGRAVITY_AMD64_URL}"; AGY_SHA512="${ANTIGRAVITY_AMD64_SHA512}" ;; \
@@ -299,8 +306,8 @@ RUN case ${TARGETARCH} in \
 # ARCHGATE_GIT_SHA: the git commit SHA corresponding to ARCHGATE_VERSION.
 # Update both together when bumping the version.
 # To find the SHA: npm view archgate@<version> gitHead
-ENV ARCHGATE_VERSION=0.58.1 \
-    ARCHGATE_GIT_SHA=3c6b2c4793d075bfc07015426b75d6ef2fb42e28 \
+ENV ARCHGATE_VERSION=0.60.0 \
+    ARCHGATE_GIT_SHA=6075eafb55fc2425537a52690d2d2486e452811d \
     ARCHGATE_TELEMETRY=0
 
 RUN if [ "$TARGETARCH" = "arm64" ]; then \
@@ -339,9 +346,9 @@ RUN case ${TARGETARCH} in \
 # Lefthook
 # ------------------------------------------------------------------------------
 # LEFTHOOK_SHA256_*: from https://github.com/evilmartians/lefthook/releases/download/v${LEFTHOOK_VERSION}/lefthook_checksums.txt
-ENV LEFTHOOK_VERSION=2.1.16 \
-    LEFTHOOK_SHA256_X86_64=bcf67d241ebb062a4fe9053ef0d7fde6692f846e504843ed33ab39b08334f299 \
-    LEFTHOOK_SHA256_ARM64=ec1c4fd453a532a8009c9bc8c29b0413370ae2607e0f50008cb2f1017309ca5e
+ENV LEFTHOOK_VERSION=2.2.2 \
+    LEFTHOOK_SHA256_X86_64=2b8d7fd52771f26d7a50260ef10cd6fe704d66f60102e566362b84da09884ab7 \
+    LEFTHOOK_SHA256_ARM64=f28231481dc0539776165565d4c3a425a775b047030708b914d52ff91be3a536
 
 RUN case ${TARGETARCH} in \
          "amd64") LEFTHOOK_ARCH="x86_64"; LEFTHOOK_SHA256="${LEFTHOOK_SHA256_X86_64}" ;; \
