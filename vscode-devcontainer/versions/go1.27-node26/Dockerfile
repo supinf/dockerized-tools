@@ -165,13 +165,18 @@ RUN --mount=type=cache,target=/var/cache/apt/archives,id=apt-archives-${TARGETAR
 # GitHub CLI (gh)
 # ------------------------------------------------------------------------------
 RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | gpg --dearmor -o /usr/share/keyrings/githubcli-archive-keyring.gpg && \
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null && \
-    apt update && apt install -y gh && rm -rf /var/lib/apt/lists/*
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+RUN --mount=type=cache,target=/var/cache/apt/archives,id=apt-archives-${TARGETARCH},sharing=locked \
+    rm -f /var/cache/apt/archives/lock && \
+    apt-get update && apt-get install -y --no-install-recommends gh \
+    && rm -rf /var/lib/apt/lists/*
 
 # ------------------------------------------------------------------------------
 # Python Tools (uv など)
 # ------------------------------------------------------------------------------
-RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+ENV UV_VERSION=0.13.5
+RUN curl -LsSf "https://astral.sh/uv/${UV_VERSION}/install.sh" | sh \
+    && /root/.local/bin/uv --version | grep -q "${UV_VERSION}"
 ENV PATH=/root/.local/bin:$PATH \
     CHECKOV_VERSION=3.3.30
 
@@ -242,7 +247,7 @@ RUN --mount=type=cache,target=/root/.npm,sharing=locked \
 # ------------------------------------------------------------------------------
 RUN dpkg --get-selections docker.io docker-doc docker-compose docker-compose-v2 \
     podman-docker containerd runc 2>/dev/null | cut -f1 | xargs -r apt-get remove -y \
-    && apt autoremove -y
+    && apt-get autoremove -y
 RUN --mount=type=cache,target=/var/cache/apt/archives,id=apt-archives-${TARGETARCH},sharing=locked \
     rm -f /var/cache/apt/archives/lock && \
     install -m 0755 -d /etc/apt/keyrings \
@@ -254,7 +259,7 @@ Suites: %s\n\
 Components: stable\n\
 Signed-By: /etc/apt/keyrings/docker.asc\n" "$(. /etc/os-release && echo "$VERSION_CODENAME")" > /etc/apt/sources.list.d/docker.sources \
     && apt-get update \
-    && apt install -y --no-install-recommends docker-ce-cli docker-buildx-plugin docker-compose-plugin \
+    && apt-get install -y --no-install-recommends docker-ce-cli docker-buildx-plugin docker-compose-plugin \
     && rm -rf /var/lib/apt/lists/*
 
 # ------------------------------------------------------------------------------
