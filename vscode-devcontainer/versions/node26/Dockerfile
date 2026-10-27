@@ -86,7 +86,7 @@ RUN --mount=type=cache,target=/var/cache/apt/archives,id=apt-archives-${TARGETAR
 # ------------------------------------------------------------------------------
 # Python Tools (uv など)
 # ------------------------------------------------------------------------------
-ENV UV_VERSION=0.13.5
+ENV UV_VERSION=0.13.6
 RUN curl -LsSf "https://astral.sh/uv/${UV_VERSION}/install.sh" | sh \
     && /root/.local/bin/uv --version | grep -q "${UV_VERSION}"
 ENV PATH=/root/.local/bin:$PATH \
@@ -97,10 +97,10 @@ RUN uv tool install "checkov==${CHECKOV_VERSION}"
 # ------------------------------------------------------------------------------
 # Node.js Tools (pnpm, rulesync など)
 # ------------------------------------------------------------------------------
-ENV NPM_VERSION=12.2.0 \
+ENV NPM_VERSION=12.2.1 \
     NODE_VERSION=26.12.1 \
-    PNPM_VERSION=12.14.0 \
-    RULESYNC_VERSION=39.0.0
+    PNPM_VERSION=12.15.0 \
+    RULESYNC_VERSION=43.2.0
 
 RUN curl -fsSL https://deb.nodesource.com/setup_current.x | bash - \
     && apt-get install -y --no-install-recommends "nodejs=${NODE_VERSION}-1nodesource1"
@@ -175,8 +175,8 @@ RUN case ${TARGETARCH} in \
 # ARCHGATE_GIT_SHA: the git commit SHA corresponding to ARCHGATE_VERSION.
 # Update both together when bumping the version.
 # To find the SHA: npm view archgate@<version> gitHead
-ENV ARCHGATE_VERSION=0.60.0 \
-    ARCHGATE_GIT_SHA=6075eafb55fc2425537a52690d2d2486e452811d \
+ENV ARCHGATE_VERSION=0.60.2 \
+    ARCHGATE_GIT_SHA=fd92933ccad95468772b1aec18cda0f959394450 \
     ARCHGATE_TELEMETRY=0
 
 RUN if [ "$TARGETARCH" = "arm64" ]; then \

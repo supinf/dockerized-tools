@@ -22,26 +22,28 @@ ENV CGO_ENABLED=0 \
     GOOS=linux \
     GOARCH=${TARGETARCH}
 
-ENV TBLS_VERSION=v1.96.1 \
+ENV GOPLS_VERSION=v0.24.0 \
+    GOTOOLS_VERSION=v0.52.0 \
+    TBLS_VERSION=v1.96.1 \
     AIR_VERSION=v1.67.4 \
     DELVE_VERSION=v1.27.2 \
     MOCKGEN_VERSION=v0.6.0 \
-    TEMPL_VERSION=v0.3.1070 \
-    BUF_VERSION=v1.74.0 \
+    TEMPL_VERSION=v0.3.1100 \
+    BUF_VERSION=v1.75.0 \
     PROTOC_GEN_VALIDATE_VERSION=v1.3.3 \
     PROTOC_GEN_GO_VERSION=v1.36.12 \
     PROTOC_GEN_GO_GRPC_VERSION=v1.6.2 \
-    PROTOC_GEN_CONNECT_GO_VERSION=v1.21.0 \
-    GRPC_GATEWAY_VERSION=v2.32.0 \
-    OAPI_VERSION=v2.8.0 \
+    PROTOC_GEN_CONNECT_GO_VERSION=v1.21.1 \
+    GRPC_GATEWAY_VERSION=v2.33.0 \
+    OAPI_VERSION=v2.8.1 \
     GOLANGCI_LINT_VERSION=v2.15.0 \
     CONFTEST_VERSION=v0.71.1 \
     D2_VERSION=v0.9.0
 
 RUN --mount=type=cache,target=/go/pkg/mod,sharing=locked \
     --mount=type=cache,target=/root/.cache/go-build,sharing=locked \
-    go install -ldflags="-s -w" golang.org/x/tools/gopls@latest && \
-    go install -ldflags="-s -w" golang.org/x/tools/cmd/goimports@latest && \
+    go install -ldflags="-s -w" golang.org/x/tools/gopls@${GOPLS_VERSION} && \
+    go install -ldflags="-s -w" golang.org/x/tools/cmd/goimports@${GOTOOLS_VERSION} && \
     go install -ldflags="-s -w" github.com/k1LoW/tbls@${TBLS_VERSION} && \
     go install -ldflags="-s -w" github.com/air-verse/air@${AIR_VERSION} && \
     go install -ldflags="-s -w" github.com/go-delve/delve/cmd/dlv@${DELVE_VERSION} && \
@@ -174,7 +176,7 @@ RUN --mount=type=cache,target=/var/cache/apt/archives,id=apt-archives-${TARGETAR
 # ------------------------------------------------------------------------------
 # Python Tools (uv など)
 # ------------------------------------------------------------------------------
-ENV UV_VERSION=0.13.5
+ENV UV_VERSION=0.13.6
 RUN curl -LsSf "https://astral.sh/uv/${UV_VERSION}/install.sh" | sh \
     && /root/.local/bin/uv --version | grep -q "${UV_VERSION}"
 ENV PATH=/root/.local/bin:$PATH \
@@ -185,10 +187,10 @@ RUN uv tool install "checkov==${CHECKOV_VERSION}"
 # ------------------------------------------------------------------------------
 # Node.js Tools (pnpm, rulesync など)
 # ------------------------------------------------------------------------------
-ENV NPM_VERSION=12.2.0 \
+ENV NPM_VERSION=12.2.1 \
     NODE_VERSION=26.12.1 \
-    PNPM_VERSION=12.14.0 \
-    RULESYNC_VERSION=39.0.0
+    PNPM_VERSION=12.15.0 \
+    RULESYNC_VERSION=43.2.0
 
 RUN curl -fsSL https://deb.nodesource.com/setup_current.x | bash - \
     && apt-get install -y --no-install-recommends "nodejs=${NODE_VERSION}-1nodesource1"
@@ -286,11 +288,11 @@ RUN case ${TARGETARCH} in \
 ENV GOOGLE_CLOUD_LOCATION=global \
     GOOGLE_GENAI_USE_VERTEXAI=true \
     ADK_SUPPRESS_GEMINI_LITELLM_WARNINGS=true \
-    ANTIGRAVITY_VERSION=1.4.4 \
-    ANTIGRAVITY_AMD64_URL=https://storage.googleapis.com/antigravity-public/antigravity-cli/1.4.4-4783783166214144/linux-x64/cli_linux_x64.tar.gz \
-    ANTIGRAVITY_AMD64_SHA512=7ce149d350344c1046c7b59b6659bcc5d659f351bf3a07c6c085887d93427ceb89d927752e4ccd0844b53ffb91d33d6a49f72835ceb276c7cffdd13cfb8023b8 \
-    ANTIGRAVITY_ARM64_URL=https://storage.googleapis.com/antigravity-public/antigravity-cli/1.4.4-4783783166214144/linux-arm/cli_linux_arm64.tar.gz \
-    ANTIGRAVITY_ARM64_SHA512=7bfc4f7e5e2dda4cd0c536c72cf9725c2918a038028ad11fa4f7f5e57db77e9ff7d6b9beca05cd85618b77dd3e77de64b63629d33e5779f29111390dc53c7aaf
+    ANTIGRAVITY_VERSION=1.4.8 \
+    ANTIGRAVITY_AMD64_URL=https://storage.googleapis.com/antigravity-public/antigravity-cli/1.4.8-5447777392656384/linux-x64/cli_linux_x64.tar.gz \
+    ANTIGRAVITY_AMD64_SHA512=b23683771438e72bffe0a2231168f65a16a0d73ed2c7a8460b311dc5fe0c3c9d9dfc6cbfb7d8755173340071aa4cc5c7a552fb5d1be3fdd31c2b7559d67e404a \
+    ANTIGRAVITY_ARM64_URL=https://storage.googleapis.com/antigravity-public/antigravity-cli/1.4.8-5447777392656384/linux-arm/cli_linux_arm64.tar.gz \
+    ANTIGRAVITY_ARM64_SHA512=783ee9edd0f73e853af977e2848294ffb97b67b31ee19dccafb001f03f34b033371a2bb3371b61b78843c61bd4817ef1d2863a2d371b26513ea17d921c584bee
 
 RUN case ${TARGETARCH} in \
          "amd64") AGY_URL="${ANTIGRAVITY_AMD64_URL}"; AGY_SHA512="${ANTIGRAVITY_AMD64_SHA512}" ;; \
@@ -311,8 +313,8 @@ RUN case ${TARGETARCH} in \
 # ARCHGATE_GIT_SHA: the git commit SHA corresponding to ARCHGATE_VERSION.
 # Update both together when bumping the version.
 # To find the SHA: npm view archgate@<version> gitHead
-ENV ARCHGATE_VERSION=0.60.0 \
-    ARCHGATE_GIT_SHA=6075eafb55fc2425537a52690d2d2486e452811d \
+ENV ARCHGATE_VERSION=0.60.2 \
+    ARCHGATE_GIT_SHA=fd92933ccad95468772b1aec18cda0f959394450 \
     ARCHGATE_TELEMETRY=0
 
 RUN if [ "$TARGETARCH" = "arm64" ]; then \
