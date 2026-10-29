@@ -4,7 +4,7 @@
 # Global Arguments
 # ==============================================================================
 ARG GO_VERSION=1.27.3
-ARG DEBIAN_VERSION=trixie-20261020
+ARG DEBIAN_VERSION=trixie-20261027
 
 # ==============================================================================
 # Stage 0: Go SDK (Target Architecture)
@@ -180,7 +180,7 @@ ENV UV_VERSION=0.13.6
 RUN curl -LsSf "https://astral.sh/uv/${UV_VERSION}/install.sh" | sh \
     && /root/.local/bin/uv --version | grep -q "${UV_VERSION}"
 ENV PATH=/root/.local/bin:$PATH \
-    CHECKOV_VERSION=3.3.30
+    CHECKOV_VERSION=3.4.0
 
 RUN uv tool install "checkov==${CHECKOV_VERSION}"
 
@@ -188,9 +188,9 @@ RUN uv tool install "checkov==${CHECKOV_VERSION}"
 # Node.js Tools (pnpm, rulesync など)
 # ------------------------------------------------------------------------------
 ENV NPM_VERSION=12.2.1 \
-    NODE_VERSION=26.12.1 \
-    PNPM_VERSION=12.15.0 \
-    RULESYNC_VERSION=43.2.0
+    NODE_VERSION=26.13.0 \
+    PNPM_VERSION=12.16.1 \
+    RULESYNC_VERSION=43.3.0
 
 RUN curl -fsSL https://deb.nodesource.com/setup_current.x | bash - \
     && apt-get install -y --no-install-recommends "nodejs=${NODE_VERSION}-1nodesource1"
@@ -288,11 +288,11 @@ RUN case ${TARGETARCH} in \
 ENV GOOGLE_CLOUD_LOCATION=global \
     GOOGLE_GENAI_USE_VERTEXAI=true \
     ADK_SUPPRESS_GEMINI_LITELLM_WARNINGS=true \
-    ANTIGRAVITY_VERSION=1.4.8 \
-    ANTIGRAVITY_AMD64_URL=https://storage.googleapis.com/antigravity-public/antigravity-cli/1.4.8-5447777392656384/linux-x64/cli_linux_x64.tar.gz \
-    ANTIGRAVITY_AMD64_SHA512=b23683771438e72bffe0a2231168f65a16a0d73ed2c7a8460b311dc5fe0c3c9d9dfc6cbfb7d8755173340071aa4cc5c7a552fb5d1be3fdd31c2b7559d67e404a \
-    ANTIGRAVITY_ARM64_URL=https://storage.googleapis.com/antigravity-public/antigravity-cli/1.4.8-5447777392656384/linux-arm/cli_linux_arm64.tar.gz \
-    ANTIGRAVITY_ARM64_SHA512=783ee9edd0f73e853af977e2848294ffb97b67b31ee19dccafb001f03f34b033371a2bb3371b61b78843c61bd4817ef1d2863a2d371b26513ea17d921c584bee
+    ANTIGRAVITY_VERSION=1.4.10 \
+    ANTIGRAVITY_AMD64_URL=https://storage.googleapis.com/antigravity-public/antigravity-cli/1.4.10-5501573669978112/linux-x64/cli_linux_x64.tar.gz \
+    ANTIGRAVITY_AMD64_SHA512=3a14c21697e86349ce8402e0b1889cbd1d3a5f4e2cb4dc43aae1c48c404240c2ccff9f775eec277e1f759234a33ec026645c63ed22ab6f6ebede561eda7c38b6 \
+    ANTIGRAVITY_ARM64_URL=https://storage.googleapis.com/antigravity-public/antigravity-cli/1.4.10-5501573669978112/linux-arm/cli_linux_arm64.tar.gz \
+    ANTIGRAVITY_ARM64_SHA512=0182c23882b174c6f2968ad88de43262692ec363a938031319131551dab41cc6aca573d28d264095db357e49881a211114afe9f974386ed37208760f401ba98c
 
 RUN case ${TARGETARCH} in \
          "amd64") AGY_URL="${ANTIGRAVITY_AMD64_URL}"; AGY_SHA512="${ANTIGRAVITY_AMD64_SHA512}" ;; \
@@ -313,8 +313,8 @@ RUN case ${TARGETARCH} in \
 # ARCHGATE_GIT_SHA: the git commit SHA corresponding to ARCHGATE_VERSION.
 # Update both together when bumping the version.
 # To find the SHA: npm view archgate@<version> gitHead
-ENV ARCHGATE_VERSION=0.60.2 \
-    ARCHGATE_GIT_SHA=fd92933ccad95468772b1aec18cda0f959394450 \
+ENV ARCHGATE_VERSION=0.61.0 \
+    ARCHGATE_GIT_SHA=f65d99f56d02757cca94d53f6d717333770e0170 \
     ARCHGATE_TELEMETRY=0
 
 RUN if [ "$TARGETARCH" = "arm64" ]; then \
