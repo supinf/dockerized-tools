@@ -3,7 +3,7 @@
 # ==============================================================================
 # Global Arguments
 # ==============================================================================
-ARG DEBIAN_VERSION=trixie-20261027
+ARG DEBIAN_VERSION=trixie-20261104
 
 # ==============================================================================
 # Development Environment
@@ -49,12 +49,6 @@ RUN --mount=type=cache,target=/var/cache/apt/archives,id=apt-archives-${TARGETAR
     && localedef -f UTF-8 -i ja_JP ja_JP.UTF-8 \
     && rm -rf /var/lib/apt/lists/*
 
-# eMudhra Intermediate CA Compromise 対応: Debian の ca-certificates 修正反映までの暫定措置
-RUN sed -i \
-    -e 's|^mozilla/emSign_ECC_Root_CA_-_G3.crt|!&|' \
-    -e 's|^mozilla/Comodo_AAA_Services_root.crt|!&|' \
-    /etc/ca-certificates.conf && update-ca-certificates
-
 # ------------------------------------------------------------------------------
 # gcloud
 # ------------------------------------------------------------------------------
@@ -86,21 +80,21 @@ RUN --mount=type=cache,target=/var/cache/apt/archives,id=apt-archives-${TARGETAR
 # ------------------------------------------------------------------------------
 # Python Tools (uv など)
 # ------------------------------------------------------------------------------
-ENV UV_VERSION=0.13.6
+ENV UV_VERSION=0.13.7
 RUN curl -LsSf "https://astral.sh/uv/${UV_VERSION}/install.sh" | sh \
     && /root/.local/bin/uv --version | grep -q "${UV_VERSION}"
 ENV PATH=/root/.local/bin:$PATH \
-    CHECKOV_VERSION=3.4.0
+    CHECKOV_VERSION=3.4.4
 
 RUN uv tool install "checkov==${CHECKOV_VERSION}"
 
 # ------------------------------------------------------------------------------
 # Node.js Tools (pnpm, rulesync など)
 # ------------------------------------------------------------------------------
-ENV NPM_VERSION=12.2.1 \
-    NODE_VERSION=26.13.0 \
-    PNPM_VERSION=12.16.1 \
-    RULESYNC_VERSION=43.3.0
+ENV NPM_VERSION=12.2.2 \
+    NODE_VERSION=26.13.1 \
+    PNPM_VERSION=12.18.0 \
+    RULESYNC_VERSION=43.8.0
 
 RUN curl -fsSL https://deb.nodesource.com/setup_current.x | bash - \
     && apt-get install -y --no-install-recommends "nodejs=${NODE_VERSION}-1nodesource1"
@@ -136,8 +130,8 @@ RUN --mount=type=cache,target=/var/cache/apt/archives,id=apt-archives-${TARGETAR
 # postCreateCommand で「pnpm exec playwright install chromium --no-shell」を
 # 実行してプロジェクト側の revision にインストールすること。
 # Playwright MCP（.mcp.json）は別バージョンのため npx が自動解決する。
-ENV PLAYWRIGHT_BROWSERS_VERSION=1.64.1 \
-    PLAYWRIGHT_CLI_VERSION=0.1.22 \
+ENV PLAYWRIGHT_BROWSERS_VERSION=1.65.0 \
+    PLAYWRIGHT_CLI_VERSION=0.1.24 \
     PLAYWRIGHT_BROWSERS_PATH=/root/.cache/ms-playwright
 
 # /usr/local/bin/chrome: chromium (full build) 実体への symlink。

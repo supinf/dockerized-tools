@@ -3,8 +3,8 @@
 # ==============================================================================
 # Global Arguments
 # ==============================================================================
-ARG GO_VERSION=1.27.3
-ARG DEBIAN_VERSION=trixie-20261027
+ARG GO_VERSION=1.27.4
+ARG DEBIAN_VERSION=trixie-20261104
 
 # ==============================================================================
 # Stage 0: Go SDK (Target Architecture)
@@ -35,7 +35,7 @@ ENV GOPLS_VERSION=v0.24.0 \
     PROTOC_GEN_GO_GRPC_VERSION=v1.6.2 \
     PROTOC_GEN_CONNECT_GO_VERSION=v1.21.1 \
     GRPC_GATEWAY_VERSION=v2.33.0 \
-    OAPI_VERSION=v2.8.1 \
+    OAPI_VERSION=v2.8.2 \
     GOLANGCI_LINT_VERSION=v2.15.0 \
     CONFTEST_VERSION=v0.71.1 \
     D2_VERSION=v0.9.0
@@ -113,12 +113,6 @@ RUN --mount=type=cache,target=/var/cache/apt/archives,id=apt-archives-${TARGETAR
     && localedef -f UTF-8 -i ja_JP ja_JP.UTF-8 \
     && rm -rf /var/lib/apt/lists/*
 
-# eMudhra Intermediate CA Compromise 対応: Debian の ca-certificates 修正反映までの暫定措置
-RUN sed -i \
-    -e 's|^mozilla/emSign_ECC_Root_CA_-_G3.crt|!&|' \
-    -e 's|^mozilla/Comodo_AAA_Services_root.crt|!&|' \
-    /etc/ca-certificates.conf && update-ca-certificates
-
 # ------------------------------------------------------------------------------
 # Flyway
 # ------------------------------------------------------------------------------
@@ -136,8 +130,8 @@ RUN curl -L -o flyway.tar.gz https://repo1.maven.org/maven2/org/flywaydb/flyway-
 # ------------------------------------------------------------------------------
 # OpenAPI Generator
 # ------------------------------------------------------------------------------
-ENV OPENAPI_GENERATOR_VERSION=7.26.0 \
-    OPENAPI_GENERATOR_SHA1=b96b148fcf482808037f68fbad99cb4d7e65d40b
+ENV OPENAPI_GENERATOR_VERSION=7.27.0 \
+    OPENAPI_GENERATOR_SHA1=1c5eb64ca278d5b018342b15594353a6569fbc9a
 
 RUN mkdir -p /opt/openapi-generator \
     && curl -fsSL "https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/${OPENAPI_GENERATOR_VERSION}/openapi-generator-cli-${OPENAPI_GENERATOR_VERSION}.jar" -o /opt/openapi-generator/openapi-generator-cli.jar \
@@ -176,21 +170,21 @@ RUN --mount=type=cache,target=/var/cache/apt/archives,id=apt-archives-${TARGETAR
 # ------------------------------------------------------------------------------
 # Python Tools (uv など)
 # ------------------------------------------------------------------------------
-ENV UV_VERSION=0.13.6
+ENV UV_VERSION=0.13.7
 RUN curl -LsSf "https://astral.sh/uv/${UV_VERSION}/install.sh" | sh \
     && /root/.local/bin/uv --version | grep -q "${UV_VERSION}"
 ENV PATH=/root/.local/bin:$PATH \
-    CHECKOV_VERSION=3.4.0
+    CHECKOV_VERSION=3.4.4
 
 RUN uv tool install "checkov==${CHECKOV_VERSION}"
 
 # ------------------------------------------------------------------------------
 # Node.js Tools (pnpm, rulesync など)
 # ------------------------------------------------------------------------------
-ENV NPM_VERSION=12.2.1 \
-    NODE_VERSION=26.13.0 \
-    PNPM_VERSION=12.16.1 \
-    RULESYNC_VERSION=43.3.0
+ENV NPM_VERSION=12.2.2 \
+    NODE_VERSION=26.13.1 \
+    PNPM_VERSION=12.18.0 \
+    RULESYNC_VERSION=43.8.0
 
 RUN curl -fsSL https://deb.nodesource.com/setup_current.x | bash - \
     && apt-get install -y --no-install-recommends "nodejs=${NODE_VERSION}-1nodesource1"
@@ -226,8 +220,8 @@ RUN --mount=type=cache,target=/var/cache/apt/archives,id=apt-archives-${TARGETAR
 # postCreateCommand で「pnpm exec playwright install chromium --no-shell」を
 # 実行してプロジェクト側の revision にインストールすること。
 # Playwright MCP（.mcp.json）は別バージョンのため npx が自動解決する。
-ENV PLAYWRIGHT_BROWSERS_VERSION=1.64.1 \
-    PLAYWRIGHT_CLI_VERSION=0.1.22 \
+ENV PLAYWRIGHT_BROWSERS_VERSION=1.65.0 \
+    PLAYWRIGHT_CLI_VERSION=0.1.24 \
     PLAYWRIGHT_BROWSERS_PATH=/root/.cache/ms-playwright
 
 # /usr/local/bin/chrome: chromium (full build) 実体への symlink。
@@ -288,11 +282,11 @@ RUN case ${TARGETARCH} in \
 ENV GOOGLE_CLOUD_LOCATION=global \
     GOOGLE_GENAI_USE_VERTEXAI=true \
     ADK_SUPPRESS_GEMINI_LITELLM_WARNINGS=true \
-    ANTIGRAVITY_VERSION=1.4.10 \
-    ANTIGRAVITY_AMD64_URL=https://storage.googleapis.com/antigravity-public/antigravity-cli/1.4.10-5501573669978112/linux-x64/cli_linux_x64.tar.gz \
-    ANTIGRAVITY_AMD64_SHA512=3a14c21697e86349ce8402e0b1889cbd1d3a5f4e2cb4dc43aae1c48c404240c2ccff9f775eec277e1f759234a33ec026645c63ed22ab6f6ebede561eda7c38b6 \
-    ANTIGRAVITY_ARM64_URL=https://storage.googleapis.com/antigravity-public/antigravity-cli/1.4.10-5501573669978112/linux-arm/cli_linux_arm64.tar.gz \
-    ANTIGRAVITY_ARM64_SHA512=0182c23882b174c6f2968ad88de43262692ec363a938031319131551dab41cc6aca573d28d264095db357e49881a211114afe9f974386ed37208760f401ba98c
+    ANTIGRAVITY_VERSION=1.5.6 \
+    ANTIGRAVITY_AMD64_URL=https://storage.googleapis.com/antigravity-public/antigravity-cli/1.5.6-6212266538958848/linux-x64/cli_linux_x64.tar.gz \
+    ANTIGRAVITY_AMD64_SHA512=0c67824908caf9cc3156699802b8097f2fd02c4608ae9293c9aa7f17e1bcd342c4b9c2e158388253a37804ef6bd9c6b1d25cfaca3c07bbb7587378fc91839bb4 \
+    ANTIGRAVITY_ARM64_URL=https://storage.googleapis.com/antigravity-public/antigravity-cli/1.5.6-6212266538958848/linux-arm/cli_linux_arm64.tar.gz \
+    ANTIGRAVITY_ARM64_SHA512=ed103a9e2f10d99eaf2988d2ace55ffffa08b6f9d3b2297459dc42617dfa2386ed984b1231efda4d93279a1deaab9a7e51b85ed06938527870aaec21bba27254
 
 RUN case ${TARGETARCH} in \
          "amd64") AGY_URL="${ANTIGRAVITY_AMD64_URL}"; AGY_SHA512="${ANTIGRAVITY_AMD64_SHA512}" ;; \
@@ -373,7 +367,7 @@ RUN case ${TARGETARCH} in \
 # ------------------------------------------------------------------------------
 # mermaid-cli (puppeteer 経由) は PUPPETEER_EXECUTABLE_PATH を、
 # marp-cli (puppeteer-core + 独自 chrome-launcher) は CHROME_PATH を参照。
-ENV MERMAID_CLI_VERSION=12.0.0 \
+ENV MERMAID_CLI_VERSION=12.2.0 \
     MARP_CLI_VERSION=4.5.1 \
     PUPPETEER_SKIP_DOWNLOAD=true \
     PUPPETEER_EXECUTABLE_PATH=/usr/local/bin/chrome \
